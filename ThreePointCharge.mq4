@@ -9,7 +9,7 @@
 #property strict
 
 #include <Custom/ExpertAdvisorTradeHelper.mqh>
-#include <Custom/TradeQuantityCalc.mqh>
+#include <Custom/TradeQuantityHelper.mqh>
 
 input int MagicNumber = 11180001; //マジックナンバー 他のEAと当らない値を使用する。
 input double SpreadFilter = 2;    //最大スプレット値(PIPS)
@@ -17,15 +17,14 @@ input double SpreadFilter = 2;    //最大スプレット値(PIPS)
 extern int MaxPosition = 1;        //最大ポジション数
 extern double RiskPercent = 2.0;
 
-input double Lot = 0.5;          //売買ロット
-input uint StopLoss = 200;        //ストップロス
+input double Slippage = 10;      //許容スリッピング（Pips単位）
 input uint TakeProfit = 200;      //利益確定
 
 
 // トレード補助クラス
 ExpertAdvisorTradeHelper OrderHelper(Symbol(), MagicNumber, MaxPosition, SpreadFilter);
 // 取引数調整クラス
-TradeQuantityCalc LotHelper(Symbol(), PERIOD_M15, 15, 0, MODE_EMA, PRICE_CLOSE, 2, AccountBalance(), RiskPercent);
+TradeQuantityHelper LotHelper(Symbol(), PERIOD_M15, 15, 0, MODE_EMA, PRICE_CLOSE, 2, AccountBalance(), RiskPercent);
 
 int counter = 0;
 bool isBuy = true;
@@ -85,11 +84,10 @@ void OnTick()
         {
             if (macd > macdSignal && macdDelay < macdSignaDelay)
             {
-                //売買ロットと損切り幅を計算
-                double lot = LotHelper.CalculatLotSizeRiskPercent()
-                double  LotHelper.GetLossRenge()
+                double lossSize = LotHelper.GetSdLossRenge();
+                double lotSize = LotHelper.GetSdLotSize(lossSize);
                 int orderCmd = OP_BUY;
-                TradeHelper.SendOrder(orderCmd, lot, 0, Slippage, StopLoss, TakeProfit );
+                TradeHelper.SendOrder(orderCmd, lotSize, 0, Slippage, lossSize, TakeProfit );
             }
         }
     }
