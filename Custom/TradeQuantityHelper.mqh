@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
-//|                                            TradeQuantityCalc.mqh |
-//| TradeQuantityCalc v1.0.0                  Copyright 2017, Lukkou |
+//|                                          TradeQuantityHelper.mqh |
+//| TradeQuantityHelper v1.0.0                Copyright 2017, Lukkou |
 //|                              https://twitter.com/lukkou_position |
 //+------------------------------------------------------------------+
 
@@ -12,13 +12,11 @@
 
 //------------------------------------------------------------------
 // トレード時のロット数、標準偏差を基準にした損切り幅を計算
-class TradeQuantityCalc{
+class TradeQuantityHelper
+{
 private:
     //計算通貨ペア
     string _symbol;
-
-    // マジックナンバー
-    int _magicNumber;
 
     //確認時間(5分足、1時間足など…)
     int _timeFrame;
@@ -33,16 +31,13 @@ private:
     int _maType;
 
     //価格データの種類(高値、終値など)
-    int _appliedPrice
+    int _appliedPrice;
 
     //移動平均線の標準偏差の値を取得したいバーの位置
     int _shift;
 
     //シグマ値
     int _sigma;
-
-    //資金
-    double _funds;
 
     //リスク率(%)
     double _riskPercent;
@@ -51,7 +46,6 @@ public:
     //------------------------------------------------------------------
     // コンストラクタ
     ///param name="symbol":対象通貨ペア
-    ///param name="magicNumber":マジックナンバー
     ///param name="timeFrame":確認時間
     ///param name="maPeriod":採用移動平均線の期間
     ///param name="maShift":移動平均線の標準偏差の表示をずらすバーの個数
@@ -59,11 +53,9 @@ public:
     ///param name="appliedPrice":価格データの種類
     ///param name="shift":移動平均線の標準偏差の値を取得したいバーの位置
     ///param name="sigma":σ値
-    ///param name="funds":資金
     ///param name="riskPercent":リスク率(%)
-    TradeQuantityCalc(
+    TradeQuantityHelper(
         string symbol,
-        int magicNumber,
         int timeFrame,
         int maPeriod,
         int maShift,
@@ -71,13 +63,12 @@ public:
         int appliedPrice,
         int shift,
         int sigma,
-        double funds,
-        double riskPercent,
+        double riskPercent
     );
 
     //------------------------------------------------------------------
     // デストラクタ
-    ~TradeQuantityCalc();
+    ~TradeQuantityHelper();
 
     //------------------------------------------------------------------
     // 1pips当たりの価格単位を取得
@@ -90,9 +81,17 @@ public:
     //------------------------------------------------------------------
     // 標準偏差に基づく変動損切り幅を取得
     // Return   変動損切り幅値
-    double GetLossRenge()
+    double GetSdLossRenge()
     {
         return CalculatLossRenge();
+    };
+
+    //------------------------------------------------------------------
+    // 標準偏差に基づく売買ロット数を取得
+    // Return   変動損切り幅値
+    double GetSdLotSize(double range)
+    {
+        return CalculatSdLotSize(range);
     };
 
     //------------------------------------------------------------------
@@ -109,8 +108,12 @@ private:
     double CalculatUnitPerPips();
 
     //------------------------------------------------------------------
-    // 損切り幅を計算
+    // 標準偏差に基づく変動損切り幅を計算
     double CalculatLossRenge();
+
+    //------------------------------------------------------------------
+    // 標準偏差に基づく売買ロット数を計算
+    double CalculatSdLotSize(double range);
 
     //------------------------------------------------------------------
     // ロット数を計算
@@ -120,7 +123,6 @@ private:
 //------------------------------------------------------------------
 // コンストラクタ
 ///param name="symbol":対象通貨ペア
-///param name="magicNumber":マジックナンバー
 ///param name="timeFrame":確認時間
 ///param name="maPeriod":採用移動平均線の期間
 ///param name="maShift":移動平均線の標準偏差の表示をずらすバーの個数
@@ -128,11 +130,9 @@ private:
 ///param name="appliedPrice":価格データの種類
 ///param name="shift":移動平均線の標準偏差の値を取得したいバーの位置
 ///param name="sigma":σ値
-///param name="funds":資金
 ///param name="riskPercent":リスク率(%)
-TradeQuantityCalc::TradeQuantityCalc(
+TradeQuantityHelper::TradeQuantityHelper(
         string symbol,
-        int magicNumber,
         int timeFrame,
         int maPeriod,
         int maShift,
@@ -140,12 +140,10 @@ TradeQuantityCalc::TradeQuantityCalc(
         int appliedPrice,
         int shift,
         int sigma,
-        double funds,
-        double riskPercent,
+        double riskPercent
     )
 {
     _symbol = symbol;
-    _magicNumber = magicNumber;
     _timeFrame = timeFrame;
     _maPeriod = maPeriod;
     _maShift = maShift;
@@ -153,19 +151,18 @@ TradeQuantityCalc::TradeQuantityCalc(
     _appliedPrice = appliedPrice;
     _shift = shift;
     _sigma = sigma;
-    _funds = funds;
     _riskPercent = riskPercent;
 }
 
 //------------------------------------------------------------------
 // デストラクタ
-StandardDeviationLossCalc::~StandardDeviationLossCalc()
+TradeQuantityHelper::~TradeQuantityHelper()
 {
 }
 
 //------------------------------------------------------------------
 // 1pips当たりの価格単位を計算
-double CalculatUnitPerPips()
+double TradeQuantityHelper::CalculatUnitPerPips()
 {
     //通貨ペアに対する小数点数を取得
     double digits = MarketInfo(_symbol, MODE_DIGITS);
@@ -195,15 +192,24 @@ double CalculatUnitPerPips()
 
 //------------------------------------------------------------------
 // 損切り幅を計算
-///return 標準偏差に基づく変動損切り幅0
-double CalculatLossRenge()
+///return 標準偏差に基づく変動損切り幅
+double TradeQuantityHelper::CalculatLossRenge()
 {
     // 標準偏差
     double sd = iStdDev(_symbol,_timeFrame,_maPeriod,_maShift,_maType,_appliedPrice,1);
-    //標準返済に基づく変動損切り幅
-    double sdRange = NormalizeDouble(_sigma * sd,MarketInfo(_symbol,MODE_DIGITS));
 
-    double lotSize = CalculatLotSizeRiskPercent(sdRange / CalculatUnitPerPips());
+    //標準返済に基づく変動損切り幅
+    double sdRange = NormalizeDouble(_sigma * sd,(int)MarketInfo(_symbol,MODE_DIGITS));
+
+    return sdRange;
+}
+
+//------------------------------------------------------------------
+// 損切り幅を計算
+///return 標準偏差に基づく売買ロットサイズ
+double TradeQuantityHelper::CalculatSdLotSize(double range)
+{
+    double lotSize = CalculatLotSizeRiskPercent(range / CalculatUnitPerPips());
 
     return lotSize;
 }
@@ -212,7 +218,7 @@ double CalculatLossRenge()
 // Lotサイズを計算
 ///param name="pips":損切り値（pips）
 ///return ロット数(ポジれない場合は-1)
-double CalculatLotSizeRiskPercent(double pips)
+double TradeQuantityHelper::CalculatLotSizeRiskPercent(double pips)
 {
     //取引対象の通貨を１ロット売買した場合の１ポイント当たりの変動額
     double tickValue = MarketInfo(_symbol,MODE_TICKVALUE);
@@ -224,8 +230,8 @@ double CalculatLotSizeRiskPercent(double pips)
     }
 
     //資金からのリスク量を計算
-    double riskAmount = _funds * (_riskPercent / 100);
-    double lotSize = riskAmount / (pips * tickValue)
+    double riskAmount = AccountBalance() * (_riskPercent / 100);
+    double lotSize = riskAmount / (pips * tickValue);
     double lotStep = MarketInfo(_symbol, MODE_LOTSTEP);
 
     // ロットステップ単位未満は切り捨て
@@ -238,7 +244,7 @@ double CalculatLotSizeRiskPercent(double pips)
 
     if (margin > 0.0)
     {
-        double accountMax = _funds / margin;
+        double accountMax = AccountBalance() / margin;
         accountMax = MathFloor(accountMax / lotStep) * lotStep;
 
         if (lotSize > accountMax)

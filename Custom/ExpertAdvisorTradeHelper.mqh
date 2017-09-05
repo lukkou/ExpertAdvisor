@@ -261,7 +261,7 @@ private:
 ///param name="defualtComment":デフォルトコメント
 ExpertAdvisorTradeHelper::ExpertAdvisorTradeHelper(
     string symbol,
-    int magicNumber = 0
+    int magicNumber = 0,
     int maxPosition = 3,
     double spreadFilter = 5,
     uint timeout = 1000,
