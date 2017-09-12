@@ -10,6 +10,7 @@
 
 #include <Custom/ExpertAdvisorTradeHelper.mqh>
 #include <Custom/TradeQuantityHelper.mqh>
+#include <Custom/TwitterHelper.mqh>
 
 input int MagicNumber = 11180001; //マジックナンバー 他のEAと当らない値を使用する。
 input double SpreadFilter = 2;    //最大スプレット値(PIPS)
@@ -19,12 +20,15 @@ extern double RiskPercent = 2.0;
 
 input double Slippage = 10;      //許容スリッピング（Pips単位）
 input uint TakeProfit = 200;      //利益確定
+input string TweetCmdPash = "C:\\PROGRA~2\\dentakurou\\Tweet\\Tweet.exe";
 
 
 // トレード補助クラス
 ExpertAdvisorTradeHelper OrderHelper(Symbol(), MagicNumber, MaxPosition, SpreadFilter);
 // 取引数調整クラス
 TradeQuantityHelper LotHelper(Symbol(), PERIOD_M15, 15, 0, MODE_EMA, PRICE_CLOSE, 2, AccountBalance(), RiskPercent);
+//Tweetクラス
+TwitterHelper TweetHelper(TweetCmdPash);
 
 int counter = 0;
 bool isBuy = true;
@@ -34,6 +38,7 @@ bool isBuy = true;
 int OnInit()
 {
     PrintFormat("ThreePointCharge Load");
+    TweetHelper.ExecTweet(Symbol(),"BUY","105.12",TimeToStr(TimeLocal(),TIME_DATE|TIME_SECONDS));
     return(INIT_SUCCEEDED);
 }
 //+------------------------------------------------------------------+
@@ -54,7 +59,7 @@ void OnTick()
     PrintFormat("ThreePointCharge Move" + TimeCurrent());
    
     //買いポジションが存在するか確認
-    bool hasPosition = ( TradeHelper.GetPositionCount() > 0 );
+    bool hasPosition = ( OrderHelper.GetPositionCount() > 0 );
    
     //macdデータ取得
     double macd = iMACD(NULL, PERIOD_M15, 12, 26, 9, PRICE_CLOSE, 0, 0);
@@ -74,7 +79,7 @@ void OnTick()
         //ポジションが存在する場合クローズするか確認
         if(macd < macdSignal && macdDelay >= macdSignaDelay){
             // ポジションを保持していれば決済する
-            TradeHelper.CloseOrder(0, Slippage );
+            OrderHelper.CloseOrder(0, Slippage );
         }
     }
     else
@@ -87,7 +92,7 @@ void OnTick()
                 double lossSize = LotHelper.GetSdLossRenge();
                 double lotSize = LotHelper.GetSdLotSize(lossSize);
                 int orderCmd = OP_BUY;
-                TradeHelper.SendOrder(orderCmd, lotSize, 0, Slippage, lossSize, TakeProfit );
+                OrderHelper.SendOrder(orderCmd, lotSize, 0, Slippage, lossSize, TakeProfit );
             }
         }
     }

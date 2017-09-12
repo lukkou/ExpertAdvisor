@@ -36,7 +36,7 @@ private:
     string m_symbol;
    
     // 保有ポジション
-    CArrayInt m_positions ;
+    CArrayInt m_positions;
    
     // タイムアウト値
     uint m_timeout;
@@ -52,6 +52,7 @@ private:
    
     // カウントダウン方式の場合true
     bool m_isCountdown;
+    
 public:
     //------------------------------------------------------------------
     // コンストラクタ
@@ -242,7 +243,6 @@ public:
     void RefreshPositions();
    
 private:
-
     //------------------------------------------------------------------
     // 設定パラメータが安全かどうか
     // Return 安全ture それ以外false
