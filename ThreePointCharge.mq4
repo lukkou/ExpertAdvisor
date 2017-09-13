@@ -30,8 +30,6 @@ TradeQuantityHelper LotHelper(Symbol(), PERIOD_M15, 15, 0, MODE_EMA, PRICE_CLOSE
 //Tweetクラス
 TwitterHelper TweetHelper(TweetCmdPash);
 
-int counter = 0;
-bool isBuy = true;
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
@@ -85,7 +83,7 @@ void OnTick()
     else
     {
         //エントリーシグナルを確認
-        if (plusDi > minusDi && plusDi > 20 && rsi >= 50)
+        if (plusDi > minusDi && plusDi > 20 && rsi >= 70)
         {
             if (macd > macdSignal && macdDelay < macdSignaDelay)
             {
