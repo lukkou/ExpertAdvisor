@@ -57,7 +57,7 @@ void OnTick()
     PrintFormat("ThreePointCharge Move" + TimeCurrent());
    
     //買いポジションが存在するか確認
-    bool hasPosition = ( OrderHelper.GetPositionCount() > 0 );
+    bool hasPosition = (OrderHelper.GetPositionCount() > 0 );
    
     //macdデータ取得
     double macd = iMACD(NULL, PERIOD_M15, 12, 26, 9, PRICE_CLOSE, 0, 0);
