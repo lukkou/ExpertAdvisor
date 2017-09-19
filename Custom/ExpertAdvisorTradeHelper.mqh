@@ -15,8 +15,6 @@
 #include <stdlib.mqh>
 #include <stderror.mqh>
 
-//------------------------------------------------------------------
-// 注文関係ラッパークラス
 class ExpertAdvisorTradeHelper
 {
 private:
