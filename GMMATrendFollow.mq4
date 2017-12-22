@@ -44,8 +44,13 @@ void OnDeinit(const int reason){
 //| Expert tick function                                             |
 //+------------------------------------------------------------------+
 void OnTick(){
+    string GMMAINDEX = "GMMAIndex";
+    string TEMA = "TEMA";
+    string RCI3LINE = "RCI_3Line_v130";
+
     PrintFormat(TimeLocal() + ":GMMATrendFollow Move");
 
+    //同通貨のポジションがあるかのチェック
     bool hasPosition = (OrderHelper.GetPositionCount() > 0);
     if(hasPosition){
         for(int i = 0; OrderHelper.GetPositionCount() - 1; i++){
@@ -53,5 +58,19 @@ void OnTick(){
         }
     }
 
+    //同通貨がある場合4hトレンド無し中のポジションの場合のみ
+    //同方向へポジションを取る　それ以外はなにもしない
 
+
+    //4hのトレンド発生の確認
+    double 4hGmmaWidth_0 = iCustom(NULL,PERIOD_H4,GMMAWIDTH,);
+
+}
+
+double GetGmmaWidth(int time,int mode,int shift){
+    string GMMAWIDTH = "GMMAWidth"; 
+    double result = 0;
+
+
+    return result;
 }
