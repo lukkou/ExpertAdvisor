@@ -15,6 +15,7 @@
 
 #include <Custom/ExpertAdvisorTradeHelper.mqh>
 #include <Custom/TradeQuantityHelper.mqh>
+#include <Custom/CandleStickHelper.mqh>
 #include <Custom/TwitterHelper.mqh>
 
 input int MagicNumber = 11180002;   //マジックナンバー 他のEAと当らない値を使用する。
@@ -24,6 +25,9 @@ input double RiskPercent = 2.0;     //資金に対する最大リスク％
 input double Slippage = 10;         //許容スリッピング（Pips単位）
 input uint TakeProfit = 200;        //利益確定
 input string TweetCmdPash = "C:\\PROGRA~2\\dentakurou\\Tweet\\Tweet.exe";       //自動投稿exeパス
+
+CandleStickHelper　CandleStickHelper();
+TwitterHelper TweetHelper(TweetCmdPash);
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -44,10 +48,6 @@ void OnDeinit(const int reason){
 //| Expert tick function                                             |
 //+------------------------------------------------------------------+
 void OnTick(){
-    string GMMAINDEX = "GMMAIndex";
-    string TEMA = "TEMA";
-    string RCI3LINE = "RCI_3Line_v130";
-
     PrintFormat(TimeLocal() + ":GMMATrendFollow Move");
 
     //同通貨のポジションがあるかのチェック
@@ -58,19 +58,163 @@ void OnTick(){
         }
     }
 
-    //同通貨がある場合4hトレンド無し中のポジションの場合のみ
+    //同通貨のポジションがある場合4hトレンド無し中のポジションの場合のみ
     //同方向へポジションを取る　それ以外はなにもしない
 
 
     //4hのトレンド発生の確認
-    double 4hGmmaWidth_0 = iCustom(NULL,PERIOD_H4,GMMAWIDTH,);
+    double 4hGmmaWidthUp_0 = GetGmmaWidth(PERIOD_H4,1,0);
+    double 4hGmmaWidthDown_0 = GetGmmaWidth(PERIOD_H4,2,0);
+    double 4hGmmaWidthUp_1 = GetGmmaWidth(PERIOD_H4,1,1);
+    double 4hGmmaWidthDown_1 = GetGmmaWidth(PERIOD_H4,2,1);
+
+    if(4hGmmaWidthUp_1 == 0　&& 4hGmmaWidthDown_1 == 0){
+        //1Tick前(4h)がトレンド無しの場合
+        if(4hGmmaWidthUp_0 == 0 && 4hGmmaWidthDown_0 == 0){
+            //NowTick(4H)がトレンド無しの場合
+
+
+        }else{
+            //NowTick(4H)がトレンド有りの場合
+            int trend = 0;
+
+            if(4hGmmaWidthUp_0 == 0 && 4hGmmaWidthDown_0 < 0){
+                trend = 1;
+            }
+
+
+        }
+    }else{
+        //1Tick前(4h)がトレンド有りの場合
+        if(4hGmmaWidthUp_0 > 0 && 4hGmmaWidthDown_0 == 0){
+            //NowTickは上トレンド
+
+
+        }else if(4hGmmaWidthUp_0 == 0 && 4hGmmaWidthDown_0 < 0){
+            //NowTickは下トレンド
+
+
+        }
+    }
 
 }
 
+//------------------------------------------------------------------
+// 上トレンドが継続中の場合の売買判定のチェック
+/// Return   売買判断(0 = NoTrade, 1 = Bull, 2 = Bear)
+bool IsUpTrendFollow(){
+    int result = 0;
+
+    return result;
+}
+
+//------------------------------------------------------------------
+// 下トレンドが継続中の場合の売買判定のチェック
+/// Return   売買判断(0 = NoTrade, 1 = Bull, 2 = Bear)
+bool IsDownTrendFollow(){
+    int result = 0;
+
+    return result;
+}
+
+//------------------------------------------------------------------
+// 新たにトレンドが発生した場合の売買判定のチェック
+///param name="nowTrend":取得するTick(0 = UpTrend, 1 = DownTrend)
+/// Return   売買判断(0 = NoTrade, 1 = Bull, 2 = Bear)
+bool IsNewTrendFollow(int nowTrend){
+    int result = 0;
+    bool checkResult[5] = {false,false,false};
+
+    if(nowTrend = 0){
+        //UpTrend
+        if(GetGmmaIndex(PERIOD_H4,1,0) == 5){
+            checkResult[0] = true;
+        }
+
+        if(GetGmmaIndex(PERIOD_H4,2,0) => -4 ){
+            checkResult[1] = true;
+        }
+
+        if(CandleStickHelper.IsCandleStickStar(PERIOD_H4,1) == true){
+            checkResult[2] = true;
+        }
+
+        
+    }else{
+        //DownTrend
+
+    }
+
+    return result;
+}
+
+//------------------------------------------------------------------
+// トレンドが無い場合の売買判定のチェック
+/// Return   売買判断(0 = NoTrade, 1 = Bull, 2 = Bear)
+bool IsNoTrend(){
+    int result = 0;
+
+    return result;
+}
+
+
+
+//------------------------------------------------------------------
+// GMMAWidthの値を取得する
+///param name="time":取得時間
+///param name="mode":取得する値(1 = Up, 2 = Down ,3 = ShortWidth ,4 = LongWidth)
+///param name="shift":取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)
+/// Return   GMMAWidth値
 double GetGmmaWidth(int time,int mode,int shift){
-    string GMMAWIDTH = "GMMAWidth"; 
+    string indicatorName = "GMMA Width"; 
     double result = 0;
 
+    result = iCustom(NULL,time,indicatorName,mode,shift);
+
+    return result;
+}
+
+//------------------------------------------------------------------
+// GmmaIndexの値を取得する
+///param name="time":取得時間
+///param name="mode":取得する値(1 = ShortIndex, 2 = LongIndex)
+///param name="shift":取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)
+/// Return   GmmaIndex値
+double GetGmmaIndex(int time, int mode, int shift){
+    string indicatorName = "GMMA Index"; 
+    double result = 0;
+
+    result = iCustom(NULL,time,indicatorName,mode,shift);
+
+    return result;
+}
+
+//------------------------------------------------------------------
+// 3RCIの値を取得する
+///param name="time":取得時間
+///param name="mode":取得する値(1 = ShortRci, 2 = MiddleRci, 3 = LongRci)
+///param name="shift":取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)
+/// Return   3RCI値
+double GetThreeRciLine(int time, int mode, int shift){
+    string indicatorName = "RCI 3line"; 
+    double result = 0;
+
+    result = iCustom(NULL,time,indicatorName,mode,shift);
+
+    return result;
+}
+
+//------------------------------------------------------------------
+// TEMAの値を取得する
+///param name="time":取得時間
+///param name="mode":取得する値(1 = TemaUp, 2 = TemaDown, 3 = Ema1, 4 = Ema2, 5 = Ema3)
+///param name="shift":取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)
+/// Return   TEMA値
+double GetTripleEma(int time, int mode, int shift){
+    string indicatorName = "TEMA"; 
+    double result = 0;
+
+    result = iCustom(NULL,time,indicatorName,mode,shift);
 
     return result;
 }

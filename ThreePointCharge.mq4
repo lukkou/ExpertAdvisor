@@ -33,8 +33,7 @@ TwitterHelper TweetHelper(TweetCmdPash);
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
-int OnInit()
-{
+int OnInit(){
     PrintFormat("ThreePointCharge Load");
     TweetHelper.ExecTweet(Symbol(),"BUY","105.12",TimeToStr(TimeLocal(),TIME_DATE|TIME_SECONDS));
     return(INIT_SUCCEEDED);
@@ -42,15 +41,13 @@ int OnInit()
 //+------------------------------------------------------------------+
 //| Expert deinitialization function                                 |
 //+------------------------------------------------------------------+
-void OnDeinit(const int reason)
-{
+void OnDeinit(const int reason){
     PrintFormat("ThreePointCharge End");
 }
 //+------------------------------------------------------------------+
 //| Expert tick function                                             |
 //+------------------------------------------------------------------+
-void OnTick()
-{
+void OnTick(){
     //MACDとRSIとADXの三点チャージのEA
     //エントリー  ：ADX +DI>-DIかつRSI14が70以上の場合でMACDシグナルのゴールデンクロス
     //クローズ   ：MACDがデットクロス
@@ -72,21 +69,17 @@ void OnTick()
     //rsi情報取得
     double rsi = iRSI(NULL, PERIOD_M15 , 14, PRICE_CLOSE , 0);
    
-    if(hasPosition)
-    {
+    if(hasPosition){
         //ポジションが存在する場合クローズするか確認
         if(macd < macdSignal && macdDelay >= macdSignaDelay){
             // ポジションを保持していれば決済する
             OrderHelper.CloseOrder(0, Slippage );
         }
     }
-    else
-    {
+    else{
         //エントリーシグナルを確認
-        if (plusDi > minusDi && plusDi > 20 && rsi >= 70)
-        {
-            if (macd > macdSignal && macdDelay < macdSignaDelay)
-            {
+        if (plusDi > minusDi && plusDi > 20 && rsi >= 70){
+            if (macd > macdSignal && macdDelay < macdSignaDelay){
                 double lossSize = LotHelper.GetSdLossRenge();
                 double lotSize = LotHelper.GetSdLotSize(lossSize);
                 int orderCmd = OP_BUY;
@@ -95,4 +88,3 @@ void OnTick()
         }
     }
 }
-//+------------------------------------------------------------------+
