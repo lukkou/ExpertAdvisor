@@ -3,10 +3,6 @@
 //| GMMATrendFollow v0.1            Copyright 2017, Lukkou_EA_Trader |
 //|                                   http://fxborg-labo.hateblo.jp/ |
 //+------------------------------------------------------------------+
-#property copyright " Copyright 2017, Lukkou_EA_Trader"
-#property link      "https://www.xxx"
-#property version   "1.00"
-#property strict
 
 #property copyright "Copyright 2017,  lukkou"
 #property link      "https://twitter.com/lukkou_position"
@@ -102,6 +98,15 @@ void OnTick(){
 //------------------------------------------------------------------
 // 上トレンドが継続中の場合の売買判定のチェック
 /// Return   売買判断(0 = NoTrade, 1 = Bull, 2 = Bear)
+void IsNoTrend(){
+    int result = 0;
+
+    return result;
+}
+
+//------------------------------------------------------------------
+// 上トレンドが継続中の場合の売買判定のチェック
+/// Return   売買判断(0 = NoTrade, 1 = Bull, 2 = Bear)
 bool IsUpTrendFollow(){
     int result = 0;
 
@@ -154,10 +159,41 @@ bool IsNewTrendFollow(int nowTrend){
 bool IsNoTrend(){
     int result = 0;
 
+    double 30ema = GetEma(PERIOD_H4,30,0);
+    double 35ema = GetEma(PERIOD_H4,35,0);
+    double 40ema = GetEma(PERIOD_H4,40,0);
+    double 45ema = GetEma(PERIOD_H4,45,0);
+    double 50ema = GetEma(PERIOD_H4,50,0);
+    double 60ema = GetEma(PERIOD_H4,60,0);
+
+    double maxEma = GetMaxEma(30ema,35ema,40ema,45ema,50ema,60ema);
+    double miniEma = GetMiniEma(30ema,35ema,40ema,45ema,50ema,60ema);
+
+    double open = iOpen(NULL,PERIOD_H4,0);
+    double close = iClose(NULL,PERIOD_H4,0);
+
+    if()(open < miniEma){
+        if(close > maxEma){
+            result = 1;
+        }
+    }else if(open > maxEma){
+        if(close < miniEma){
+            result = 2;
+        }
+    }
+
     return result;
 }
 
-
+//------------------------------------------------------------------
+/// EMAの値を取得する
+/// param name="time":取得時間(足の時間)
+/// param name="span":取得する平均の期間(5EMAなのか25EMAなのかなど)
+/// param name="shift":取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)
+/// Return   EMA値
+double GetEma(int time,int span, int shift){
+    return iMA(NULL,time,span,shift,MODE_EMA,PRICE_CLOSE);
+}
 
 //------------------------------------------------------------------
 // GMMAWidthの値を取得する
@@ -215,6 +251,64 @@ double GetTripleEma(int time, int mode, int shift){
     double result = 0;
 
     result = iCustom(NULL,time,indicatorName,mode,shift);
+
+    return result;
+}
+
+//------------------------------------------------------------------
+// GMMAのグループ(LongがShort)の中で最大値を取得
+///param name="e1":EMA
+///param name="e2":EMA
+///param name="e3":EMA
+///param name="e4":EMA
+///param name="e5":EMA
+///param name="e6":EMA
+/// Return   最大のEMA
+double GetMaxEma(double e1,double e2,double e3,double e4,double e5,double e6){
+    double result = 0;
+    double emaArray[6];
+    emaArray[0] = e1;
+    emaArray[1] = e2;
+    emaArray[2] = e3;
+    emaArray[3] = e4;
+    emaArray[4] = e5;
+    emaArray[5] = e6;
+
+    result =  emaArray[0];
+    for(int i = 0; i <= 5; i++){
+        if(result <= emaArray[i]){
+            result = emaArray[i];
+        }
+    }
+
+    return result;
+}
+
+//------------------------------------------------------------------
+// GMMAのグループ(LongがShort)の中で最小値を取得
+///param name="e1":EMA
+///param name="e2":EMA
+///param name="e3":EMA
+///param name="e4":EMA
+///param name="e5":EMA
+///param name="e6":EMA
+/// Return   最小のEMA
+double GetMiniEma(double e1,double e2,double e3,double e4,double e5,double e6){
+    double result = 0;
+    double emaArray[6];
+    emaArray[0] = e1;
+    emaArray[1] = e2;
+    emaArray[2] = e3;
+    emaArray[3] = e4;
+    emaArray[4] = e5;
+    emaArray[5] = e6;
+
+    result =  emaArray[0];
+    for(int i = 0; i <= 5; i++){
+        if(result => emaArray[i]){
+            result = emaArray[i];
+        }
+    }
 
     return result;
 }
