@@ -22,7 +22,7 @@ class CandleStickHelper{
 
     //------------------------------------------------------------------
     // ローソク足が陽線か陰線かチェックする
-    bool IsCandleBodyStyle(int time,int shift);
+    bool CandleBodyStyle(int time,int shift);
 
     //------------------------------------------------------------------
     // ローソク足が星かチェックする
@@ -44,7 +44,7 @@ class CandleStickHelper{
     ///param name="time":取得時間
     ///param name="shift":取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)
     /// Return   0 = 星 1 = 陽線 2 = 陰線
-    int CandleStickHelper::IsCandleBodyStyle(int time,int shift){
+    int CandleStickHelper::CandleBodyStyle(int time,int shift){
         int result = 0;
 
         double open = iOpen(NULL,time,shift);
