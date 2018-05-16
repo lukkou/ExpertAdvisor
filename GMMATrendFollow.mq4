@@ -57,8 +57,16 @@ void OnTick(){
     db.connect("localhost","StockManager","password","StockDatabase","3306");
 
     int rowCount = GetNoTradeTime();
-    bool importanceFlg = IsImportance();
+    if (rowCount != 0){
+        //指標発表30分前のためポジションを強制決済
+        int positionCount = OrderHelper.GetPositionCount();
+        if(positionCount != 0){
+             OrderHelper.CloseOrderAll(Slippage);
+        }
 
+        datetime announcementTime = 
+        return;
+    }
 
 
     bool hasPosition = (OrderHelper.GetPositionCount() > 0);
@@ -69,7 +77,8 @@ void OnTick(){
             closeOrder = true;
         }
 
-        //自身が上髭の場合
+        //買いの場合（4h前回終値を下回った場合）
+        //売りの場合（4h前回終値を下回った場合）
 
         //TEAMのトレンド転換の場合
 
@@ -247,7 +256,7 @@ int IsNoTrend(){
     double open = iOpen(NULL,PERIOD_H4,0);
     double close = iClose(NULL,PERIOD_H4,0);
 
-    if()(open < miniEma){
+    if(open < miniEma){
         if(close > maxEma){
             result = 1;
         }
@@ -399,14 +408,16 @@ int GetNoTradeTime(){
 
     string query = "";
     query = query + "select";
-    query = query + "  eventname,";
-    query = query + "  currencycode,";
-    query = query + "  importance";
+    query = query + "  * ";
     query = query + "from";
-    query = query + "  indexcalendars ";
+    query = query + "  IndexCalendars ";
     query = query + "where";
     query = query + "  myreleasedate between '"+ StringReplace(startTimeStr,".","-") + "' and '"+ StringReplace(endTime,".","-") + "'";
-    query = query + "  order by releasedategmt";
+    query = query + "  and importance = 'high' ";
+    query = query + "order by";
+    query = query + "  releasedategmt";
+    query = query + "  , guidkey  ";
+
 
     int result = db.read_rows(query);
     return result;
@@ -418,21 +429,6 @@ void GetHighIndexTime(int rowCount){
             
         }
     }
-}
-
-//------------------------------------------------------------------
-// 取得した指標の中に重要度（high）があるか確認
-/// Return   selectした行数
-bool IsImportance(int rowCount){
-    bool result = false;
-
-    for (int i=0; i < rowCount; i++) {
-        if((string) db.get("importance",i) == "high"){
-            result = true;
-        }
-    }
-
-    return result;
 }
 
 //------------------------------------------------------------------

@@ -205,7 +205,7 @@ public:
     double GetOrderLimitPips(int index);
 
     //------------------------------------------------------------------
-    // 指定番号のオープン価格を取得する。。
+    // 指定番号のオープン価格を取得する。
     // Return   オープン値
     double GetOrderOpen(int index);
    
