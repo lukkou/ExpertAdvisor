@@ -69,16 +69,3 @@ class TwitterHelper{
         }
         PrintFormat("E");
     }
-
-    //------------------------------------------------------------------
-    // 指標発表の時間をTwitterへ書き込み
-    TwitterHelper::ExecIndexTweet(string indexName,string time){
-        if (IsDllsAllowed()) {
-            string cmd = StringConcatenate("TWEET /I /D /T ",time,":",indexName,"が発表されるよ！！");
-
-            //Tweetする!!
-            ShellExecuteW(NULL,"open",_path,cmd,NULL,5);
-        }else{
-            PrintFormat(StringConcatenate(time,":Tweet fail."));
-        }
-    }
