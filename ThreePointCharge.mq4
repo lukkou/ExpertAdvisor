@@ -35,7 +35,7 @@ TwitterHelper TweetHelper(TweetCmdPash);
 //+------------------------------------------------------------------+
 int OnInit(){
     PrintFormat("ThreePointCharge Load");
-    TweetHelper.ExecTweet(Symbol(),"BUY","105.12",TimeToStr(TimeLocal(),TIME_DATE|TIME_SECONDS));
+    
     return(INIT_SUCCEEDED);
 }
 //+------------------------------------------------------------------+
@@ -72,7 +72,16 @@ void OnTick(){
     if(hasPosition){
         //ポジションが存在する場合クローズするか確認
         if(macd < macdSignal && macdDelay >= macdSignaDelay){
-            // ポジションを保持していれば決済する
+            int positionCount = LotHelper.GetPositionCount();
+            double orderProfit = LotHelper.GetOrderProfit(0)
+            double orderLimit = LotHelper.GetOrderLimit(0);
+
+            PrintFormat("決済時間：" + TimeCurrent());
+            PrintFormat("ポジション数：" + positionCount);
+            PrintFormat("利益：" + orderProfit);
+            PrintFormat("ポジション数：" + positionCount);
+
+            //ポジションを保持していれば決済する
             OrderHelper.CloseOrder(0, Slippage );
         }
     }
@@ -80,10 +89,19 @@ void OnTick(){
         //エントリーシグナルを確認
         if (plusDi > minusDi && plusDi > 20 && rsi >= 70){
             if (macd > macdSignal && macdDelay < macdSignaDelay){
-                double lossSize = LotHelper.GetSdLossRenge();
-                double lotSize = LotHelper.GetSdLotSize(lossSize);
+                double lossRenge = LotHelper.GetSdLossRenge();
+                double lotSize = LotHelper.GetSdLotSize(lossRenge);
+
+                double pLotSize = LotHelper:GetLotSize(lossRenge);
+
+                PrintFormat("ポジション時間：" + TimeCurrent());
+                PrintFormat("ロスカット値段：" + lossRenge);
+                PrintFormat("ロットサイズ：" + lotSize);
+                PrintFormat("%ロットサイズ：" + pLotSize);
+
                 int orderCmd = OP_BUY;
-                OrderHelper.SendOrder(orderCmd, lotSize, 0, Slippage, lossSize, TakeProfit );
+                OrderHelper.SendOrder(orderCmd, lotSize, 0, Slippage, lossRenge, TakeProfit );
+                //TweetHelper.ExecTradeTweet(Symbol(),"OP_BUY","105.12",TimeToStr(TimeLocal(),TIME_DATE|TIME_SECONDS));
             }
         }
     }
