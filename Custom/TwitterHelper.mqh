@@ -33,7 +33,7 @@ class TwitterHelper{
 
     //------------------------------------------------------------------
     // 指標発表の時間をTwitterへ書き込み
-    void ExecIndexTweet(string indexName,string time);
+    void ExecTweet(string tweetStr);
 };
 
     //------------------------------------------------------------------
@@ -56,11 +56,26 @@ class TwitterHelper{
     }
 
     //------------------------------------------------------------------
-    // Twitterへの書き込み
+    // Twitterへの書き込み(取引結果専用)
     TwitterHelper::ExecTradeTweet(string symbol,string order,string price,string time){
     PrintFormat("S");
         if (IsDllsAllowed()) {
             string cmd = StringConcatenate("TWEET /I /D /T ",symbol," ",order," ",price);
+
+            //Tweetする!!
+            ShellExecuteW(NULL,"open",_path,cmd,NULL,5);
+        }else{
+            PrintFormat(StringConcatenate(time,":Tweet fail."));
+        }
+        PrintFormat("E");
+    }
+
+    //------------------------------------------------------------------
+    // Twitterへの書き込み(なんでも)
+    TweetHelper::ExecTweet(string tweetStr){
+        PrintFormat("S");
+        if (IsDllsAllowed()) {
+            string cmd = StringConcatenate("TWEET",tweetStr);
 
             //Tweetする!!
             ShellExecuteW(NULL,"open",_path,cmd,NULL,5);
