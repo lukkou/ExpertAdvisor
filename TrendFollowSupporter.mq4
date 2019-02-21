@@ -141,11 +141,11 @@ void OnTick()
                 double profits = OrderHelper.GetOrderProfit(0)
                 string type = "Settlement"
 
-                //ついーと！！
-                TweetHelper.SettementOrderTweet(orderNo, symbol, orderType, price, profits, type);
-
                 //決済
                 OrderHelper.CloseOrder(0, Slippage);
+
+                //ついーと！！
+                TweetHelper.SettementOrderTweet(orderNo, symbol, orderType, price, profits, type);
             }
         }
         else if(longTrend == -1)
@@ -176,13 +176,18 @@ void OnTick()
                 double profits = OrderHelper.GetOrderProfit(0)
                 string type = "Settlement"
 
-                //ついーと！！
-                TweetHelper.SettementOrderTweet(orderNo, symbol, orderType, price, profits, type);
-
                 //決済
                 OrderHelper.CloseOrder(0, Slippage);
+
+                //ついーと！！
+                TweetHelper.SettementOrderTweet(orderNo, symbol, orderType, price, profits, type);
             }
         }
+    }
+
+    if(hasPosition == true)
+    {
+        return;
     }
 
     //---ここから新規ポジション用ロジック---
@@ -213,7 +218,24 @@ void OnTick()
 
         if(tradeFlg)
         {
-            //新規保持ション
+            double lossRenge = LotHelper.GetSdLossRenge();
+            double lotSize = LotHelper.GetSdLotSize(lossRenge);
+            double pLotSize = LotHelper.GetLotSize(lossRenge);
+
+            //新規ポジション
+            int orderCmd = OP_BUY;
+            OrderHelper.SendOrder(orderCmd, lotSize, 0, Slippage, lossRenge, TakeProfit );
+
+            //ツイート用の情報取得
+            int orderNo = OrderHelper.GetTicket(0);
+            string symbol = OrderHelper.GetSymbol(0);
+            string orderType = "OP_BUY"
+            double price = OrderHelper.GetOrderClose(0);
+            double profits = OrderHelper.GetOrderProfit(0)
+            string type = "New"
+            
+            //ついーと！！
+            TweetHelper.NewOrderTweet(orderNo, symbol, orderType, price, type);
         }
     }
     else if(longTrend == -1)
@@ -238,7 +260,24 @@ void OnTick()
 
         if(tradeFlg)
         {
-            //新規保持ション
+            double lossRenge = LotHelper.GetSdLossRenge();
+            double lotSize = LotHelper.GetSdLotSize(lossRenge);
+            double pLotSize = LotHelper.GetLotSize(lossRenge);
+
+            //新規ポジション
+            int orderCmd = OP_SELL;
+            OrderHelper.SendOrder(orderCmd, lotSize, 0, Slippage, lossRenge, TakeProfit );
+
+            //ツイート用の情報取得
+            int orderNo = OrderHelper.GetTicket(0);
+            string symbol = OrderHelper.GetSymbol(0);
+            string orderType = "OP_SELL"
+            double price = OrderHelper.GetOrderClose(0);
+            double profits = OrderHelper.GetOrderProfit(0)
+            string type = "New"
+            
+            //ついーと！！
+            TweetHelper.NewOrderTweet(orderNo, symbol, orderType, price, type);
         }
     }
 }
