@@ -28,6 +28,13 @@ class TwitterHelper{
     ~TwitterHelper();
 
     //------------------------------------------------------------------
+    // 新規ポジションの情報を書き込み
+    void NewOrderTweet(int orderNo,string symbol, string orderType, double price, string type)
+
+　　//------------------------------------------------------------------
+    // ポジション解消の情報を書き込み
+    void SettementOrderTweet(int orderNo,string symbol, string orderType, double price, double profits, string type)
+    //------------------------------------------------------------------
     // トレード結果をTwitterへ書き込み
     void ExecTradeTweet(string symbol,string order,string price,string time);
 
@@ -56,24 +63,54 @@ class TwitterHelper{
     }
 
     //------------------------------------------------------------------
+    // 新規ポジションの場合のツイート文を作成
+    TwitterHelper::NewOrderTweet(int orderNo,string symbol, string orderType, double price, string type)
+    {
+        string tweetStr = "";
+
+        tweetStr = tweetStr + "\n";
+        tweetStr = tweetStr + "OrderNo:" + IntegerToString(orderNo) + "\n";
+        tweetStr = tweetStr + "Symbol:" + symbol + "\n";
+        tweetStr = tweetStr + "OrderType :" + orderType + "\n";
+        tweetStr = tweetStr + "Price :" + DoubleToStr(price) + "\n";
+        tweetStr = tweetStr + "Type :" + type;
+
+        this.ExecTradeTweet(tweetStr);
+    }
+
+    //------------------------------------------------------------------
+    // ポジション解消の場合のツイート分を作成
+    TwitterHelper::SettementOrderTweet(int orderNo,string symbol, string orderType, double price, double profits, string type)
+    {
+        string tweetStr = "";
+
+        tweetStr = tweetStr + "\n";
+        tweetStr = tweetStr + "OrderNo:" + IntegerToString(orderNo) + "\n";
+        tweetStr = tweetStr + "Symbol:" + symbol + "\n";
+        tweetStr = tweetStr + "OrderType :" + orderType + "\n";
+        tweetStr = tweetStr + "Price :" + DoubleToStr(price) + "\n";
+        tweetStr = tweetStr + "Profits :" + DoubleToStr(profits) + "\n";
+        tweetStr = tweetStr + "Type :" + type;
+
+        this.ExecTradeTweet(tweetStr);
+    }
+
+    //------------------------------------------------------------------
     // Twitterへの書き込み(取引結果専用)
-    TwitterHelper::ExecTradeTweet(string symbol,string order,string price,string time){
-    PrintFormat("S");
+    TwitterHelper::ExecTradeTweet(string tweetStr){
         if (IsDllsAllowed()) {
-            string cmd = StringConcatenate("TWEET /I /D /T ",symbol," ",order," ",price);
+            string cmd = StringConcatenate("TWEET /I",tweetStr);
 
             //Tweetする!!
             ShellExecuteW(NULL,"open",_path,cmd,NULL,5);
         }else{
             PrintFormat(StringConcatenate(time,":Tweet fail."));
         }
-        PrintFormat("E");
     }
 
     //------------------------------------------------------------------
     // Twitterへの書き込み(なんでも)
     TweetHelper::ExecTweet(string tweetStr){
-        PrintFormat("S");
         if (IsDllsAllowed()) {
             string cmd = StringConcatenate("TWEET",tweetStr);
 
@@ -82,5 +119,4 @@ class TwitterHelper{
         }else{
             PrintFormat(StringConcatenate(time,":Tweet fail."));
         }
-        PrintFormat("E");
     }
