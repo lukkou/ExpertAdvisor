@@ -91,15 +91,18 @@ void OnTick()
         }
 
         //ツイッターに告知
-
-
+        TweetImportantRelease();
         return;
     }
 
+    //現在の4hトレンドを確認
+    //トレンド判定(-1:ダウントレンド,0:トレンド無し,1:アップトレンド)
+    int longTrend = GetNowLongGemaTrend();
+
+    //---売却確認用ロジック---
     if(hasPosition)
     {
         //4時間足のトレンドによって決済を変更
-        int longTrend = GetNowLongGemaTrend();
         int orderType = OrderHelper.GetOrderType(0);
 
         if(longTrend == 0)
@@ -115,33 +118,74 @@ void OnTick()
         }
         else if(longTrend == 1)
         {
+            bool settlementFlg = false;
             if(orderType == OP_BUY)
             {
-                //
+                //アップトレンドかつポジションが買いの場合
+                settlementFlg = true;
+                }
             }
             else if(orderType == OP_SELL)
             {
-                //
+                //アップトレンドかつポジションが売りの場合
+                settlementFlg = true;
+            }
+
+            if(settlementFlg == true)
+            {
+                //ツイート用の情報取得
+                int orderNo = OrderHelper.GetTicket(0);
+                string symbol = OrderHelper.GetSymbol(0);
+                string orderType = "OP_SELL"
+                double price = OrderHelper.GetOrderClose(0);
+                double profits = OrderHelper.GetOrderProfit(0)
+                string type = "Settlement"
+
+                //ついーと！！
+                TweetHelper.SettementOrderTweet(orderNo, symbol, orderType, price, profits, type);
+
+                //決済
+                OrderHelper.CloseOrder(0, Slippage);
             }
         }
-        else if(longTrend == 2)
+        else if(longTrend == -1)
         {
+            bool settlementFlg = false;
             if(orderType == OP_BUY)
             {
-                //
+                //ダウントレンドかつポジションが買いの場合
+                settlementFlg = true;
             }
             else if(orderType == OP_SELL)
             {
-                //
+                //ダウントレンドかつポジションが売りの場合
+                bool settlementFlg =  IsSettlementCheck(OP_SELL)
+                if(settlementFlg = true)
+                {
+                    settlementFlg = true;
+                }
+            }
+
+            if(settlementFlg == true)
+            {
+                //ツイート用の情報取得
+                int orderNo = OrderHelper.GetTicket(0);
+                string symbol = OrderHelper.GetSymbol(0);
+                string orderType = "OP_SELL"
+                double price = OrderHelper.GetOrderClose(0);
+                double profits = OrderHelper.GetOrderProfit(0)
+                string type = "Settlement"
+
+                //ついーと！！
+                TweetHelper.SettementOrderTweet(orderNo, symbol, orderType, price, profits, type);
+
+                //決済
+                OrderHelper.CloseOrder(0, Slippage);
             }
         }
-
-
     }
 
-
-    //現在の4hトレンドを確認
-    int longTrend = GetNowLongGemaTrend();
+    //---ここから新規ポジション用ロジック---
     if(longTrend == 0)
     {
         //4hトレンドが無い場合
@@ -266,7 +310,7 @@ bool IsImportantReleaseExist(){
 }
 
 /// <summary>
-/// 重要指標発表をツイッターで通知
+/// 重要指標発表直前をツイッターで通知
 /// <summary>
 void TweetImportantRelease()
 {
@@ -321,31 +365,35 @@ void TweetImportantRelease()
     int queryResult = MySqlCursorOpen(db,query);
     if(queryResult > -1)
     {
-        if(MySqlCursorFetchRow(queryResult))
+        int row = MySqlCursorRows(queryResult);
+        for(int i = 0; i < row; i++)
         {
-            int flg = MySqlGetFieldAsInt(queryResult,6);
-            if(flg == 0)
+            if(MySqlCursorFetchRow(queryResult))
             {
-                //またTwitterに通知していないので通知
-                string guid = MySqlGetFieldAsString(queryResult,0);
-                string id = MySqlGetFieldAsString(queryResult,1);
-                string title =  MySqlGetFieldAsString(queryResult,2);
-                string day = MySqlGetFieldAsString(queryResult,3);
-                double forecast = MySqlGetFieldAsDouble(queryResult,4);
-                double previous = MySqlGetFieldAsDouble(queryResult,5);
+                int flg = MySqlGetFieldAsInt(queryResult,6);
+                if(flg == 0)
+                {
+                    //またTwitterに通知していないので通知
+                    string guid = MySqlGetFieldAsString(queryResult,0);
+                    string id = MySqlGetFieldAsString(queryResult,1);
+                    string title =  MySqlGetFieldAsString(queryResult,2);
+                    string day = MySqlGetFieldAsString(queryResult,3);
+                    double forecast = MySqlGetFieldAsDouble(queryResult,4);
+                    double previous = MySqlGetFieldAsDouble(queryResult,5);
 
-                string tweetStr = "";
-                tweetStr = tweetStr + "@lukkou" + "\n";
-                tweetStr = tweetStr + "指標名：" + title + "\n";
-                tweetStr = tweetStr + "発表日：" + day + "\n";
-                tweetStr = tweetStr + "前回値：" + DoubleToString(previous)+ "\n";
-                tweetStr = tweetStr + "予想値：" + DoubleToString(forecast);
+                    string tweetStr = "";
+                    tweetStr = tweetStr + "@lukkou" + "\n";
+                    tweetStr = tweetStr + "指標名：" + title + "\n";
+                    tweetStr = tweetStr + "発表日：[" + day + "]\n";
+                    tweetStr = tweetStr + "前回値：[" + DoubleToString(previous) + "]\n";
+                    tweetStr = tweetStr + "予想値：[" + DoubleToString(forecast) + "]";
 
-                //ついーと！！
-                TweetHelper.ExecTweet(tweetStr);
+                    //ついーと！！
+                    TweetHelper.ExecTweet(tweetStr);
 
-                //通知完了レコード登録
-                InsertTweetFlg(db, guid, id);
+                    //通知完了レコード登録
+                    InsertTweetFlg(db, guid, id);
+                }
             }
         }
     }
@@ -569,12 +617,86 @@ bool IsNonTradeCheck()
 }
 
 /// <summary>
-/// 対象通過を決済しないといけないかのチェック
+/// 対象通貨を決済しないといけないかのチェック
+/// <param name="positionTrend"></param>
 /// <summary>
 /// <returns>結果</returns>
-bool IsSettlementCheck()
+bool IsSettlementCheck(int positionTrend)
 {
+    double nowPrice = iClose(Symbol(),PERIOD_M15,0);
 
+    if(positionTrend == OP_BUY)
+    {
+        //ポシジョンの方向が売りの場合に決済するかの判断
+
+        double gmmaShortIndex =  GetGmmaIndex(PERIOD_M15,0,0)
+        double ema13 = GetEma(PERIOD_M15,12,0);
+        if(gmmaShortIndex <= 0 && ema13 < nowPrice)
+        {
+            return true;
+        }
+
+        double temaUp = GetTema(PERIOD_M15,0,0);
+        double temaDown = GetTema(PERIOD_M15,1,0);
+        if(temaUp == 0 && temaDown <= 0)
+        {
+            return true;
+        }
+
+        double upPrice = CandleHelper.GetUpBeardPrice(PERIOD_M15,0);
+        double bodyPrice = CandleHelper.GetBodyPrice(PERIOD_M15,0);
+        bool starFlg = CandleHelper.IsCandleStickStar(PERIOD_M15,0);
+        if(upPrice >= bodyPrice && starFlg == false)
+        {
+            return true;
+        }
+
+        int afterBodyStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,1);
+        if(afterBodyStyle == 1)
+        {
+            double afterBodyMiddlePrice = CandleHelper.GetBodyMiddlePrice(PERIOD_H4,1)
+            if(afterBodyMiddlePrice > nowPrice)
+            {
+                return true;
+            }
+        }
+    }
+    else if(positionTrend == OP_SELL)
+    {
+        //ポシジョンの方向が売りの場合に決済するかの判断
+
+        double gmmaShortIndex =  GetGmmaIndex(PERIOD_M15,0,0)
+        double ema13 = GetEma(PERIOD_M15,12,0);
+        if(gmmaShortIndex >= 0 && ema13 > nowPrice)
+        {
+            return true;
+        }
+
+        double temaUp = GetTema(PERIOD_M15,0,0);
+        double temaDown = GetTema(PERIOD_M15,1,0);
+        if(temaUp > 0 && temaDown == 0)
+        {
+            return true;
+        }
+
+        double downpPrice = CandleHelper.GetDownBeardPrice(PERIOD_M15,0);
+        double bodyPrice = CandleHelper.GetBodyPrice(PERIOD_M15,0);
+        bool starFlg = CandleHelper.IsCandleStickStar(PERIOD_M15,0);
+        if(downpPrice >= bodyPrice && starFlg == false)
+        {
+            return true;
+        }
+
+        int afterBodyStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,1);
+        if(afterBodyStyle == 1)
+        {
+            double afterBodyMiddlePrice = CandleHelper.GetBodyMiddlePrice(PERIOD_H4,1)
+            if(afterBodyMiddlePrice < nowPrice)
+            {
+                return true;
+            }
+        }
+    }
 }
 
 /// <summary>
@@ -586,7 +708,7 @@ bool IsSettlementCheck()
 /// <returns>TEMAのインジケーター値を取得</returns>
 double GetTema(int timeSpan,int mode,int shift)
 {
-    double result = iCustom(Symbol(),timeSpan,"インジケーター名",mode,shift);
+    double result = iCustom(Symbol(),timeSpan,"TEMA",mode,shift);
     return result;
 }
 
@@ -599,7 +721,7 @@ double GetTema(int timeSpan,int mode,int shift)
 /// <returns>TEMAのインジケーター値を取得</returns>
 double GetGmmaIndex(int timeSpan,int mode,int shift)
 {
-    double result = iCustom(Symbol(),timeSpan,"インジケーター名",mode,shift);
+    double result = iCustom(Symbol(),timeSpan,"GMMAIndex",mode,shift);
     return result;
 }
 
@@ -612,7 +734,7 @@ double GetGmmaIndex(int timeSpan,int mode,int shift)
 /// <returns>TEMAのインジケーター値を取得</returns>
 double GetGmmaWidth(int timeSpan,int mode,int shift)
 {
-    double result = iCustom(Symbol(),timeSpan,"インジケーター名",mode,shift);
+    double result = iCustom(Symbol(),timeSpan,"GMMAWidth",mode,shift);
     return result;
 }
 
@@ -625,7 +747,7 @@ double GetGmmaWidth(int timeSpan,int mode,int shift)
 /// <returns>TEMAのインジケーター値を取得</returns>
 double GetThreeLineRci(int timeSpan,int mode,int shift)
 {
-    double result = iCustom(Symbol(),timeSpan,"インジケーター名",mode,shift);
+    double result = iCustom(Symbol(),timeSpan,"RCI_3Line_v130",mode,shift);
     return result;
 }
 
