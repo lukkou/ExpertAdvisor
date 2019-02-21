@@ -640,11 +640,25 @@ bool InDownTrendShortCheck()
 }
 
 
-bool IsNonTradeCheck()
+int IsNonTradeCheck()
 {
+    int result = 0;
+
     //15分足のトレンドは存在しているか？
+    double gmmaShortWidth = GetGmmaWidth(PERIOD_M15, 0, 3)
+    double gmmaLongWidth = GetGmmaWidth(PERIOD_M15, 0, 4)
+    if(gmmaShortWidth == 0 && gmmaLongWidth == 0)
+    {
+        return result;
+    }
 
     //４時間足のロング幅を取得
+    double twoAfertEma30 = GetEma(PERIOD_H4,30,2);
+    double twoAfertEma60 = GetEma(PERIOD_H4,60,2);
+    double oneAfertEma30 = GetEma(PERIOD_H4,30,1);
+    double oneAfertEma60 = GetEma(PERIOD_H4,60,1);
+    double nowEma30 = GetEma(PERIOD_H4,30,0);
+    double nowEma60 = GetEma(PERIOD_H4,60,0);
 
     //15分足がアップトレンドの場合
 
@@ -736,6 +750,16 @@ bool IsSettlementCheck(int positionTrend)
             }
         }
     }
+}
+
+/// <summary>
+/// トレンドが無い場合の対象通貨を決済しないといけないかのチェック
+/// <param name="positionTrend"></param>
+/// <summary>
+/// <returns>結果</returns>
+bool IsCandleStickStarNonTrade()
+{
+
 }
 
 /// <summary>
