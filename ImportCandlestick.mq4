@@ -11,13 +11,10 @@
 #include <Custom/ExpertAdvisorTradeHelper.mqh>
 #include <Custom/TradeQuantityHelper.mqh>
 #include <Custom/TwitterHelper.mqh>
-#include <Include/MQLMySQL.mqh>
+#include <MQLMySQL.mqh>
 
 //マジックナンバー 他のEAと当らない値を使用する。
 input int MagicNumber = 11180000; 
-
-// ローソク足補助クラス
-CandleStickHelper CandleHelper();
 
 string _host;
 string _user;
@@ -32,7 +29,7 @@ int _clientFlag;
 /// </summary>
 int OnInit()
 {
-    iniInfo = TerminalInfoString(TERMINAL_DATA_PATH) + "\\MQL4\\Experts\\MyConnection.ini";
+    string iniInfo = TerminalInfoString(TERMINAL_DATA_PATH) + "\\MQL4\\Experts\\MyConnection.ini";
     Print ("パス: ",iniInfo);
 
     _host = ReadIni(iniInfo, "MYSQL", "Host");
@@ -145,7 +142,7 @@ void MergeCandlestick(string symbol)
     StringReplace(localTime,".","/");
     StringReplace(globalTime,".","/");
 
-    int db = MySqlConnect(host, user, password, database, port, socket, clientFlag);
+    int db = MySqlConnect(_host, _user, _password, _database, _port, _socket, _clientFlag);
 
     string query = "";
     query = query + "insert ";
@@ -175,7 +172,7 @@ void MergeCandlestick(string symbol)
     query = query + "  , low = " + DoubleToString(low);
     query = query + "  , close = " + DoubleToString(close);
 
-    MySqlExecute(db, query)
+    MySqlExecute(db, query);
     MySqlDisconnect(db);
 }
 
