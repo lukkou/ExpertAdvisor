@@ -91,7 +91,7 @@ void OnTick()
         }
 
         //ツイッターに告知
-        TweetImportantRelease();
+        //TweetImportantRelease();
         return;
     }
 
