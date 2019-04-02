@@ -776,7 +776,7 @@ bool IsCandleStickStarNonTrade()
 /// <returns>TEMAのインジケーター値を取得</returns>
 double GetTema(int timeSpan,int mode,int shift)
 {
-    double result = iCustom(Symbol(),timeSpan,"TEMA",mode,shift);
+    double result = iCustom(Symbol(),timeSpan,"TemaCumulative",mode,shift);
     return result;
 }
 
