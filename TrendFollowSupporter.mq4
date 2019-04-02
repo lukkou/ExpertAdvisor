@@ -11,7 +11,7 @@
 #include <Custom/ExpertAdvisorTradeHelper.mqh>
 #include <Custom/TradeQuantityHelper.mqh>
 #include <Custom/TwitterHelper.mqh>
-#include <Include/MQLMySQL.mqh>
+#include <MQLMySQL.mqh>
 
 //マジックナンバー 他のEAと当らない値を使用する。
 input int MagicNumber = 11180001; 
@@ -771,7 +771,7 @@ bool IsCandleStickStarNonTrade()
 /// <returns>TEMAのインジケーター値を取得</returns>
 double GetTema(int timeSpan,int mode,int shift)
 {
-    double result = iCustom(Symbol(),timeSpan,"TEMA",mode,shift);
+    double result = iCustom(Symbol(),timeSpan,"TemaCumulative",mode,shift);
     return result;
 }
 
