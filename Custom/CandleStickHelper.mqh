@@ -66,10 +66,13 @@ class CandleStickHelper{
         double open = iOpen(NULL,time,shift);
         double close = iClose(NULL,time,shift);
 
-        if(open > close){
-            result = 1
-        }else if(open < close){
-            result = 2
+        if(open > close)
+        {
+            result = 1;
+        }
+        else if(open < close)
+        {
+            result = 2;
         }
 
         return result;
@@ -185,7 +188,7 @@ class CandleStickHelper{
         double open = iOpen(NULL,time,shift);
         double close = iClose(NULL,time,shift);
 
-        double result = MathAbs(open - close)
+        double result = MathAbs(open - close);
         return result;
     }
 

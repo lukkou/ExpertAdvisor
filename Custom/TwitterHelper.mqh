@@ -29,14 +29,15 @@ class TwitterHelper{
 
     //------------------------------------------------------------------
     // 新規ポジションの情報を書き込み
-    void NewOrderTweet(int orderNo,string symbol, string orderType, double price, string type)
-
-　　//------------------------------------------------------------------
+    void NewOrderTweet(int orderNo,string symbol, string orderType, double price, string type);
+    
+    //------------------------------------------------------------------
     // ポジション解消の情報を書き込み
-    void SettementOrderTweet(int orderNo,string symbol, string orderType, double price, double profits, string type)
+    void SettementOrderTweet(int orderNo, string symbol, string orderType, double price, double profits, string type);
+    
     //------------------------------------------------------------------
     // トレード結果をTwitterへ書き込み
-    void ExecTradeTweet(string symbol,string order,string price,string time);
+    void ExecTradeTweet(string tweetStr);
 
     //------------------------------------------------------------------
     // 指標発表の時間をTwitterへ書き込み
@@ -104,19 +105,19 @@ class TwitterHelper{
             //Tweetする!!
             ShellExecuteW(NULL,"open",_path,cmd,NULL,5);
         }else{
-            PrintFormat(StringConcatenate(time,":Tweet fail."));
+            PrintFormat(StringConcatenate(TimeToStr(TimeLocal(),TIME_DATE|TIME_MINUTES),":Tweet fail."));
         }
     }
 
     //------------------------------------------------------------------
     // Twitterへの書き込み(なんでも)
-    TweetHelper::ExecTweet(string tweetStr){
+    TwitterHelper::ExecTweet(string tweetStr){
         if (IsDllsAllowed()) {
             string cmd = StringConcatenate("TWEET",tweetStr);
 
             //Tweetする!!
             ShellExecuteW(NULL,"open",_path,cmd,NULL,5);
         }else{
-            PrintFormat(StringConcatenate(time,":Tweet fail."));
+            PrintFormat(StringConcatenate(TimeToStr(TimeLocal(),TIME_DATE|TIME_MINUTES),":Tweet fail."));
         }
     }

@@ -10,6 +10,7 @@
 
 #include <Custom/ExpertAdvisorTradeHelper.mqh>
 #include <Custom/TradeQuantityHelper.mqh>
+#include <Custom/CandleStickHelper.mqh>
 #include <Custom/TwitterHelper.mqh>
 #include <MQLMySQL.mqh>
 
@@ -31,7 +32,7 @@ ExpertAdvisorTradeHelper OrderHelper(Symbol(), MagicNumber, MaxPosition, SpreadF
 // 取引数調整クラスSide BarVSide Bar
 TradeQuantityHelper LotHelper(Symbol(), PERIOD_M15, 15, 0, MODE_EMA, PRICE_CLOSE, 2, SdSigma, RiskPercent);
 //Tweetクラス
-//TwitterHelper TweetHelper(TweetCmdPash);
+TwitterHelper TweetHelper(TweetCmdPash);
 // ローソク足補助クラス
 CandleStickHelper CandleHelper();
  
@@ -48,7 +49,7 @@ int _clientFlag;
 /// </summary>
 int OnInit()
 {
-    iniInfo = TerminalInfoString(TERMINAL_DATA_PATH) + "\\MQL4\\Experts\\MyConnection.ini";
+    string iniInfo = TerminalInfoString(TERMINAL_DATA_PATH) + "\\MQL4\\Experts\\MyConnection.ini";
     Print ("パス: ",iniInfo);
    
     _host = ReadIni(iniInfo, "MYSQL", "Host");
@@ -78,7 +79,7 @@ void OnDeinit(const int reason)
 void OnTick()
 {
     //自身の通貨ペアポジションがあるか？
-    bool hasPosition = (TradeHelper.GetPositionCount() > 0);
+    bool hasPosition = (OrderHelper.GetPositionCount() > 0);
 
     //通貨ペアの現在時刻より30分後 又は15分前に重要指標の発表があるか？
     bool importantExist = IsImportantReleaseExist();
@@ -91,7 +92,7 @@ void OnTick()
         }
 
         //ツイッターに告知
-        TweetImportantRelease();
+        //TweetImportantRelease();
         return;
     }
 
@@ -123,7 +124,6 @@ void OnTick()
             {
                 //アップトレンドかつポジションが買いの場合
                 settlementFlg = true;
-                }
             }
             else if(orderType == OP_SELL)
             {
@@ -135,11 +135,11 @@ void OnTick()
             {
                 //ツイート用の情報取得
                 int orderNo = OrderHelper.GetTicket(0);
-                string symbol = OrderHelper.GetSymbol(0);
-                string orderType = "OP_SELL"
+                string symbol = OrderHelper.GetSymbol();
+                string orderType = "OP_SELL";
                 double price = OrderHelper.GetOrderClose(0);
-                double profits = OrderHelper.GetOrderProfit(0)
-                string type = "Settlement"
+                double profits = OrderHelper.GetOrderProfit(0);
+                string type = "Settlement";
 
                 //決済
                 OrderHelper.CloseOrder(0, Slippage);
@@ -159,7 +159,7 @@ void OnTick()
             else if(orderType == OP_SELL)
             {
                 //ダウントレンドかつポジションが売りの場合
-                bool settlementFlg =  IsSettlementCheck(OP_SELL)
+                bool settlementFlg =  IsSettlementCheck(OP_SELL);
                 if(settlementFlg = true)
                 {
                     settlementFlg = true;
@@ -170,11 +170,11 @@ void OnTick()
             {
                 //ツイート用の情報取得
                 int orderNo = OrderHelper.GetTicket(0);
-                string symbol = OrderHelper.GetSymbol(0);
-                string orderType = "OP_SELL"
+                string symbol = OrderHelper.GetSymbol();
+                string orderType = "OP_SELL";
                 double price = OrderHelper.GetOrderClose(0);
-                double profits = OrderHelper.GetOrderProfit(0)
-                string type = "Settlement"
+                double profits = OrderHelper.GetOrderProfit(0);
+                string type = "Settlement";
 
                 //決済
                 OrderHelper.CloseOrder(0, Slippage);
@@ -228,11 +228,11 @@ void OnTick()
 
             //ツイート用の情報取得
             int orderNo = OrderHelper.GetTicket(0);
-            string symbol = OrderHelper.GetSymbol(0);
-            string orderType = "OP_BUY"
+            string symbol = OrderHelper.GetSymbol();
+            string orderType = "OP_BUY";
             double price = OrderHelper.GetOrderClose(0);
-            double profits = OrderHelper.GetOrderProfit(0)
-            string type = "New"
+            double profits = OrderHelper.GetOrderProfit(0);
+            string type = "New";
             
             //ついーと！！
             TweetHelper.NewOrderTweet(orderNo, symbol, orderType, price, type);
@@ -270,11 +270,11 @@ void OnTick()
 
             //ツイート用の情報取得
             int orderNo = OrderHelper.GetTicket(0);
-            string symbol = OrderHelper.GetSymbol(0);
-            string orderType = "OP_SELL"
+            string symbol = OrderHelper.GetSymbol();
+            string orderType = "OP_SELL";
             double price = OrderHelper.GetOrderClose(0);
-            double profits = OrderHelper.GetOrderProfit(0)
-            string type = "New"
+            double profits = OrderHelper.GetOrderProfit(0);
+            string type = "New";
             
             //ついーと！！
             TweetHelper.NewOrderTweet(orderNo, symbol, orderType, price, type);
@@ -458,7 +458,7 @@ void InsertTweetFlg(int db, string guid, string id)
     query = query + "  , 1";
     query = query + " )";
 
-    MySqlExecute(db, query)
+    MySqlExecute(db, query);
 }
 
 /// <summary>
@@ -492,7 +492,7 @@ int GetNowLongGemaTrend()
 
 
     //トレンドがあってもLong Shortの幅が無ければトレンドなしの判断
-    if(athAbs(gmmaWightLong) < 0.01)
+    if(MathAbs(gmmaWightLong) < 0.01)
     {
         result = 0;
     }
@@ -645,20 +645,20 @@ int IsNonTradeCheck()
     int result = 0;
 
     //15分足のトレンドは存在しているか？
-    double gmmaShortWidth = GetGmmaWidth(PERIOD_M15, 0, 3)
-    double gmmaLongWidth = GetGmmaWidth(PERIOD_M15, 0, 4)
-    if(gmmaShortWidth == 0 && gmmaLongWidth == 0)
+    double gmmaShortWidth = GetGmmaWidth(PERIOD_M15, 0, 3);
+    double gmmaLongWidth = GetGmmaWidth(PERIOD_M15, 0, 4);
+    if(gmmaShortWidth == 0 && gmmaLongWidth == 0);
     {
         return result;
     }
 
     //４時間足のロング幅を取得
-    double twoAfertEma30 = GetEma(PERIOD_H4,30,2);
-    double twoAfertEma60 = GetEma(PERIOD_H4,60,2);
-    double oneAfertEma30 = GetEma(PERIOD_H4,30,1);
-    double oneAfertEma60 = GetEma(PERIOD_H4,60,1);
-    double nowEma30 = GetEma(PERIOD_H4,30,0);
-    double nowEma60 = GetEma(PERIOD_H4,60,0);
+    double twoAfertEma30 = iMA(Symbol(),PERIOD_H4,30,0,MODE_EMA,PRICE_CLOSE,2);
+    double twoAfertEma60 = iMA(Symbol(),PERIOD_H4,60,0,MODE_EMA,PRICE_CLOSE,2);
+    double oneAfertEma30 = iMA(Symbol(),PERIOD_H4,30,0,MODE_EMA,PRICE_CLOSE,1);
+    double oneAfertEma60 = iMA(Symbol(),PERIOD_H4,60,0,MODE_EMA,PRICE_CLOSE,1);
+    double nowEma30 = iMA(Symbol(),PERIOD_H4,30,0,MODE_EMA,PRICE_CLOSE,0);
+    double nowEma60 = iMA(Symbol(),PERIOD_H4,60,0,MODE_EMA,PRICE_CLOSE,0);
 
     //15分足がアップトレンドの場合
 
@@ -682,8 +682,8 @@ bool IsSettlementCheck(int positionTrend)
     {
         //ポシジョンの方向が売りの場合に決済するかの判断
 
-        double gmmaShortIndex =  GetGmmaIndex(PERIOD_M15,0,0)
-        double ema13 = GetEma(PERIOD_M15,12,0);
+        double gmmaShortIndex =  GetGmmaIndex(PERIOD_M15,0,0);
+        double ema13 = iMA(Symbol(),PERIOD_M15,13,0,MODE_EMA,PRICE_CLOSE,0);
         if(gmmaShortIndex <= 0 && ema13 < nowPrice)
         {
             return true;
@@ -707,7 +707,7 @@ bool IsSettlementCheck(int positionTrend)
         int afterBodyStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,1);
         if(afterBodyStyle == 1)
         {
-            double afterBodyMiddlePrice = CandleHelper.GetBodyMiddlePrice(PERIOD_H4,1)
+            double afterBodyMiddlePrice = CandleHelper.GetBodyMiddlePrice(PERIOD_H4,1);
             if(afterBodyMiddlePrice > nowPrice)
             {
                 return true;
@@ -718,8 +718,8 @@ bool IsSettlementCheck(int positionTrend)
     {
         //ポシジョンの方向が売りの場合に決済するかの判断
 
-        double gmmaShortIndex =  GetGmmaIndex(PERIOD_M15,0,0)
-        double ema13 = GetEma(PERIOD_M15,12,0);
+        double gmmaShortIndex =  GetGmmaIndex(PERIOD_M15,0,0);
+        double ema13 = iMA(Symbol(),PERIOD_M15,13,0,MODE_EMA,PRICE_CLOSE,0);
         if(gmmaShortIndex >= 0 && ema13 > nowPrice)
         {
             return true;
@@ -743,13 +743,15 @@ bool IsSettlementCheck(int positionTrend)
         int afterBodyStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,1);
         if(afterBodyStyle == 1)
         {
-            double afterBodyMiddlePrice = CandleHelper.GetBodyMiddlePrice(PERIOD_H4,1)
+            double afterBodyMiddlePrice = CandleHelper.GetBodyMiddlePrice(PERIOD_H4,1);
             if(afterBodyMiddlePrice < nowPrice)
             {
                 return true;
             }
         }
     }
+    
+    return false;
 }
 
 /// <summary>
@@ -759,7 +761,7 @@ bool IsSettlementCheck(int positionTrend)
 /// <returns>結果</returns>
 bool IsCandleStickStarNonTrade()
 {
-
+   return false;
 }
 
 /// <summary>
