@@ -639,7 +639,10 @@ bool InDownTrendShortCheck()
     return result;
 }
 
-
+/// <summary>
+/// 4Hがトレンドなしの場合のエントリするかのチェック
+/// <summary>
+/// <returns>結果</returns>
 int IsNonTradeCheck()
 {
     int result = 0;
