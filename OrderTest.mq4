@@ -33,86 +33,83 @@ TradeQuantityHelper LotHelper(Symbol(), PERIOD_M15, 15, 0, MODE_EMA, PRICE_CLOSE
 int OnInit()
 {
 //---
-   	double lossRenge = LotHelper.GetSdLossRenge();
-   	double lotSize = LotHelper.GetSdLotSize(lossRenge);
-   	double pLotSize = LotHelper.GetLotSize(lossRenge);
+    double lossRenge = LotHelper.GetSdLossRenge();
+    double lotSize = LotHelper.GetSdLotSize(lossRenge);
+    double pLotSize = LotHelper.GetLotSize(lossRenge);
 
-   	PrintFormat("ポジション時間：" + TimeCurrent());
-   	PrintFormat("ロスカット値段：" + lossRenge);
-   	PrintFormat("ロットサイズ：" + lotSize);
-   	PrintFormat("%ロットサイズ：" + pLotSize);
+    PrintFormat("ポジション時間：" + TimeCurrent());
+    PrintFormat("ロスカット値段：" + lossRenge);
+    PrintFormat("ロットサイズ：" + lotSize);
+    PrintFormat("%ロットサイズ：" + pLotSize);
 
-   	int orderCmd = OP_BUY;
-   	OrderHelper.SendOrder(orderCmd, lotSize, 0, Slippage, lossRenge, TakeProfit );
-   	double orderPrice = OrderHelper.GetOrderClose(0);
-   	//PrintFormat("通貨ペア：" + Symbol() + "オーダー：OP_BUY 約定価格：" + DoubleToStr(orderPrice,2));
+    int orderCmd = OP_BUY;
+    OrderHelper.SendOrder(orderCmd, lotSize, 0, Slippage, lossRenge, TakeProfit );
+    double orderPrice = OrderHelper.GetOrderClose(0);
+    //PrintFormat("通貨ペア：" + Symbol() + "オーダー：OP_BUY 約定価格：" + DoubleToStr(orderPrice,2));
 
-   	int positionCount = OrderHelper.GetPositionCount();
-   	double orderProfit = OrderHelper.GetOrderProfit(0);
-   	double orderLimit = OrderHelper.GetOrderLimit(0);
+    int positionCount = OrderHelper.GetPositionCount();
+    double orderProfit = OrderHelper.GetOrderProfit(0);
+    double orderLimit = OrderHelper.GetOrderLimit(0);
 
-   	PrintFormat("決済時間：" + TimeCurrent());
-   	PrintFormat("ポジション数：" + positionCount);
-   	PrintFormat("利益：" + orderProfit);
+    PrintFormat("決済時間：" + TimeCurrent());
+    PrintFormat("ポジション数：" + positionCount);
+    PrintFormat("利益：" + orderProfit);
    
-   	//ポジションを保持していれば決済する
-   	//OrderHelper.CloseOrder(0, Slippage);
-   
+    //ポジションを保持していれば決済する
+    //OrderHelper.CloseOrder(0, Slippage);
 
-//---
-   	return(INIT_SUCCEEDED);
+    return(INIT_SUCCEEDED);
 }
 //+------------------------------------------------------------------+
 //| Expert deinitialization function                                 |
 //+------------------------------------------------------------------+
 void OnDeinit(const int reason)
-  {
+{
 //---
-   
-  }
+
+}
 //+------------------------------------------------------------------+
 //| Expert tick function                                             |
 //+------------------------------------------------------------------+
 void OnTick()
-  {
-//---
-      double temaUp = GetTema(PERIOD_M15,0,0);
-   	double temaDown = GetTema(PERIOD_M15,1,0);
-   	
-   	double gmmaIndexLong = GetGmmaIndex(PERIOD_M15,0,0);
-   	double gmmaIndexShort = GetGmmaIndex(PERIOD_M15,1,0);
-   	
-   	double gmmaUp = GetGmmaWidth(PERIOD_H4,0,0);
-   	double gmmaDown = GetGmmaWidth(PERIOD_H4,1,0);
-   	double gmmaWidthLong = GetGmmaWidth(PERIOD_H4,2,0);
-   	double gmmaWidthShort = GetGmmaWidth(PERIOD_H4,3,0);
-   	
-   	double rciShort = GetThreeLineRci(PERIOD_H4,0,0);
-   	double rciMedium = GetThreeLineRci(PERIOD_H4,1,0);
-   	double rciLong = GetThreeLineRci(PERIOD_H4,2,0);
-   	
-   	double closePrice = iClose(Symbol(),PERIOD_M15,0);
-   	
-   	PrintFormat("▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲");
-   	PrintFormat("Close Price" + DoubleToString(closePrice));
-   	
-   	PrintFormat("TEMA Up:" + DoubleToString(temaUp));
-   	PrintFormat("TEMA Down:" + DoubleToString(temaDown));
-   	
-   	PrintFormat("GMMA Index Long:" + DoubleToString(gmmaIndexLong));
-   	PrintFormat("GMMA Index: Short" + DoubleToString(gmmaIndexShort));
-   	
-   	PrintFormat("GMMA UP:" + DoubleToString(gmmaUp));
-   	PrintFormat("GMMA Down:" + DoubleToString(gmmaDown));
-   	PrintFormat("GMMA Width Long:" + DoubleToString(gmmaWidthLong));
-   	PrintFormat("GMMA Width Short:" + DoubleToString(gmmaWidthShort));
-   	
-   	PrintFormat("RCI S:" + DoubleToString(rciShort));
-   	PrintFormat("RCI M:" + DoubleToString(rciMedium));
-   	PrintFormat("RCI L:" + DoubleToString(rciLong));
-   	PrintFormat("▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽");
-   	
-  }
+{
+    double temaUp = GetTema(PERIOD_M15,0,0);
+    double temaDown = GetTema(PERIOD_M15,1,0);
+    
+    double gmmaIndexLong = GetGmmaIndex(PERIOD_M15,0,0);
+    double gmmaIndexShort = GetGmmaIndex(PERIOD_M15,1,0);
+
+    double gmmaUp = GetGmmaWidth(PERIOD_H4,0,0);
+    double gmmaDown = GetGmmaWidth(PERIOD_H4,1,0);
+    double gmmaWidthLong = GetGmmaWidth(PERIOD_H4,2,0);
+    double gmmaWidthShort = GetGmmaWidth(PERIOD_H4,3,0);
+    
+    double rciShort = GetThreeLineRci(PERIOD_H4,0,0);
+    double rciMedium = GetThreeLineRci(PERIOD_H4,1,0);
+    double rciLong = GetThreeLineRci(PERIOD_H4,2,0);
+    
+    double closePrice = iClose(Symbol(),PERIOD_M15,0);
+
+    PrintFormat("▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲");
+    PrintFormat("Close Price" + DoubleToString(closePrice));
+    
+    PrintFormat("TEMA Up:" + DoubleToString(temaUp));
+    PrintFormat("TEMA Down:" + DoubleToString(temaDown));
+    
+    PrintFormat("GMMA Index Long:" + DoubleToString(gmmaIndexLong));
+    PrintFormat("GMMA Index: Short" + DoubleToString(gmmaIndexShort));
+    
+    PrintFormat("GMMA UP:" + DoubleToString(gmmaUp));
+    PrintFormat("GMMA Down:" + DoubleToString(gmmaDown));
+    PrintFormat("GMMA Width Long:" + DoubleToString(gmmaWidthLong));
+    PrintFormat("GMMA Width Short:" + DoubleToString(gmmaWidthShort));
+    
+    PrintFormat("RCI S:" + DoubleToString(rciShort));
+    PrintFormat("RCI M:" + DoubleToString(rciMedium));
+    PrintFormat("RCI L:" + DoubleToString(rciLong));
+    PrintFormat("▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽");
+
+}
 //+------------------------------------------------------------------+
 
 /// <summary>
