@@ -872,12 +872,12 @@ bool IsSettlementCheckNonTrade(int positionTrend)
 {
     double nowPrice = iClose(Symbol(),PERIOD_M15,0);
     double ema43 = iMA(Symbol(),PERIOD_M15,43,0,MODE_EMA,PRICE_CLOSE,0);
+    double gmmaWidthShort = GetGmmaWidth(PERIOD_M15,3,0);
     
     double candleBodyValue = CandleHelper.GetBodyPrice(PERIOD_M15,0);
     double candleBodyMiddleBeforePrice = CandleHelper.GetBodyMiddlePrice(PERIOD_M15,1);
     if(positionTrend == OP_BUY)
     {
-        double gmmaWidthShort = GetGmmaWidth(PERIOD_M15,3,0);
         if(gmmaWidthShort <= 0)
         {
             return true;
@@ -901,7 +901,6 @@ bool IsSettlementCheckNonTrade(int positionTrend)
     }
     else if(positionTrend == OP_SELL)]
     {
-        double gmmaWidthShort = GetGmmaWidth(PERIOD_M15,3,0);
         if(gmmaWidthShort >= 0)
         {
             return true;
