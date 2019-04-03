@@ -108,13 +108,28 @@ void OnTick()
 
         if(longTrend == 0)
         {
-            if(orderType == OP_BUY)
+            bool checkFlg = IsSettlementCheckNonTrade(orderType);
+            bool settlementFlg = false;
+            if(checkFlg == true)
             {
-                //
+                settlementFlg = true;
             }
-            else if(orderType == OP_SELL)
+
+            if(settlementFlg == true)
             {
-                //
+                //ツイート用の情報取得
+                int orderNo = OrderHelper.GetTicket(0);
+                string symbol = OrderHelper.GetSymbol();
+                string orderType = "OP_SELL";
+                double price = OrderHelper.GetOrderClose(0);
+                double profits = OrderHelper.GetOrderProfit(0);
+                string type = "Settlement";
+
+                //決済
+                OrderHelper.CloseOrder(0, Slippage);
+
+                //ついーと！！
+                TweetHelper.SettementOrderTweet(orderNo, symbol, orderType, price, profits, type);
             }
         }
         else if(longTrend == 1)
@@ -123,7 +138,11 @@ void OnTick()
             if(orderType == OP_BUY)
             {
                 //アップトレンドかつポジションが買いの場合
-                settlementFlg = true;
+                bool checkFlg =  IsSettlementCheck(OP_SELL);
+                if(checkFlg == true)
+                {
+                    settlementFlg = true;
+                }
             }
             else if(orderType == OP_SELL)
             {
@@ -159,8 +178,8 @@ void OnTick()
             else if(orderType == OP_SELL)
             {
                 //ダウントレンドかつポジションが売りの場合
-                bool settlementFlg =  IsSettlementCheck(OP_SELL);
-                if(settlementFlg = true)
+                bool checkFlg =  IsSettlementCheck(OP_SELL);
+                if(checkFlg == true)
                 {
                     settlementFlg = true;
                 }
@@ -194,7 +213,38 @@ void OnTick()
     if(longTrend == 0)
     {
         //4hトレンドが無い場合
+        int trendStatus = IsNonTradeCheck();
+        if(trendStatus != 0)
+        {
+            double lossRenge = LotHelper.GetSdLossRenge();
+            double lotSize = LotHelper.GetSdLotSize(lossRenge);
+            double pLotSize = LotHelper.GetLotSize(lossRenge);
 
+            //新規ポジション
+            int orderCmd = 0;
+            string orderType = "";
+            if(trendStatus == 1)
+            {
+                orderCmd = OP_BUY;
+                orderType = "OP_BUY";
+            }
+            else
+            {
+                orderCmd = OP_SELL;
+                orderType = "OP_SELL"
+            }
+            OrderHelper.SendOrder(orderCmd, lotSize, 0, Slippage, lossRenge, TakeProfit );
+
+            //ツイート用の情報取得
+            int orderNo = OrderHelper.GetTicket(0);
+            string symbol = OrderHelper.GetSymbol();
+            double price = OrderHelper.GetOrderClose(0);
+            double profits = OrderHelper.GetOrderProfit(0);
+            string type = "New";
+            
+            //ついーと！！
+            TweetHelper.NewOrderTweet(orderNo, symbol, orderType, price, type);
+        }
     }
     else if(longTrend == 1)
     {
@@ -481,13 +531,17 @@ int GetNowLongGemaTrend()
     double gmmaWightLong = GetGmmaWidth(PERIOD_H4,4,0);
 
     //現在のGMMA幅の位置を取得
-    if(nowWidthValuePlus > 0)
+    if(nowWidthValuePlus > 0 && beforeWidthValuePlus > 0)
     {
         result = 1;
     }
-    else if(nowWidthValueMinus < 0)
+    else if(nowWidthValueMinus < 0 && beforeWidthValueMinus < 0)
     {
         result = -1;
+    }else
+    {
+        //トレンドが無い判断のため以降をチェックする必要なし
+        return result;
     }
 
 
@@ -647,29 +701,83 @@ int IsNonTradeCheck()
 {
     int result = 0;
 
-    //15分足のトレンドは存在しているか？
-    double gmmaShortWidth = GetGmmaWidth(PERIOD_M15, 0, 3);
-    double gmmaLongWidth = GetGmmaWidth(PERIOD_M15, 0, 4);
-    if(gmmaShortWidth == 0 && gmmaLongWidth == 0);
+    //4h足はエントリーの形になっているか？
+    bool candleStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,0)
+
+    if(candleStyle == 0)
     {
+        //ローソク足にトレンドがないので無視
         return result;
     }
+    
+    //　共通で使用する必要情報取得
+    double open = iOpen(NULL,time,shift);
+    double close = iClose(NULL,time,shift);
 
-    //４時間足のロング幅を取得
-    double twoAfertEma30 = iMA(Symbol(),PERIOD_H4,30,0,MODE_EMA,PRICE_CLOSE,2);
-    double twoAfertEma60 = iMA(Symbol(),PERIOD_H4,60,0,MODE_EMA,PRICE_CLOSE,2);
-    double oneAfertEma30 = iMA(Symbol(),PERIOD_H4,30,0,MODE_EMA,PRICE_CLOSE,1);
-    double oneAfertEma60 = iMA(Symbol(),PERIOD_H4,60,0,MODE_EMA,PRICE_CLOSE,1);
     double nowEma30 = iMA(Symbol(),PERIOD_H4,30,0,MODE_EMA,PRICE_CLOSE,0);
     double nowEma60 = iMA(Symbol(),PERIOD_H4,60,0,MODE_EMA,PRICE_CLOSE,0);
 
-    //15分足がアップトレンドの場合
+    double gmmaWidthLongNow = GetGmmaWidth(PERIOD_H4,2,0);
+    double gmmaWidthLongBefore = GetGmmaWidth(PERIOD_H4,2,1);
+    double gmmaWidthLongSecondBefore = GetGmmaWidth(PERIOD_H4,2,2);
+    if(candleStyle == 1)
+    {
+        //陽線の場合
+        if(nowEma30 > nowEma60)
+        {
+            //EMA30 > EMA60の場合は判断する価値無し
+            return result;
+        }
 
+        if(MathAbs(gmmaWidthLongNow) >= 0.1 || MathAbs(gmmaWidthLongBefore) >= 0.1 || MathAbs(gmmaWidthLongSecondBefore) >= 0.1)
+        {
+            //過去12時間トレンドが無い場合は判断する価値無し
+            return result;
+        }
 
+        if(nowEma30 > open && nowEma60 > close)
+        {
+            //前提がそろった場合のみ15mをチェック
+            double nowTema = GetTema(PERIOD_M15,0,0);
+            double gmmaIndexLong = GetGmmaIndex(PERIOD_M15,0,0);
+            double gmmaUp = GetGmmaWidth(PERIOD_H4,0,0);
 
-    //15分足がダウントレンドの場合
+            if(nowTema > 0 && gmmaIndexLong == 5 && gmmaUp > 0)
+            {
+                result = 1;
+            }
+        }
+    }
+    else if(candleStyle == 2)
+    {
+        //陰線の場合
+        if(nowEma30 < nowEma60)
+        {
+            //EMA30 < EMA60の場合は判断する価値無し
+            return result;
+        }
 
+        if(MathAbs(gmmaWidthLongNow) >= 0.1 || MathAbs(gmmaWidthLongBefore) >= 0.1 || MathAbs(gmmaWidthLongSecondBefore) >= 0.1)
+        {
+            //過去12時間トレンドが無い場合は判断する価値無し
+            return result;
+        }
 
+        if(nowEma30 < open && nowEma60 < close)
+        {
+            //前提がそろった場合のみ15mをチェック
+            double nowTema = GetTema(PERIOD_M15,1,0);
+            double gmmaIndexLong = GetGmmaIndex(PERIOD_M15,0,0);
+            double gmmaDown = GetGmmaWidth(PERIOD_H4,1,0);
+
+            if(nowTema < 0 && gmmaIndexLong == -5 && gmmaDown < 0)
+            {
+                result = 2;
+            }
+        }
+    }
+
+    return result;
 }
 
 /// <summary>
@@ -684,7 +792,6 @@ bool IsSettlementCheck(int positionTrend)
     if(positionTrend == OP_BUY)
     {
         //ポシジョンの方向が売りの場合に決済するかの判断
-
         double gmmaShortIndex =  GetGmmaIndex(PERIOD_M15,0,0);
         double ema13 = iMA(Symbol(),PERIOD_M15,13,0,MODE_EMA,PRICE_CLOSE,0);
         if(gmmaShortIndex <= 0 && ema13 < nowPrice)
@@ -720,7 +827,6 @@ bool IsSettlementCheck(int positionTrend)
     else if(positionTrend == OP_SELL)
     {
         //ポシジョンの方向が売りの場合に決済するかの判断
-
         double gmmaShortIndex =  GetGmmaIndex(PERIOD_M15,0,0);
         double ema13 = iMA(Symbol(),PERIOD_M15,13,0,MODE_EMA,PRICE_CLOSE,0);
         if(gmmaShortIndex >= 0 && ema13 > nowPrice)
@@ -762,9 +868,63 @@ bool IsSettlementCheck(int positionTrend)
 /// <param name="positionTrend"></param>
 /// <summary>
 /// <returns>結果</returns>
-bool IsCandleStickStarNonTrade()
+bool IsSettlementCheckNonTrade(int positionTrend)
 {
-   return false;
+    double nowPrice = iClose(Symbol(),PERIOD_M15,0);
+    double ema43 = iMA(Symbol(),PERIOD_M15,43,0,MODE_EMA,PRICE_CLOSE,0);
+    
+    double candleBodyValue = CandleHelper.GetBodyPrice(PERIOD_M15,0);
+    double candleBodyMiddleBeforePrice = CandleHelper.GetBodyMiddlePrice(PERIOD_M15,1);
+    if(positionTrend == OP_BUY)
+    {
+        double gmmaWidthShort = GetGmmaWidth(PERIOD_M15,3,0);
+        if(gmmaWidthShort <= 0)
+        {
+            return true;
+        }
+
+        double candleDownBeardValue = CandleHelper.GetDownBeardPrice(PERIOD_M15,0);
+        if(candleBodyValue <= candleDownBeardValue)
+        {
+            return true;
+        }
+
+        if(nowPrice <= candleBodyMiddleBeforePrice)
+        {
+            return true;
+        }
+
+        if(nowPrice <= ema43)
+        {
+            return true;
+        }
+    }
+    else if(positionTrend == OP_SELL)]
+    {
+        double gmmaWidthShort = GetGmmaWidth(PERIOD_M15,3,0);
+        if(gmmaWidthShort >= 0)
+        {
+            return true;
+        }
+
+        double candleUpBeardValue = CandleHelper.GetUpBeardPrice(PERIOD_M15,0);
+        if(candleBodyValue <= candleUpBeardValue)
+        {
+            return true;
+        }
+
+        if(nowPrice >= candleBodyMiddleBeforePrice)
+        {
+            return true;
+        }
+
+        if(nowPrice >= ema43)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 /// <summary>
