@@ -138,8 +138,9 @@ void OnTick()
       Print ("セレクト無し");
     }
     
-    MySqlDisconnect(DB);
-    Print ("Disconnected. Script done!");
+   MySqlCursorClose(result);
+   MySqlDisconnect(DB);
+   Print ("Disconnected. Script done!");
     
     string myPair = Symbol();
     Print ("通貨ペア" , myPair);

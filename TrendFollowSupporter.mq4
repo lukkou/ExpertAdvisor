@@ -364,17 +364,13 @@ bool IsImportantReleaseExist(){
 
     string query = "";
     query = query + "select";
-    query = query + "  count(T.guidkey) as DataCount ";
-    query = query + "from";
-    query = query + "  IndexCalendars T ";
-    query = query + "where";
-    query = query + "  T.importance = 'high' ";
-    query = query + "  and T.timemode = '0' ";
-    query = query + "  and T.eventtype = 1 ";
-    query = query + "  and T.myreleasedate between date_format('" + startTimeStr + "', '%Y/%m/%d %H:%i:%s') and date_format('" + endTimeStr + "', '%Y/%m/%d %H:%i:%s')";
-    query = query + "  and ( ";
-    query = query + "    T.currencycode = '" + pair1 + "' || T.currencycode = '" + pair2 + "'";
-    query = query + "  ) ";
+    query = query + " count(T.guidkey) as DataCount";
+    query = query + " from";
+    query = query + " IndexCalendars T ";
+    query = query + " where";
+    query = query + " T.importance='high' ";
+    query = query + " and T.eventtype<>2 and T.myreleasedate between '" + startTimeStr + "' and '" + endTimeStr + "'";
+    query = query + " and(T.currencycode='" + pair1 + "'||T.currencycode='" + pair2 + "') ";
 
     //query発行
     int queryResult = MySqlCursorOpen(db,query);
@@ -393,6 +389,7 @@ bool IsImportantReleaseExist(){
       }
     }
 
+    MySqlCursorClose(queryResult);
     MySqlDisconnect(db);
 
     return result;
