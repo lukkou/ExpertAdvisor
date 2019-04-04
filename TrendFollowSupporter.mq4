@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                         TrendFollowSupporter.mq4 |
-//|                        Copyright 2017, MetaQuotes Software Corp. |
+//| CandleStickHelper v1.0.0                  Copyright 2017, Lukkou |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2017,  lukkou"

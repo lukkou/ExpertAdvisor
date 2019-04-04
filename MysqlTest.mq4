@@ -64,27 +64,24 @@ void OnTick()
     
     string mySymbol = Symbol();
     datetime tm = TimeLocal();
-    Print("現在の時刻は…" + tm);
+    //Print("現在の時刻は…" + tm);
     string s = TimeToStr(tm,TIME_SECONDS);
-    if(StringFind(s,"00:00") == -1)
-    {
-       return;
-    }
+
     datetime startTime = GetCileTime(-3600);
     datetime endTime = GetCileTime(1800);
     Print("1時間前の時刻は…" + startTime);
-    Print("30分前の時刻は…" + endTime);
+    ////Print("30分前の時刻は…" + endTime);
     string startTimeStr = TimeToStr(startTime,TIME_DATE|TIME_SECONDS);
-    Print("1時間前の文字列変換時刻は…" + startTimeStr);
+    //Print("1時間前の文字列変換時刻は…" + startTimeStr);
     string endTimeStr = TimeToStr(endTime,TIME_DATE|TIME_SECONDS);
-    Print("30分前の文字列変換時刻は…" + endTimeStr);
+    //Print("30分前の文字列変換時刻は…" + endTimeStr);
     StringReplace(startTimeStr,".","/");
     StringReplace(endTimeStr,".","/");
     
-    Print("確認時間の範囲は…" + startTimeStr + "～" + endTimeStr);
+    //Print("確認時間の範囲は…" + startTimeStr + "～" + endTimeStr);
     
-    Print ("Connecting...");
-    Print ("Host: ",host, ", User: ", user, ", Database: ",database,", password: ",password);
+    //Print ("Connecting...");
+    //Print ("Host: ",host, ", User: ", user, ", Database: ",database,", password: ",password);
     DB = MySqlConnect(host, user, password, database, port, socket, clientFlag);
     
     if (DB == -1){
@@ -97,18 +94,19 @@ void OnTick()
     Query = Query + "  , T.idkey";
     Query = Query + "  , T.currencycode";
     Query = Query + "  , T.eventtype";
-    Query = Query + "  , T.myreleasedate ";
+    Query = Query + "  , T.importance ";
     Query = Query + "from";
     Query = Query + "  IndexCalendars T ";
     Query = Query + "where";
     Query = Query + "  T.myreleasedate between '" + startTimeStr + "' and '" + endTimeStr + "' ";
-    Query = Query + "  and T.eventtype <> 1 ";
+    Query = Query + "  and T.eventtype <> 2 ";
     Query = Query + "order by";
     Query = Query + "  T.releasedate desc";
 
     Print ("SQL> ", Query);
     
     int result = MySqlCursorOpen(DB, Query);
+    Print ("result> ", result);
     string indexData[][5];
     if (result >= 0)
     {
@@ -138,13 +136,53 @@ void OnTick()
       Print ("セレクト無し");
     }
     
-   MySqlCursorClose(result);
-   MySqlDisconnect(DB);
-   Print ("Disconnected. Script done!");
-    
     string myPair = Symbol();
-    Print ("通貨ペア" , myPair);
-    Print ("一次元目の配列数" , ArrayRange(indexData,0));
+    //Print ("通貨ペア" , myPair);
+    string pair1 = StringSubstr(myPair,0,3);
+    string pair2 = StringSubstr(myPair,3,3);
+    
+    string query2 = "";
+    query2 = query2 + "select";
+    query2 = query2 + " count(T.guidkey) as DataCount";
+    query2 = query2 + " from";
+    query2 = query2 + " IndexCalendars T ";
+    query2 = query2 + " where";
+    query2 = query2 + " T.importance='high' ";
+    query2 = query2 + " and T.eventtype<>2 and T.myreleasedate between '" + startTimeStr + "' and '" + endTimeStr + "'";
+    query2 = query2 + " and(T.currencycode='" + pair1 + "'||T.currencycode='" + pair2 + "') ";
+    Print ("SQL> ", query2);
+    
+    //query発行
+    int queryResult = MySqlCursorOpen(DB,query2);
+    Print ("queryResult> ", queryResult);
+    if(queryResult > -1)
+    {
+      int row = MySqlCursorRows(queryResult);
+      for(int i = 0; i < row; i++){
+        if(MySqlCursorFetchRow(queryResult))
+        {
+          int indexCount = MySqlGetFieldAsInt(queryResult,0);
+          if(indexCount > 0)
+          {
+            //Print ("指標あり");
+          }
+          else
+          {
+            //Print ("指標なし");
+          }
+        }
+      }
+    }
+    
+    
+    MySqlCursorClose(result);
+    MySqlCursorClose(queryResult);
+    MySqlDisconnect(DB);
+    //Print ("Disconnected. Script done!");
+    
+    
+
+    //Print ("一次元目の配列数" , ArrayRange(indexData,0));
 
 
    if(ArrayRange(indexData,0) > 0){
