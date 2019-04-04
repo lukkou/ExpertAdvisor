@@ -12,7 +12,7 @@
 #include <Custom/TradeQuantityHelper.mqh>
 #include <Custom/CandleStickHelper.mqh>
 #include <Custom/TwitterHelper.mqh>
-#include <MQLMySQL.mqh>
+#include <Mysql/MQLMySQL.mqh>
 
 //マジックナンバー 他のEAと当らない値を使用する。
 input int MagicNumber = 11180001; 
@@ -231,7 +231,7 @@ void OnTick()
             else
             {
                 orderCmd = OP_SELL;
-                orderType = "OP_SELL"
+                orderType = "OP_SELL";
             }
             OrderHelper.SendOrder(orderCmd, lotSize, 0, Slippage, lossRenge, TakeProfit );
 
@@ -702,7 +702,7 @@ int IsNonTradeCheck()
     int result = 0;
 
     //4h足はエントリーの形になっているか？
-    bool candleStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,0)
+    bool candleStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,0);
 
     if(candleStyle == 0)
     {
@@ -711,8 +711,8 @@ int IsNonTradeCheck()
     }
     
     //　共通で使用する必要情報取得
-    double open = iOpen(NULL,time,shift);
-    double close = iClose(NULL,time,shift);
+    double open = iOpen(Symbol(),PERIOD_M15,0);
+    double close = iClose(Symbol(),PERIOD_M15,0);
 
     double nowEma30 = iMA(Symbol(),PERIOD_H4,30,0,MODE_EMA,PRICE_CLOSE,0);
     double nowEma60 = iMA(Symbol(),PERIOD_H4,60,0,MODE_EMA,PRICE_CLOSE,0);
@@ -899,7 +899,7 @@ bool IsSettlementCheckNonTrade(int positionTrend)
             return true;
         }
     }
-    else if(positionTrend == OP_SELL)]
+    else if(positionTrend == OP_SELL)
     {
         if(gmmaWidthShort >= 0)
         {

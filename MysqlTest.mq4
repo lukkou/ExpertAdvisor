@@ -8,7 +8,7 @@
 #property version   "1.00"
 #property strict
 
-#include <MQLMySQL.mqh>
+#include <Mysql\MQLMySQL.mqh>
 #include <Arrays\ArrayObj.mqh>
 #include <Arrays\ArrayString.mqh>
 #include <Arrays\ArrayInt.mqh>
