@@ -87,12 +87,44 @@ void OnTick()
     {
         if(hasPosition)
         {
-            //発表がある場合、自身に通貨ペアを強制決済
+            //ツイート用の情報取得
+            int orderNo = OrderHelper.GetTicket(0);
+            string symbol = OrderHelper.GetSymbol();
+            string orderType = "OP_SELL";
+            double price = OrderHelper.GetOrderClose(0);
+            double profits = OrderHelper.GetOrderProfit(0);
+            string type = "Settlement";
+
+            //決済
             OrderHelper.CloseOrder(0, Slippage);
+
+            //ついーと！！
+            TweetHelper.SettementOrderTweet(orderNo, symbol, orderType, price, profits, type);
+        }
+        return;
+    }
+
+    //平日のみトレードを行う（日本時間土曜日は行わない）
+    int weekCount = GetNowWeekCount();
+    if(weekCount == 1 || weekCount == 7)
+    {
+        if(hasPosition)
+        {
+            //ツイート用の情報取得
+            int orderNo = OrderHelper.GetTicket(0);
+            string symbol = OrderHelper.GetSymbol();
+            string orderType = "OP_SELL";
+            double price = OrderHelper.GetOrderClose(0);
+            double profits = OrderHelper.GetOrderProfit(0);
+            string type = "Settlement";
+
+            //決済
+            OrderHelper.CloseOrder(0, Slippage);
+
+            //ついーと！！
+            TweetHelper.SettementOrderTweet(orderNo, symbol, orderType, price, profits, type);
         }
 
-        //ツイッターに告知
-        //TweetImportantRelease();
         return;
     }
 
@@ -484,7 +516,49 @@ void TweetImportantRelease()
         }
     }
 
+    MySqlCursorClose(queryResult);
     MySqlDisconnect(db);
+}
+
+/// <summary>
+/// 現在の曜日を取得
+/// 1：日曜日、2：月曜日、3：火曜日、4：水曜日、5：木曜日、6：金曜日、7：土曜日
+/// <summary>
+/// <returns>システム日付の曜日を１～７で取得
+int GetNowWeekCount()
+{
+    int result = 0;
+    int db = MySqlConnect(_host, _user, _password, _database, _port, _socket, _clientFlag);
+    
+    if (db == -1){
+      Print ("Connection failed! Error: " + MySqlErrorDescription);
+
+      //エラーだったら繋がらない情報をツイッターリプライで告知
+
+      return result;
+    }
+
+    string query = "";
+    query = query + "select DAYOFWEEK(now()) as weekcount";
+
+    //query発行
+    int queryResult = MySqlCursorOpen(db,query);
+    if(queryResult > -1)
+    {
+        int row = MySqlCursorRows(queryResult);
+        for(int i = 0; i < row; i++)
+        {
+            if(MySqlCursorFetchRow(queryResult))
+            {
+                int result = MySqlGetFieldAsInt(queryResult,0);
+            }
+        }
+    }
+
+    MySqlCursorClose(queryResult);
+    MySqlDisconnect(db);
+
+    return result;
 }
 
 /// <summary>
