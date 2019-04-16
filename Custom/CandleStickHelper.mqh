@@ -59,7 +59,7 @@ class CandleStickHelper{
     // ローソク足が陽線か陰線かチェックする
     ///param name="time":取得時間
     ///param name="shift":取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)
-    /// Return   0 = 星 1 = 陽線 2 = 陰線
+    /// Return   0 = 星 1 = 陽線 -1 = 陰線
     int CandleStickHelper::CandleBodyStyle(int time,int shift){
         int result = 0;
 
@@ -72,7 +72,7 @@ class CandleStickHelper{
         }
         else if(open < close)
         {
-            result = 2;
+            result = -1;
         }
 
         return result;
