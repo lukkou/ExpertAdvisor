@@ -450,7 +450,7 @@ int GetNowWeekCount(int db)
         {
             if(MySqlCursorFetchRow(queryResult))
             {
-                int result = MySqlGetFieldAsInt(queryResult,0);
+                result = MySqlGetFieldAsInt(queryResult,0);
             }
         }
     }
@@ -469,15 +469,15 @@ int GetNowLongGemaTrend()
     int result = 0;
 
     //現在足のwidth数値
-    double nowWidthValuePlus = GetGmmaWidth(PERIOD_H4,1,0);
-    double nowWidthValueMinus = GetGmmaWidth(PERIOD_H4,2,0);
+    double nowWidthValuePlus = GetGmmaWidth(PERIOD_H4,0,0);
+    double nowWidthValueMinus = GetGmmaWidth(PERIOD_H4,1,0);
 
     //4時間前足のwidth数値
-    double beforeWidthValuePlus = GetGmmaWidth(PERIOD_H4,1,1);
-    double beforeWidthValueMinus = GetGmmaWidth(PERIOD_H4,2,1);
+    double beforeWidthValuePlus = GetGmmaWidth(PERIOD_H4,0,1);
+    double beforeWidthValueMinus = GetGmmaWidth(PERIOD_H4,1,1);
 
     //現在足のGMMA幅(35-60)を取得
-    double gmmaWightLong = GetGmmaWidth(PERIOD_H4,4,0);
+    double gmmaWightLong = GetGmmaWidth(PERIOD_H4,2,0);
 
     //現在のGMMA幅の位置を取得
     if(nowWidthValuePlus > 0 && beforeWidthValuePlus > 0)
@@ -487,7 +487,8 @@ int GetNowLongGemaTrend()
     else if(nowWidthValueMinus < 0 && beforeWidthValueMinus < 0)
     {
         result = -1;
-    }else
+    }
+    else
     {
         //トレンドが無い判断のため以降をチェックする必要なし
         return result;
