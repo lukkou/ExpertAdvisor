@@ -84,6 +84,7 @@ void OnTick()
       Print ("Connection failed! Error: " + MySqlErrorDescription);
 
       //エラーだったら繋がらない情報をツイッターリプライで告知
+      MySqlDisconnect(db);
       return;
     }
 
@@ -110,6 +111,8 @@ void OnTick()
             //ついーと！！
             TweetHelper.SettementOrderTweet(orderNo, symbol, orderType, price, profits, type);
         }
+
+        MySqlDisconnect(db);
         return;
     }
 
@@ -134,6 +137,7 @@ void OnTick()
             TweetHelper.SettementOrderTweet(orderNo, symbol, orderType, price, profits, type);
         }
 
+        MySqlDisconnect(db);
         return;
     }
 
@@ -247,6 +251,7 @@ void OnTick()
 
     if(hasPosition == true)
     {
+        MySqlDisconnect(db);
         return;
     }
 
@@ -534,9 +539,9 @@ int GetUpTrendCandleStatus()
 
     if(beforeCandleStyle == -1 && nowCandleStyle == 1)
     {
-        double beforeClose = iClose(Symbol(),PERIOD_H4,1);
+        double beforeOpen = iOpen(Symbol(),PERIOD_H4,1);
 
-        if(nowPrice > beforeClose)
+        if(nowPrice > beforeOpen)
         {
             result = 1;
         }
