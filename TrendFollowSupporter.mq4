@@ -373,6 +373,8 @@ void OnTick()
     }
 
     MySqlDisconnect(db);
+
+    //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
     Sleep(1000);
 }
 
@@ -479,6 +481,9 @@ int GetNowLongGemaTrend()
     //現在足のGMMA幅(35-60)を取得
     double gmmaWightLong = GetGmmaWidth(PERIOD_H4,2,0);
 
+    //現在足のGMMA幅(3-15)を取得
+    double gmmaWidthShort = GetGmmaWidth(PERIOD_H4,3,0);
+
     //現在のGMMA幅の位置を取得
     if(nowWidthValuePlus > 0 && beforeWidthValuePlus > 0)
     {
@@ -496,7 +501,7 @@ int GetNowLongGemaTrend()
 
 
     //トレンドがあってもLong Shortの幅が無ければトレンドなしの判断
-    if(MathAbs(gmmaWightLong) < 0.01)
+    if(MathAbs(gmmaWightLong) < 0.01 && MathAbs(gmmaWidthShort))
     {
         result = 0;
     }
@@ -519,9 +524,9 @@ int GetUpTrendCandleStatus()
 {
     bool result = 0;
 
-    //今足の形状を取得
+    //今足の形状を取得(0 = 星 1 = 陽線 -1 = 陰線)
     int nowCandleStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,0);
-    //前足の形状を取得
+    //前足の形状を取得(0 = 星 1 = 陽線 -1 = 陰線)
     int beforeCandleStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,1);
     //現在値
     double nowPrice = iClose(Symbol(),PERIOD_H4,0);
@@ -557,9 +562,9 @@ bool GetDownTrendCandleStatus()
 {
     bool result = 0;
 
-    //今足の形状を取得
+    //今足の形状を取得(0 = 星 1 = 陽線 -1 = 陰線)
     int nowCandleStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,0);
-    //前足の形状を取得
+    //前足の形状を取得(0 = 星 1 = 陽線 -1 = 陰線)
     int beforeCandleStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,1);
     //現在値
     double nowPrice = iClose(Symbol(),PERIOD_H4,0);
