@@ -78,11 +78,20 @@ void OnDeinit(const int reason)
 /// </summary>
 void OnTick()
 {
+    int db = MySqlConnect(_host, _user, _password, _database, _port, _socket, _clientFlag);
+    
+    if (db == -1){
+      Print ("Connection failed! Error: " + MySqlErrorDescription);
+
+      //エラーだったら繋がらない情報をツイッターリプライで告知
+      return;
+    }
+
     //自身の通貨ペアポジションがあるか？
     bool hasPosition = (OrderHelper.GetPositionCount() > 0);
 
     //通貨ペアの現在時刻より30分後 又は15分前に重要指標の発表があるか？
-    bool importantExist = IsImportantReleaseExist();
+    bool importantExist = IsImportantReleaseExist(db);
     if(importantExist == true)
     {
         if(hasPosition)
@@ -105,7 +114,7 @@ void OnTick()
     }
 
     //平日のみトレードを行う（日本時間土曜日は行わない）
-    int weekCount = GetNowWeekCount();
+    int weekCount = GetNowWeekCount(db);
     if(weekCount == 1 || weekCount == 7)
     {
         if(hasPosition)
@@ -362,27 +371,21 @@ void OnTick()
             TweetHelper.NewOrderTweet(orderNo, symbol, orderType, price, type);
         }
     }
+
+    MySqlDisconnect(db);
+    Sleep(1000);
 }
 
 /// <summary>
 /// 指定時間内に重要指標が存在すかのチェック
 /// </summary>
 /// <returns>bool</returns>
-bool IsImportantReleaseExist(){
+bool IsImportantReleaseExist(int db){
     bool result = false;
 
     string myPair = Symbol();
     string pair1 = StringSubstr(myPair,0,3);
     string pair2 = StringSubstr(myPair,3,3);
-
-    int db = MySqlConnect(_host, _user, _password, _database, _port, _socket, _clientFlag);
-    
-    if (db == -1){
-      Print ("Connection failed! Error: " + MySqlErrorDescription);
-
-      //エラーだったら繋がらない情報をツイッターリプライで告知
-      return result;
-    }
 
     //現在時刻から30分後と15分前の時刻を取得
     datetime startTime = GetCileTime(-1800);
@@ -422,102 +425,8 @@ bool IsImportantReleaseExist(){
     }
 
     MySqlCursorClose(queryResult);
-    MySqlDisconnect(db);
 
     return result;
-}
-
-/// <summary>
-/// 重要指標発表直前をツイッターで通知
-/// <summary>
-void TweetImportantRelease()
-{
-    string myPair = Symbol();
-    string pair1 = StringSubstr(myPair,0,3);
-    string pair2 = StringSubstr(myPair,3,3);
-
-    int db = MySqlConnect(_host, _user, _password, _database, _port, _socket, _clientFlag);
-    
-    if (db == -1){
-      Print ("Connection failed! Error: " + MySqlErrorDescription);
-
-      //エラーだったら繋がらない情報をツイッターリプライで告知
-
-      return;
-    }
-
-    //現在時刻から30分後と15分前の時刻を取得
-    datetime startTime = GetCileTime(-1800);
-    datetime endTime = GetCileTime(900);
-
-    string startTimeStr = TimeToStr(startTime,TIME_DATE|TIME_SECONDS);
-    string endTimeStr = TimeToStr(endTime,TIME_DATE|TIME_SECONDS);
-
-    StringReplace(startTimeStr,".","/");
-    StringReplace(endTimeStr,".","/");
-
-    string query = "";
-    query = query + "select";
-    query = query + "  T1.guidkey";
-    query = query + "  , T1.idkey";
-    query = query + "  , T1.eventname";
-    query = query + "  , date_format(T1.myreleasedate,'%Y/%m/%d %H:%i') as myreleasedate";
-    query = query + "  , T1.forecastvalue";
-    query = query + "  , T1.previousvalue";
-    query = query + "  , ifnull(T2.tweetflg,0) as flg";
-    query = query + "from";
-    query = query + "  IndexCalendars T1 ";
-    query = query + "  inner join NotificationFlg T2 ";
-    query = query + "    on T2.guidkey = T1.guidkey ";
-    query = query + "    and T2.idkey = T1.idkey ";
-    query = query + "where";
-    query = query + "  T1.importance = 'high' ";
-    query = query + "  and T1.timemode = '0' ";
-    query = query + "  and T1.eventtype = 1 ";
-    query = query + "  and T1.myreleasedate between date_format('" + startTimeStr + "', '%Y/%m/%d %H:%i:%s') and date_format('" + endTimeStr + "', '%Y/%m/%d %H:%i:%s')";
-    query = query + "  and ( ";
-    query = query + "    T1.currencycode = '" + pair1 + "' || T1.currencycode = '" + pair2 + "'";
-    query = query + "  ) ";
-
-    //query発行
-    int queryResult = MySqlCursorOpen(db,query);
-    if(queryResult > -1)
-    {
-        int row = MySqlCursorRows(queryResult);
-        for(int i = 0; i < row; i++)
-        {
-            if(MySqlCursorFetchRow(queryResult))
-            {
-                int flg = MySqlGetFieldAsInt(queryResult,6);
-                if(flg == 0)
-                {
-                    //またTwitterに通知していないので通知
-                    string guid = MySqlGetFieldAsString(queryResult,0);
-                    string id = MySqlGetFieldAsString(queryResult,1);
-                    string title =  MySqlGetFieldAsString(queryResult,2);
-                    string day = MySqlGetFieldAsString(queryResult,3);
-                    double forecast = MySqlGetFieldAsDouble(queryResult,4);
-                    double previous = MySqlGetFieldAsDouble(queryResult,5);
-
-                    string tweetStr = "";
-                    tweetStr = tweetStr + "@lukkou" + "\n";
-                    tweetStr = tweetStr + "指標名：" + title + "\n";
-                    tweetStr = tweetStr + "発表日：[" + day + "]\n";
-                    tweetStr = tweetStr + "前回値：[" + DoubleToString(previous) + "]\n";
-                    tweetStr = tweetStr + "予想値：[" + DoubleToString(forecast) + "]";
-
-                    //ついーと！！
-                    TweetHelper.ExecTweet(tweetStr);
-
-                    //通知完了レコード登録
-                    InsertTweetFlg(db, guid, id);
-                }
-            }
-        }
-    }
-
-    MySqlCursorClose(queryResult);
-    MySqlDisconnect(db);
 }
 
 /// <summary>
@@ -525,18 +434,9 @@ void TweetImportantRelease()
 /// 1：日曜日、2：月曜日、3：火曜日、4：水曜日、5：木曜日、6：金曜日、7：土曜日
 /// <summary>
 /// <returns>システム日付の曜日を１～７で取得
-int GetNowWeekCount()
+int GetNowWeekCount(int db)
 {
     int result = 0;
-    int db = MySqlConnect(_host, _user, _password, _database, _port, _socket, _clientFlag);
-    
-    if (db == -1){
-      Print ("Connection failed! Error: " + MySqlErrorDescription);
-
-      //エラーだったら繋がらない情報をツイッターリプライで告知
-
-      return result;
-    }
 
     string query = "";
     query = query + "select DAYOFWEEK(now()) as weekcount";
@@ -556,30 +456,8 @@ int GetNowWeekCount()
     }
 
     MySqlCursorClose(queryResult);
-    MySqlDisconnect(db);
 
     return result;
-}
-
-/// <summary>
-/// 指標通知フラグを登録
-/// <summary>
-void InsertTweetFlg(int db, string guid, string id)
-{
-    string query = "";
-    query = query + "insert ";
-    query = query + "into NotificationFlg(";
-    query = query + "  guidkey";
-    query = query + "  , idkey";
-    query = query + "  , tweetflg";
-    query = query + ") ";
-    query = query + "values (";
-    query = query + "  '" + guid + "'";
-    query = query + "  , '" + id + "'";
-    query = query + "  , 1";
-    query = query + " )";
-
-    MySqlExecute(db, query);
 }
 
 /// <summary>
