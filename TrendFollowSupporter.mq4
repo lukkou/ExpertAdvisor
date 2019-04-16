@@ -84,7 +84,6 @@ void OnTick()
       Print ("Connection failed! Error: " + MySqlErrorDescription);
 
       //エラーだったら繋がらない情報をツイッターリプライで告知
-      MySqlDisconnect(db);
       return;
     }
 
@@ -113,6 +112,9 @@ void OnTick()
         }
 
         MySqlDisconnect(db);
+
+        //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
+        Sleep(1000);
         return;
     }
 
@@ -138,6 +140,9 @@ void OnTick()
         }
 
         MySqlDisconnect(db);
+
+        //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
+        Sleep(1000);
         return;
     }
 
@@ -252,6 +257,9 @@ void OnTick()
     if(hasPosition == true)
     {
         MySqlDisconnect(db);
+
+        //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
+        Sleep(1000);
         return;
     }
 
