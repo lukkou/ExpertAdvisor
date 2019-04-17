@@ -78,8 +78,8 @@ void OnDeinit(const int reason)
 /// </summary>
 void OnTick()
 {
-    int db = MySqlConnect(_host, _user, _password, _database, _port, _socket, _clientFlag);
-    
+    //int db = MySqlConnect(_host, _user, _password, _database, _port, _socket, _clientFlag);
+    int db = 1;
     if (db == -1){
       Print ("Connection failed! Error: " + MySqlErrorDescription);
 
@@ -111,10 +111,10 @@ void OnTick()
             TweetHelper.SettementOrderTweet(orderNo, symbol, orderType, price, profits, type);
         }
 
-        MySqlDisconnect(db);
+        //MySqlDisconnect(db);
 
         //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
-        Sleep(1000);
+        Sleep(500);
         return;
     }
 
@@ -139,16 +139,26 @@ void OnTick()
             TweetHelper.SettementOrderTweet(orderNo, symbol, orderType, price, profits, type);
         }
 
-        MySqlDisconnect(db);
+        //MySqlDisconnect(db);
 
         //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
-        Sleep(1000);
+        Sleep(500);
         return;
     }
 
     //現在の4hトレンドを確認
     //トレンド判定(-1:ダウントレンド,0:トレンド無し,1:アップトレンド)
     int longTrend = GetNowLongGemaTrend();
+    if(longTrend == 2147483647)
+    {
+        Print("現在のトレンドは「2147483647」のため判断不可　何もしない！！！");
+        //MySqlDisconnect(db);
+
+        //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
+        Sleep(500);
+        return;
+    }
+    Print("現在のトレンドは：" + IntegerToString(longTrend));
 
     //---売却確認用ロジック---
     if(hasPosition)
@@ -256,10 +266,10 @@ void OnTick()
 
     if(hasPosition == true)
     {
-        MySqlDisconnect(db);
+        //MySqlDisconnect(db);
 
         //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
-        Sleep(1000);
+        Sleep(500);
         return;
     }
 
@@ -268,6 +278,7 @@ void OnTick()
     {
         //4hトレンドが無い場合
         int trendStatus = IsNonTradeCheck();
+        Print("トレンドが無い場合の売買判定は" + IntegerToString(trendStatus));
         if(trendStatus != 0)
         {
             double lossRenge = LotHelper.GetSdLossRenge();
@@ -306,7 +317,7 @@ void OnTick()
 
         //アップトレンドの場合
         int upTrendStatus = GetUpTrendCandleStatus();
-
+        Print("アップトレンドの場合の売買判定は" + IntegerToString(upTrendStatus));
         if(upTrendStatus == 1)
         {
             tradeFlg = true;
@@ -348,7 +359,7 @@ void OnTick()
 
         //ダウントレンドの場合
         int downTrendStatus = GetDownTrendCandleStatus();
-
+        Print("ダウントレンドの場合の売買判定は" + IntegerToString(downTrendStatus));
         if(downTrendStatus == 1)
         {
             tradeFlg = true;
@@ -385,10 +396,10 @@ void OnTick()
         }
     }
 
-    MySqlDisconnect(db);
+    //MySqlDisconnect(db);
 
     //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
-    Sleep(1000);
+    Sleep(500);
 }
 
 /// <summary>
@@ -397,7 +408,7 @@ void OnTick()
 /// <returns>bool</returns>
 bool IsImportantReleaseExist(int db){
     bool result = false;
-
+    return result;
     string myPair = Symbol();
     string pair1 = StringSubstr(myPair,0,3);
     string pair2 = StringSubstr(myPair,3,3);
@@ -452,7 +463,7 @@ bool IsImportantReleaseExist(int db){
 int GetNowWeekCount(int db)
 {
     int result = 0;
-
+    return 2;
     string query = "";
     query = query + "select DAYOFWEEK(now()) as weekcount";
 
@@ -486,10 +497,16 @@ int GetNowLongGemaTrend()
     //現在足のwidth数値
     double nowWidthValuePlus = GetGmmaWidth(PERIOD_H4,0,0);
     double nowWidthValueMinus = GetGmmaWidth(PERIOD_H4,1,0);
+    
+    if(2147483647 == nowWidthValueMinus)
+    {
+        return 2147483647;
+    }
 
     //4時間前足のwidth数値
     double beforeWidthValuePlus = GetGmmaWidth(PERIOD_H4,0,1);
     double beforeWidthValueMinus = GetGmmaWidth(PERIOD_H4,1,1);
+
 
     //現在足のGMMA幅(35-60)を取得
     double gmmaWightLong = GetGmmaWidth(PERIOD_H4,2,0);
@@ -514,7 +531,7 @@ int GetNowLongGemaTrend()
 
 
     //トレンドがあってもLong Shortの幅が無ければトレンドなしの判断
-    if(MathAbs(gmmaWightLong) < 0.01 && MathAbs(gmmaWidthShort))
+    if(MathAbs(gmmaWightLong) < 0.05 && MathAbs(gmmaWidthShort) < 0.05)
     {
         result = 0;
     }
@@ -549,7 +566,13 @@ int GetUpTrendCandleStatus()
     {
         double beforeOpen = iOpen(Symbol(),PERIOD_H4,1);
 
-        if(nowPrice > beforeOpen)
+        //現在足のGMMA幅(35-60)を取得
+        double gmmaWightLong = GetGmmaWidth(PERIOD_H4,2,0);
+
+        //現在足のGMMA幅(3-15)を取得
+        double gmmaWidthShort = GetGmmaWidth(PERIOD_H4,3,0);
+
+        if(nowPrice > beforeOpen && MathAbs(gmmaWightLong) < 0.05 && MathAbs(gmmaWidthShort) < 0.05)
         {
             result = 1;
         }
@@ -587,7 +610,13 @@ bool GetDownTrendCandleStatus()
     {
         double beforeOpen = iOpen(Symbol(),PERIOD_H4,1);
 
-        if(nowPrice < beforeOpen)
+        //現在足のGMMA幅(35-60)を取得
+        double gmmaWightLong = GetGmmaWidth(PERIOD_H4,2,0);
+
+        //現在足のGMMA幅(3-15)を取得
+        double gmmaWidthShort = GetGmmaWidth(PERIOD_H4,3,0);
+
+        if(nowPrice < beforeOpen && MathAbs(gmmaWightLong) < 0.05 && MathAbs(gmmaWidthShort) < 0.05)
         {
             result = 1;
         }
@@ -679,11 +708,13 @@ int IsNonTradeCheck()
     }
     
     //　共通で使用する必要情報取得
-    double open = iOpen(Symbol(),PERIOD_M15,0);
-    double close = iClose(Symbol(),PERIOD_M15,0);
+    double open = iOpen(Symbol(),PERIOD_H4,0);
+    double close = iClose(Symbol(),PERIOD_H4,0);
 
-    double nowEma30 = iMA(Symbol(),PERIOD_H4,30,0,MODE_EMA,PRICE_CLOSE,0);
-    double nowEma60 = iMA(Symbol(),PERIOD_H4,60,0,MODE_EMA,PRICE_CLOSE,0);
+    double nowOpneEma30 = iMA(Symbol(),PERIOD_H4,30,0,MODE_EMA,PRICE_OPEN,0);
+    double nowOpneEma60 = iMA(Symbol(),PERIOD_H4,60,0,MODE_EMA,PRICE_OPEN,0);
+    double nowCloseEma30 = iMA(Symbol(),PERIOD_H4,30,0,MODE_EMA,PRICE_CLOSE,0);
+    double nowCloseEma60 = iMA(Symbol(),PERIOD_H4,60,0,MODE_EMA,PRICE_CLOSE,0);
 
     double gmmaWidthLongNow = GetGmmaWidth(PERIOD_H4,2,0);
     double gmmaWidthLongBefore = GetGmmaWidth(PERIOD_H4,2,1);
@@ -691,47 +722,46 @@ int IsNonTradeCheck()
     if(candleStyle == 1)
     {
         //陽線の場合
-        if(nowEma30 > nowEma60)
+        if(gmmaWidthLongNow < 0)
         {
-            //EMA30 > EMA60の場合は判断する価値無し
             return result;
         }
-
-        if(MathAbs(gmmaWidthLongNow) >= 0.1 || MathAbs(gmmaWidthLongBefore) >= 0.1 || MathAbs(gmmaWidthLongSecondBefore) >= 0.1)
+         Print(DoubleToStr(nowOpneEma60) + ">" + DoubleToStr(open) + ":" + DoubleToStr(nowCloseEma30) + "<" + DoubleToStr(close));
+        if(nowOpneEma60 > open && nowCloseEma30 < close)
         {
-            //過去12時間トレンドが無い場合は判断する価値無し
-            return result;
-        }
-
-        if(nowEma30 > open && nowEma60 > close)
-        {
+            Print("上トレンドブレイクの前提OK");
             //前提がそろった場合のみ15mをチェック
             double nowTema = GetTema(PERIOD_M15,0,0);
             double gmmaIndexLong = GetGmmaIndex(PERIOD_M15,0,0);
-            double gmmaUp = GetGmmaWidth(PERIOD_H4,0,0);
-
-            if(nowTema > 0 && gmmaIndexLong == 5 && gmmaUp > 0)
+            double gmmaIndexShort = GetGmmaIndex(PERIOD_M15,0,0);
+            double gmmaWidthSHortNow = MathAbs(GetGmmaWidth(PERIOD_M15,3,0));
+            double gmmaWidthSHortBefore = MathAbs(GetGmmaWidth(PERIOD_M15,3,1));
+            
+            Print("gmmaWidthSHortNow" + DoubleToStr(gmmaWidthSHortNow));
+            Print("gmmaWidthSHortBefore" + DoubleToStr(gmmaWidthSHortBefore));
+            double changePercent = 0 ;
+            if(gmmaWidthSHortBefore != 0)
+            {
+                changePercent = (gmmaWidthSHortBefore - gmmaWidthSHortNow) / gmmaWidthSHortNow;
+            }
+            
+            
+            Print("nowTema:" + DoubleToStr(nowTema) + " // gmmaIndexShort:" + DoubleToStr(gmmaIndexShort) +" // changePercent:" + DoubleToStr(changePercent));
+            if(nowTema > 0 && gmmaIndexShort == 5 && changePercent != 0)
             {
                 result = 1;
             }
         }
     }
-    else if(candleStyle == 2)
+    else if(candleStyle == -1)
     {
         //陰線の場合
-        if(nowEma30 < nowEma60)
+        if(gmmaWidthLongNow > 0)
         {
-            //EMA30 < EMA60の場合は判断する価値無し
             return result;
         }
 
-        if(MathAbs(gmmaWidthLongNow) >= 0.1 || MathAbs(gmmaWidthLongBefore) >= 0.1 || MathAbs(gmmaWidthLongSecondBefore) >= 0.1)
-        {
-            //過去12時間トレンドが無い場合は判断する価値無し
-            return result;
-        }
-
-        if(nowEma30 < open && nowEma60 < close)
+        if(nowOpneEma60 < open && nowCloseEma30 > close)
         {
             //前提がそろった場合のみ15mをチェック
             double nowTema = GetTema(PERIOD_M15,1,0);
@@ -759,7 +789,7 @@ bool IsSettlementCheck(int positionTrend)
 
     if(positionTrend == OP_BUY)
     {
-        //ポシジョンの方向が売りの場合に決済するかの判断
+        //ポシジョンの方向が買いの場合に決済するかの判断
         double gmmaShortIndex =  GetGmmaIndex(PERIOD_M15,0,0);
         double ema13 = iMA(Symbol(),PERIOD_M15,13,0,MODE_EMA,PRICE_CLOSE,0);
         if(gmmaShortIndex <= 0 && ema13 < nowPrice)
