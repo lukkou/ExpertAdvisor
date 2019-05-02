@@ -747,7 +747,7 @@ int IsNonTradeCheck()
             
             
             Print("nowTema:" + DoubleToStr(nowTema) + " // gmmaIndexShort:" + DoubleToStr(gmmaIndexShort) +" // changePercent:" + DoubleToStr(changePercent));
-            if(nowTema > 0 && gmmaIndexShort == 5 && changePercent != 0)
+            if(nowTema > 0 && gmmaIndexShort == 5 && changePercent >= 0.4)
             {
                 result = 1;
             }
@@ -763,12 +763,25 @@ int IsNonTradeCheck()
 
         if(nowOpneEma60 < open && nowCloseEma30 > close)
         {
+            Print("下トレンドブレイクの前提OK");
             //前提がそろった場合のみ15mをチェック
-            double nowTema = GetTema(PERIOD_M15,1,0);
+            double nowTema = GetTema(PERIOD_M15,0,0);
             double gmmaIndexLong = GetGmmaIndex(PERIOD_M15,0,0);
-            double gmmaDown = GetGmmaWidth(PERIOD_H4,1,0);
+            double gmmaIndexShort = GetGmmaIndex(PERIOD_M15,0,0);
+            double gmmaWidthSHortNow = MathAbs(GetGmmaWidth(PERIOD_M15,3,0));
+            double gmmaWidthSHortBefore = MathAbs(GetGmmaWidth(PERIOD_M15,3,1));
 
-            if(nowTema < 0 && gmmaIndexLong == -5 && gmmaDown < 0)
+            Print("gmmaWidthSHortNow" + DoubleToStr(gmmaWidthSHortNow));
+            Print("gmmaWidthSHortBefore" + DoubleToStr(gmmaWidthSHortBefore));
+            double changePercent = 0 ;
+            if(gmmaWidthSHortBefore != 0)
+            {
+                changePercent = (gmmaWidthSHortBefore - gmmaWidthSHortNow) / gmmaWidthSHortNow;
+            }
+            
+            
+            Print("nowTema:" + DoubleToStr(nowTema) + " // gmmaIndexShort:" + DoubleToStr(gmmaIndexShort) +" // changePercent:" + DoubleToStr(changePercent));
+            if(nowTema < 0 && gmmaIndexShort == -5 && changePercent >= 0.4)
             {
                 result = 2;
             }
@@ -869,53 +882,53 @@ bool IsSettlementCheck(int positionTrend)
 bool IsSettlementCheckNonTrade(int positionTrend)
 {
     double nowPrice = iClose(Symbol(),PERIOD_M15,0);
-    double ema43 = iMA(Symbol(),PERIOD_M15,43,0,MODE_EMA,PRICE_CLOSE,0);
-    double gmmaWidthShort = GetGmmaWidth(PERIOD_M15,3,0);
+    double gmmaIndexShort = GetGmmaIndex(PERIOD_M15,0,0);
+    double ema43 = iMA(Symbol(),PERIOD_H4,43,0,MODE_EMA,PRICE_CLOSE,0);
+    double ema15 = iMA(Symbol(),PERIOD_M15,43,0,MODE_EMA,PRICE_CLOSE,0);
+    double nowTema = GetTema(PERIOD_M15,0,0);
     
     double candleBodyValue = CandleHelper.GetBodyPrice(PERIOD_M15,0);
     double candleBodyMiddleBeforePrice = CandleHelper.GetBodyMiddlePrice(PERIOD_M15,1);
     if(positionTrend == OP_BUY)
     {
-        if(gmmaWidthShort <= 0)
+        if(nowTema <= 0)
         {
+            Print("nowTemaがマイナス" + DoubleToStr(nowTema));
             return true;
         }
 
-        double candleDownBeardValue = CandleHelper.GetDownBeardPrice(PERIOD_M15,0);
-        if(candleBodyValue <= candleDownBeardValue)
+        if(gmmaIndexShort != 5 && nowPrice <= candleBodyMiddleBeforePrice)
         {
+            Print("前回本体値段より今値段がした");
+            Print("本体中央値段：" + DoubleToStr(candleBodyMiddleBeforePrice));
+            Print("今値段：" + DoubleToStr(nowPrice));
             return true;
         }
 
-        if(nowPrice <= candleBodyMiddleBeforePrice)
+        if(nowPrice <= ema43 || nowPrice <= ema15)
         {
-            return true;
-        }
-
-        if(nowPrice <= ema43)
-        {
+            Print("EMA43より現在値段がした");
+            Print("ema43" + DoubleToStr(ema43));
+            Print("今値段：" + DoubleToStr(nowPrice));
             return true;
         }
     }
     else if(positionTrend == OP_SELL)
     {
-        if(gmmaWidthShort >= 0)
-        {
-            return true;
-        }
-
-        double candleUpBeardValue = CandleHelper.GetUpBeardPrice(PERIOD_M15,0);
-        if(candleBodyValue <= candleUpBeardValue)
+        if(nowTema >= 0)
         {
             return true;
         }
 
         if(nowPrice >= candleBodyMiddleBeforePrice)
         {
+            Print("前回本体値段より今値段がした");
+            Print("本体中央値段：" + DoubleToStr(candleBodyMiddleBeforePrice));
+            Print("今値段：" + DoubleToStr(nowPrice));
             return true;
         }
 
-        if(nowPrice >= ema43)
+        if(nowPrice >= ema43 || nowPrice >= ema15)
         {
             return true;
         }
