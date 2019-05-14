@@ -22,8 +22,8 @@ extern int MaxPosition = 1;        //最大ポジション数
 extern int SdSigma = 3;
 extern double RiskPercent = 2.0;
 
-input double Slippage = 10;      //許容スリッピング（Pips単位）
-input uint TakeProfit = 50;      //利益確定
+input double Slippage = 40;      //許容スリッピング（Pips単位）
+input uint TakeProfit = 100;      //利益確定
 
 input string TweetCmdPash = "C:\\PROGRA~2\\dentakurou\\Tweet\\Tweet.exe";       //自動投稿exeパス
 
@@ -114,7 +114,7 @@ void OnTick()
         //MySqlDisconnect(db);
 
         //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
-        Sleep(500);
+        //Sleep(500);
         return;
     }
 
@@ -142,7 +142,7 @@ void OnTick()
         //MySqlDisconnect(db);
 
         //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
-        Sleep(500);
+        //Sleep(500);
         return;
     }
 
@@ -155,7 +155,7 @@ void OnTick()
         //MySqlDisconnect(db);
 
         //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
-        Sleep(500);
+        //Sleep(500);
         return;
     }
     Print("現在のトレンドは：" + IntegerToString(longTrend));
@@ -269,7 +269,7 @@ void OnTick()
         //MySqlDisconnect(db);
 
         //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
-        Sleep(500);
+        //Sleep(500);
         return;
     }
 
@@ -399,7 +399,7 @@ void OnTick()
     //MySqlDisconnect(db);
 
     //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
-    Sleep(500);
+    //Sleep(500);
 }
 
 /// <summary>
@@ -497,8 +497,11 @@ int GetNowLongGemaTrend()
     //現在足のwidth数値
     double nowWidthValuePlus = GetGmmaWidth(PERIOD_H4,0,0);
     double nowWidthValueMinus = GetGmmaWidth(PERIOD_H4,1,0);
-    
-    if(2147483647 == nowWidthValueMinus)
+
+    Print("ValuePlus:" + DoubleToStr(GetGmmaWidth(PERIOD_H4,0,0)));
+    Print("ValueMinus:" + DoubleToStr(GetGmmaWidth(PERIOD_H4,1,0)));
+
+    if(nowWidthValueMinus == 2147483647 || nowWidthValuePlus == 2147483647)
     {
         return 2147483647;
     }
@@ -515,11 +518,11 @@ int GetNowLongGemaTrend()
     double gmmaWidthShort = GetGmmaWidth(PERIOD_H4,3,0);
 
     //現在のGMMA幅の位置を取得
-    if(nowWidthValuePlus > 0 && beforeWidthValuePlus > 0)
+    if(nowWidthValuePlus > 0.01 && beforeWidthValuePlus > 0)
     {
         result = 1;
     }
-    else if(nowWidthValueMinus < 0 && beforeWidthValueMinus < 0)
+    else if(nowWidthValueMinus < -0.01 && beforeWidthValueMinus < 0)
     {
         result = -1;
     }
@@ -533,13 +536,18 @@ int GetNowLongGemaTrend()
     //トレンドがあってもLong Shortの幅が無ければトレンドなしの判断
     if(MathAbs(gmmaWightLong) < 0.05 && MathAbs(gmmaWidthShort) < 0.05)
     {
+        Print("幅がNGだった:Short" + DoubleToStr(gmmaWidthShort) + "//Long:" + DoubleToStr(gmmaWightLong));
         result = 0;
     }
 
-    //RCI中期がオーバー+-70でなければトレンドなしと判断（前足もトレンドありの場合）
-    double rci = GetThreeLineRci(PERIOD_H4,1,0);
-    if(MathAbs(rci) < 70)
+    //RCI中、長期がオーバー+-70でなければトレンドなしと判断（前足もトレンドありの場合）
+    double rciMiddle = GetThreeLineRci(PERIOD_H4,1,0);
+    double rciLong = GetThreeLineRci(PERIOD_H4,2,0);
+    Print(DoubleToStr(MathAbs(rciMiddle)));
+    Print(DoubleToStr(MathAbs(rciLong)));
+    if(MathAbs(rciMiddle) < 70 && MathAbs(rciLong) < 50)
     {
+        Print("RCIがNGだった:Middle" + DoubleToStr(rciMiddle) + "//Long:" + DoubleToStr(rciLong));
         result = 0;
     }
 
@@ -561,9 +569,11 @@ int GetUpTrendCandleStatus()
     //現在値
     double nowPrice = iClose(Symbol(),PERIOD_H4,0);
     //double nowPrice = iClose[0];
+    Print("一つ前の足は：" + IntegerToString(beforeCandleStyle) + "//////今の足は：" + IntegerToString(nowCandleStyle));
 
     if(beforeCandleStyle == -1 && nowCandleStyle == 1)
     {
+        Print("陰陽線の場合");
         double beforeOpen = iOpen(Symbol(),PERIOD_H4,1);
 
         //現在足のGMMA幅(35-60)を取得
@@ -571,18 +581,20 @@ int GetUpTrendCandleStatus()
 
         //現在足のGMMA幅(3-15)を取得
         double gmmaWidthShort = GetGmmaWidth(PERIOD_H4,3,0);
-
-        if(nowPrice > beforeOpen && MathAbs(gmmaWightLong) < 0.05 && MathAbs(gmmaWidthShort) < 0.05)
+        Print("WightLong：" + DoubleToStr(gmmaWightLong) + "///WidthShort：" + DoubleToStr(gmmaWidthShort));
+        if(nowPrice > beforeOpen && MathAbs(gmmaWightLong) > 0.05 && MathAbs(gmmaWidthShort) > 0.05)
         {
             result = 1;
         }
     }
     else if(beforeCandleStyle == 1 && nowCandleStyle == 1)
     {
+        Print("陰陽線の場合");
         double beforeHigh = iHigh(Symbol(),PERIOD_H4,1);
-
+        Print("前の高値：" + DoubleToStr(beforeHigh) + "///今の値段：" + DoubleToStr(nowPrice));
         if(nowPrice > beforeHigh)
         {
+            Print("陽線で高値越えた");
             result = 2;
         }
     }
@@ -724,6 +736,7 @@ int IsNonTradeCheck()
         //陽線の場合
         if(gmmaWidthLongNow < 0)
         {
+            Print("トレンドなし前提なし" + DoubleToStr(gmmaWidthLongNow));
             return result;
         }
          Print(DoubleToStr(nowOpneEma60) + ">" + DoubleToStr(open) + ":" + DoubleToStr(nowCloseEma30) + "<" + DoubleToStr(close));
@@ -732,22 +745,19 @@ int IsNonTradeCheck()
             Print("上トレンドブレイクの前提OK");
             //前提がそろった場合のみ15mをチェック
             double nowTema = GetTema(PERIOD_M15,0,0);
-            double gmmaIndexLong = GetGmmaIndex(PERIOD_M15,0,0);
             double gmmaIndexShort = GetGmmaIndex(PERIOD_M15,0,0);
-            double gmmaWidthSHortNow = MathAbs(GetGmmaWidth(PERIOD_M15,3,0));
-            double gmmaWidthSHortBefore = MathAbs(GetGmmaWidth(PERIOD_M15,3,1));
+            double gmmaWidthShortNow = MathAbs(GetGmmaWidth(PERIOD_M15,2,0));
+            double gmmaWidthShortBefore = MathAbs(GetGmmaWidth(PERIOD_M15,2,1));
             
-            Print("gmmaWidthSHortNow" + DoubleToStr(gmmaWidthSHortNow));
-            Print("gmmaWidthSHortBefore" + DoubleToStr(gmmaWidthSHortBefore));
             double changePercent = 0 ;
-            if(gmmaWidthSHortBefore != 0)
+            if(gmmaWidthShortBefore != 0)
             {
-                changePercent = (gmmaWidthSHortBefore - gmmaWidthSHortNow) / gmmaWidthSHortNow;
+                changePercent = MathAbs((gmmaWidthShortBefore - gmmaWidthShortNow) / gmmaWidthShortNow);
             }
             
             
-            Print("nowTema:" + DoubleToStr(nowTema) + " // gmmaIndexShort:" + DoubleToStr(gmmaIndexShort) +" // changePercent:" + DoubleToStr(changePercent));
-            if(nowTema > 0 && gmmaIndexShort == 5 && changePercent >= 0.4)
+            Print("nowTema:" + DoubleToStr(nowTema) + " // gmmaIndexShort:" + DoubleToStr(gmmaIndexShort) + " // changePercent:" + DoubleToStr(changePercent) + " // gmmaWidthSHortNow:" + DoubleToStr(gmmaWidthShortNow));
+            if(nowTema > 0 && gmmaIndexShort == 5 && changePercent >= 0.2 && gmmaWidthShortNow >= 0.5)
             {
                 result = 1;
             }
@@ -768,20 +778,18 @@ int IsNonTradeCheck()
             double nowTema = GetTema(PERIOD_M15,0,0);
             double gmmaIndexLong = GetGmmaIndex(PERIOD_M15,0,0);
             double gmmaIndexShort = GetGmmaIndex(PERIOD_M15,0,0);
-            double gmmaWidthSHortNow = MathAbs(GetGmmaWidth(PERIOD_M15,3,0));
-            double gmmaWidthSHortBefore = MathAbs(GetGmmaWidth(PERIOD_M15,3,1));
+            double gmmaWidthShortNow = MathAbs(GetGmmaWidth(PERIOD_M15,2,0));
+            double gmmaWidthShortBefore = MathAbs(GetGmmaWidth(PERIOD_M15,2,1));
 
-            Print("gmmaWidthSHortNow" + DoubleToStr(gmmaWidthSHortNow));
-            Print("gmmaWidthSHortBefore" + DoubleToStr(gmmaWidthSHortBefore));
             double changePercent = 0 ;
-            if(gmmaWidthSHortBefore != 0)
+            if(gmmaWidthShortBefore != 0)
             {
-                changePercent = (gmmaWidthSHortBefore - gmmaWidthSHortNow) / gmmaWidthSHortNow;
+                changePercent = MathAbs((gmmaWidthShortBefore - gmmaWidthShortNow) / gmmaWidthShortNow);
             }
             
             
             Print("nowTema:" + DoubleToStr(nowTema) + " // gmmaIndexShort:" + DoubleToStr(gmmaIndexShort) +" // changePercent:" + DoubleToStr(changePercent));
-            if(nowTema < 0 && gmmaIndexShort == -5 && changePercent >= 0.4)
+            if(nowTema < 0 && gmmaIndexShort == -5 && changePercent >= 0.2 && gmmaWidthShortNow <= -0.5)
             {
                 result = 2;
             }
@@ -883,7 +891,6 @@ bool IsSettlementCheckNonTrade(int positionTrend)
 {
     double nowPrice = iClose(Symbol(),PERIOD_M15,0);
     double gmmaIndexShort = GetGmmaIndex(PERIOD_M15,0,0);
-    double ema43 = iMA(Symbol(),PERIOD_H4,43,0,MODE_EMA,PRICE_CLOSE,0);
     double ema15 = iMA(Symbol(),PERIOD_M15,43,0,MODE_EMA,PRICE_CLOSE,0);
     double nowTema = GetTema(PERIOD_M15,0,0);
     
@@ -905,10 +912,10 @@ bool IsSettlementCheckNonTrade(int positionTrend)
             return true;
         }
 
-        if(nowPrice <= ema43 || nowPrice <= ema15)
+        if(nowPrice <= ema15)
         {
-            Print("EMA43より現在値段がした");
-            Print("ema43" + DoubleToStr(ema43));
+            Print("ema15より現在値段がした");
+            Print("ema15" + DoubleToStr(ema15));
             Print("今値段：" + DoubleToStr(nowPrice));
             return true;
         }
@@ -928,12 +935,21 @@ bool IsSettlementCheckNonTrade(int positionTrend)
             return true;
         }
 
-        if(nowPrice >= ema43 || nowPrice >= ema15)
+        if(nowPrice >= ema15)
         {
             return true;
         }
     }
 
+    return false;
+}
+
+/// <summary>
+/// EMAの位置取りと
+/// <summary>
+/// <returns>結果</returns>
+bool IsMovingAveragePosition()
+{
     return false;
 }
 
