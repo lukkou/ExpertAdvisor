@@ -66,11 +66,11 @@ class CandleStickHelper{
         double open = iOpen(NULL,time,shift);
         double close = iClose(NULL,time,shift);
 
-        if(open > close)
+        if(open < close)
         {
             result = 1;
         }
-        else if(open < close)
+        else if(open > close)
         {
             result = -1;
         }
@@ -91,7 +91,7 @@ class CandleStickHelper{
         double low = iLow(NULL,time,shift);
         double close = iClose(NULL,time,shift);
 
-        if(open > close)
+        if(open < close)
         {
             //陽線の場合
             double body = close - open;
@@ -104,7 +104,7 @@ class CandleStickHelper{
             }
 
         }
-        else if(open < close)
+        else if(open > close)
         {
             //陰線の場合
             double body = open - close;
