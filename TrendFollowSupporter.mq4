@@ -813,34 +813,47 @@ bool IsSettlementCheck(int positionTrend)
         //ポシジョンの方向が買いの場合に決済するかの判断
         double gmmaShortIndex =  GetGmmaIndex(PERIOD_M15,0,0);
         double ema13 = iMA(Symbol(),PERIOD_M15,13,0,MODE_EMA,PRICE_CLOSE,0);
+        Print("ShortIndex = " + DoubleToStr(gmmaShortIndex));
+        Print("Ema13 = " + DoubleToStr(ema13) + "/// 現在値 = " + DoubleToStr(nowPrice));
         if(gmmaShortIndex <= 0 && ema13 < nowPrice)
         {
+            Print("15分 ShortIndexかつEma13より現在値段が小さい");
             return true;
         }
 
         double temaUp = GetTema(PERIOD_M15,0,0);
         double temaDown = GetTema(PERIOD_M15,1,0);
+        Print("TemaUp = " + DoubleToStr(temaUp) + "/// TemaDown = " + DoubleToStr(temaDown));
         if(temaUp == 0 && temaDown <= 0)
         {
+            Print("15分TEMAがマイナストレンドに");
             return true;
         }
 
-        double upPrice = CandleHelper.GetUpBeardPrice(PERIOD_M15,0);
-        double bodyPrice = CandleHelper.GetBodyPrice(PERIOD_M15,0);
-        bool starFlg = CandleHelper.IsCandleStickStar(PERIOD_M15,0);
+        double upPrice = CandleHelper.GetUpBeardPrice(PERIOD_H4,0);
+        double bodyPrice = CandleHelper.GetBodyPrice(PERIOD_H4,0);
+        bool starFlg = CandleHelper.IsCandleStickStar(PERIOD_H4,0);
+        Print("上ひげ値段 = " + DoubleToStr(upPrice) + "/// 本体値段 = ") + DoubleToStr(bodyPrice));
         if(upPrice >= bodyPrice && starFlg == false)
         {
+            Print("4時間足　上ひげの値段が本体足値段より大きくなった");
             return true;
         }
 
         int afterBodyStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,1);
         if(afterBodyStyle == 1)
         {
+            Print("4時間足　ひとつ前が陽線だった場合");
             double afterBodyMiddlePrice = CandleHelper.GetBodyMiddlePrice(PERIOD_H4,1);
             if(afterBodyMiddlePrice > nowPrice)
             {
+                Print("1本前の足の中間値より現在値段がしたになった");
                 return true;
             }
+        }
+        else if(afterBodyStyle == -1)
+        {
+            Print("4時間足　ひとつ前が陰線だった場合");
         }
     }
     else if(positionTrend == OP_SELL)
