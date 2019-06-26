@@ -35,7 +35,7 @@ TradeQuantityHelper LotHelper(Symbol(), PERIOD_M15, 15, 0, MODE_EMA, PRICE_CLOSE
 TwitterHelper TweetHelper(TweetCmdPash);
 // ローソク足補助クラス
 CandleStickHelper CandleHelper();
- 
+
 string _host;
 string _user;
 string _password;
@@ -51,7 +51,7 @@ int OnInit()
 {
     string iniInfo = TerminalInfoString(TERMINAL_DATA_PATH) + "\\MQL4\\Experts\\MyConnection.ini";
     Print ("パス: ",iniInfo);
-   
+
     _host = ReadIni(iniInfo, "MYSQL", "Host");
     _user = ReadIni(iniInfo, "MYSQL", "User");
     _password = ReadIni(iniInfo, "MYSQL", "Password");
@@ -59,7 +59,7 @@ int OnInit()
     _database = ReadIni(iniInfo, "MYSQL", "Database");
     _socket =  ReadIni(iniInfo, "MYSQL", "Socket");
     _clientFlag = StrToInteger(ReadIni(iniInfo, "MYSQL", "ClientFlag"));  
-   
+
     Print ("Host: ",_host, ", User: ", _user, ", Database: ",_database);
 
     return(INIT_SUCCEEDED);
@@ -82,10 +82,10 @@ void OnTick()
     Print ("-------------------Tick Start-------------------");
     int db = 1;
     if (db == -1){
-      Print ("Connection failed! Error: " + MySqlErrorDescription);
+        Print ("Connection failed! Error: " + MySqlErrorDescription);
 
-      //エラーだったら繋がらない情報をツイッターリプライで告知
-      return;
+        //エラーだったら繋がらない情報をツイッターリプライで告知
+        return;
     }
 
     //自身の通貨ペアポジションがあるか？
@@ -275,8 +275,38 @@ void OnTick()
     }
     else
     {
-        //ポジションがない場合でトレンドの売りしシグナルがある場合は売買判断を行わない
-        
+        bool saleFlg = false;
+
+        if(longTrend == 0)
+        {
+            //4h足トレンドがない場合
+            saleFlg = IsSettlementCheckNonTrade(OP_BUY);
+
+            if(saleFlg == false)
+            {
+                saleFlg = IsSettlementCheckNonTrade(OP_SELL);
+            }
+        }
+        else if(longTrend == 1)
+        {
+            //4hトレンドが上の場合
+            saleFlg = IsSettlementCheck(OP_BUY)
+        }
+        else if(longTrend == -1)
+        {
+            //4hトレンドが下の場合
+            saleFlg = IsSettlementCheck(OP_SELL)
+        }
+
+        if (saleFlg)
+        {
+            //売りフラグが立っている場合は新規売買判断を行わず次のティックへ
+            //MySqlDisconnect(db);
+
+            //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
+            //Sleep(500);
+            return;
+        }
     }
 
     //---ここから新規ポジション用ロジック---
@@ -443,17 +473,17 @@ bool IsImportantReleaseExist(int db){
     int queryResult = MySqlCursorOpen(db,query);
     if(queryResult > -1)
     {
-      int row = MySqlCursorRows(queryResult);
-      for(int i = 0; i < row; i++){
-        if(MySqlCursorFetchRow(queryResult))
-        {
-          int indexCount = MySqlGetFieldAsInt(queryResult,0);
-          if(indexCount > 0)
-          {
-            result = true;
-          }
+        int row = MySqlCursorRows(queryResult);
+        for(int i = 0; i < row; i++){
+            if(MySqlCursorFetchRow(queryResult))
+            {
+                int indexCount = MySqlGetFieldAsInt(queryResult,0);
+                if(indexCount > 0)
+                {
+                    result = true;
+                }
+            }
         }
-      }
     }
 
     MySqlCursorClose(queryResult);
@@ -818,7 +848,7 @@ int IsNonTradeCheck()
             Print("トレンドなし前提なし" + DoubleToStr(gmmaWidthLongNow));
             return result;
         }
-         Print(DoubleToStr(nowOpneEma60) + ">" + DoubleToStr(open) + ":" + DoubleToStr(nowCloseEma30) + "<" + DoubleToStr(close));
+        Print(DoubleToStr(nowOpneEma60) + ">" + DoubleToStr(open) + ":" + DoubleToStr(nowCloseEma30) + "<" + DoubleToStr(close));
         if(nowOpneEma60 > open && nowCloseEma30 < close)
         {
             Print("上トレンドブレイクの前提OK");
