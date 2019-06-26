@@ -147,7 +147,7 @@ class CandleStickHelper{
             upPrice = open;
         }
 
-        result = high = upPrice;
+        result = high - upPrice;
         return result;
     }
 

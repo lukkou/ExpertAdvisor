@@ -79,6 +79,7 @@ void OnDeinit(const int reason)
 void OnTick()
 {
     //int db = MySqlConnect(_host, _user, _password, _database, _port, _socket, _clientFlag);
+    Print ("-------------------Tick Start-------------------");
     int db = 1;
     if (db == -1){
       Print ("Connection failed! Error: " + MySqlErrorDescription);
@@ -165,7 +166,7 @@ void OnTick()
     {
         //4時間足のトレンドによって決済を変更
         int orderType = OrderHelper.GetOrderType(0);
-
+        Print("現在のorderTypeは：" + IntegerToString(orderType));
         if(longTrend == 0)
         {
             bool checkFlg = IsSettlementCheckNonTrade(orderType);
@@ -198,7 +199,7 @@ void OnTick()
             if(orderType == OP_BUY)
             {
                 //アップトレンドかつポジションが買いの場合
-                bool checkFlg =  IsSettlementCheck(OP_SELL);
+                bool checkFlg =  IsSettlementCheck(OP_BUY);
                 if(checkFlg == true)
                 {
                     settlementFlg = true;
@@ -271,6 +272,11 @@ void OnTick()
         //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
         //Sleep(500);
         return;
+    }
+    else
+    {
+        //ポジションがない場合でトレンドの売りしシグナルがある場合は売買判断を行わない
+        
     }
 
     //---ここから新規ポジション用ロジック---
@@ -548,7 +554,80 @@ int GetNowLongGemaTrend()
     if(MathAbs(rciMiddle) < 70 && MathAbs(rciLong) < 50)
     {
         Print("RCIがNGだった:Middle" + DoubleToStr(rciMiddle) + "//Long:" + DoubleToStr(rciLong));
-        result = 0;
+        //RCIがNGでもポジションとRCI数値で再度確認
+        double nowPrice = iClose(Symbol(),PERIOD_H4,0);
+        
+        
+        if(rciMiddle > 0 && rciLong > 0)
+        {
+            //RCI中期長期がプラスの場合は過去12時間の高値を上抜いたか
+            double beforeOneHigh = iHigh(Symbol(),PERIOD_H4,1);
+            double beforeTowHigh = iHigh(Symbol(),PERIOD_H4,2); 
+            double beforeThreeHigh = iHigh(Symbol(),PERIOD_H4,3);
+            
+            //糞ロジック　MT4で華麗に書くのしんどい(´・ω・`)
+            double highPrice = 0;
+            if(beforeOneHigh > beforeTowHigh)
+            {
+                highPrice = beforeOneHigh;
+            }
+            else
+            {
+                highPrice = beforeTowHigh;
+            }
+            
+            if(beforeThreeHigh > highPrice)
+            {
+                highPrice = beforeThreeHigh;
+            }
+            
+            if(nowPrice > highPrice)
+            {
+                Print("RCIがNGだったが過去高値を上抜く" + DoubleToStr(nowPrice) + ">" + DoubleToStr(highPrice));
+                result = 1;
+            }
+            else
+            {
+                result = 0;
+            }
+        }
+        else if(rciMiddle < 0 && rciLong < 0)
+        {
+            //RCI中期長期がマイナスの場合は過去12時間の安値を上抜いたか
+            double beforeOneHigh = iLow(Symbol(),PERIOD_H4,1);
+            double beforeTowHigh = iLow(Symbol(),PERIOD_H4,2); 
+            double beforeThreeHigh = iLow(Symbol(),PERIOD_H4,3);
+            
+            //糞ロジック　MT4で華麗に書くのしんどい(´・ω・`)
+            double lowPrice = 0;
+            if(beforeOneHigh < beforeTowHigh)
+            {
+                lowPrice = beforeOneHigh;
+            }
+            else
+            {
+                lowPrice = beforeTowHigh;
+            }
+            
+            if(beforeThreeHigh < lowPrice)
+            {
+                lowPrice = beforeThreeHigh;
+            }
+            
+            if(nowPrice < lowPrice)
+            {
+                Print("RCIがNGだったが過去安値を下抜く" + DoubleToStr(nowPrice) + "<" + DoubleToStr(lowPrice));
+                result = -1;
+            }
+            else
+            {
+                result = 0;
+            }
+        }
+        else
+        {
+            result = 0;
+        }
     }
 
     return result;
@@ -833,7 +912,7 @@ bool IsSettlementCheck(int positionTrend)
         double upPrice = CandleHelper.GetUpBeardPrice(PERIOD_H4,0);
         double bodyPrice = CandleHelper.GetBodyPrice(PERIOD_H4,0);
         bool starFlg = CandleHelper.IsCandleStickStar(PERIOD_H4,0);
-        Print("上ひげ値段 = " + DoubleToStr(upPrice) + "/// 本体値段 = ") + DoubleToStr(bodyPrice));
+        Print("上ひげ値段 = " + DoubleToStr(upPrice) + "/// 本体値段 = " + DoubleToStr(bodyPrice));
         if(upPrice >= bodyPrice && starFlg == false)
         {
             Print("4時間足　上ひげの値段が本体足値段より大きくなった");
@@ -909,8 +988,10 @@ bool IsSettlementCheckNonTrade(int positionTrend)
     
     double candleBodyValue = CandleHelper.GetBodyPrice(PERIOD_M15,0);
     double candleBodyMiddleBeforePrice = CandleHelper.GetBodyMiddlePrice(PERIOD_M15,1);
+    
     if(positionTrend == OP_BUY)
     {
+        Print("OP_BUYの場合の判定");
         if(nowTema <= 0)
         {
             Print("nowTemaがマイナス" + DoubleToStr(nowTema));
@@ -937,6 +1018,7 @@ bool IsSettlementCheckNonTrade(int positionTrend)
     {
         if(nowTema >= 0)
         {
+            Print("nowTemaがプラス" + DoubleToStr(nowTema));
             return true;
         }
 
@@ -950,10 +1032,11 @@ bool IsSettlementCheckNonTrade(int positionTrend)
 
         if(nowPrice >= ema15)
         {
+            Print("ema15より現在値段がうえ");
             return true;
         }
     }
-
+    
     return false;
 }
 
