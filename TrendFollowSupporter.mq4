@@ -276,7 +276,7 @@ void OnTick()
     else
     {
         bool saleFlg = false;
-
+        Print("ポジションを取る前に決済判断をチェック");
         if(longTrend == 0)
         {
             //4h足トレンドがない場合
@@ -287,15 +287,15 @@ void OnTick()
                 saleFlg = IsSettlementCheckNonTrade(OP_SELL);
             }
         }
-        else if(longTrend == 1)
+        else if (longTrend == 1)
         {
             //4hトレンドが上の場合
-            saleFlg = IsSettlementCheck(OP_BUY)
+            saleFlg = IsSettlementCheck(OP_BUY);
         }
-        else if(longTrend == -1)
+        else if (longTrend == -1)
         {
             //4hトレンドが下の場合
-            saleFlg = IsSettlementCheck(OP_SELL)
+            saleFlg = IsSettlementCheck(OP_SELL);
         }
 
         if (saleFlg)
@@ -943,7 +943,7 @@ bool IsSettlementCheck(int positionTrend)
         double bodyPrice = CandleHelper.GetBodyPrice(PERIOD_H4,0);
         bool starFlg = CandleHelper.IsCandleStickStar(PERIOD_H4,0);
         Print("上ひげ値段 = " + DoubleToStr(upPrice) + "/// 本体値段 = " + DoubleToStr(bodyPrice));
-        if(upPrice >= bodyPrice && starFlg == false)
+        if(upPrice * 1.2 >= bodyPrice && starFlg == false)
         {
             Print("4時間足　上ひげの値段が本体足値段より大きくなった");
             return true;
