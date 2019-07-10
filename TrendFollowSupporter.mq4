@@ -276,7 +276,8 @@ void OnTick()
     else
     {
         bool saleFlg = false;
-        Print("ポジションを取る前に決済判断をチェック");
+        Print("▽▽▽▽▽ポジションを取る前に決済判断をチェック▽▽▽▽▽");
+        
         if(longTrend == 0)
         {
             //4h足トレンドがない場合
@@ -305,8 +306,11 @@ void OnTick()
 
             //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
             //Sleep(500);
+            Print("△△△△△△△△△△△△△△△△△△△△△△△△△△△△△");
             return;
         }
+        
+        Print("▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲");
     }
 
     //---ここから新規ポジション用ロジック---
@@ -318,7 +322,7 @@ void OnTick()
         if(trendStatus != 0)
         {
             double lossRenge = LotHelper.GetSdLossRenge();
-            double lotSize = LotHelper.GetSdLotSize(lossRenge);
+            //double lotSize = LotHelper.GetSdLotSize(lossRenge);
             double pLotSize = LotHelper.GetLotSize(lossRenge);
 
             //新規ポジション
@@ -334,7 +338,7 @@ void OnTick()
                 orderCmd = OP_SELL;
                 orderType = "OP_SELL";
             }
-            OrderHelper.SendOrder(orderCmd, lotSize, 0, Slippage, lossRenge, TakeProfit );
+            OrderHelper.SendOrder(orderCmd, pLotSize, 0, Slippage, lossRenge, TakeProfit );
 
             //ツイート用の情報取得
             int orderNo = OrderHelper.GetTicket(0);
@@ -370,12 +374,12 @@ void OnTick()
         if(tradeFlg)
         {
             double lossRenge = LotHelper.GetSdLossRenge();
-            double lotSize = LotHelper.GetSdLotSize(lossRenge);
+            //double lotSize = LotHelper.GetSdLotSize(lossRenge);
             double pLotSize = LotHelper.GetLotSize(lossRenge);
 
             //新規ポジション
             int orderCmd = OP_BUY;
-            OrderHelper.SendOrder(orderCmd, lotSize, 0, Slippage, lossRenge, TakeProfit );
+            OrderHelper.SendOrder(orderCmd, pLotSize, 0, Slippage, lossRenge, TakeProfit );
 
             //ツイート用の情報取得
             int orderNo = OrderHelper.GetTicket(0);
@@ -412,12 +416,12 @@ void OnTick()
         if(tradeFlg)
         {
             double lossRenge = LotHelper.GetSdLossRenge();
-            double lotSize = LotHelper.GetSdLotSize(lossRenge);
+            //double lotSize = LotHelper.GetSdLotSize(lossRenge);
             double pLotSize = LotHelper.GetLotSize(lossRenge);
 
             //新規ポジション
             int orderCmd = OP_SELL;
-            OrderHelper.SendOrder(orderCmd, lotSize, 0, Slippage, lossRenge, TakeProfit );
+            OrderHelper.SendOrder(orderCmd, pLotSize, 0, Slippage, lossRenge, TakeProfit );
 
             //ツイート用の情報取得
             int orderNo = OrderHelper.GetTicket(0);
@@ -671,6 +675,29 @@ int GetUpTrendCandleStatus()
 {
     bool result = 0;
 
+    double upPrice_4h = CandleHelper.GetUpBeardPrice(PERIOD_H4,0);
+    double bodyPrice_4h = CandleHelper.GetBodyPrice(PERIOD_H4,0);
+    bool starFlg = CandleHelper.IsCandleStickStar(PERIOD_H4,0);
+    if(upPrice_4h * 1.2 >= bodyPrice_4h && starFlg == false)
+    {
+        return result;
+    }
+
+    double upPrice_15M = CandleHelper.GetUpBeardPrice(PERIOD_M15,1);
+    double bodyPrice_15M = CandleHelper.GetBodyPrice(PERIOD_M15,1);
+    int bodyStyle = CandleHelper.CandleBodyStyle(PERIOD_M15,1);
+    if(upPrice_15M * 1.2 >= bodyPrice_15M && bodyStyle == -1)
+    {
+        return result;
+    }
+
+    double temaUp = GetTema(PERIOD_M15,1,0);
+    double temaDown = GetTema(PERIOD_M15,2,0);
+    if (temaUp == 0 && temaDown <= 0)
+    {
+        return result;
+    }
+
     //今足の形状を取得(0 = 星 1 = 陽線 -1 = 陰線)
     int nowCandleStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,0);
     //前足の形状を取得(0 = 星 1 = 陽線 -1 = 陰線)
@@ -718,6 +745,29 @@ int GetUpTrendCandleStatus()
 bool GetDownTrendCandleStatus()
 {
     bool result = 0;
+
+    double downpPrice_4h = CandleHelper.GetDownBeardPrice(PERIOD_H4,0);
+    double bodyPrice_4h = CandleHelper.GetBodyPrice(PERIOD_H4,0);
+    bool starFlg = CandleHelper.IsCandleStickStar(PERIOD_H4,0);
+    if(downpPrice_4h * 1.2 >= bodyPrice_4h && starFlg == false)
+    {
+        return result;
+    }
+
+    double downpPrice_15M = CandleHelper.GetUpBeardPrice(PERIOD_M15,1);
+    double bodyPrice__15M = CandleHelper.GetBodyPrice(PERIOD_M15,1);
+    int bodyStyle = CandleHelper.CandleBodyStyle(PERIOD_M15,1);
+    if(downpPrice_15M * 1.2 >= bodyPrice__15M && bodyStyle == 1)
+    {
+        return result;
+    }
+
+    double temaUp = GetTema(PERIOD_M15,1,0);
+    double temaDown = GetTema(PERIOD_M15,2,0);
+    if (temaUp >= 0 && temaDown == 0)
+    {
+        return result;
+    }
 
     //今足の形状を取得(0 = 星 1 = 陽線 -1 = 陰線)
     int nowCandleStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,0);
@@ -939,13 +989,22 @@ bool IsSettlementCheck(int positionTrend)
             return true;
         }
 
-        double upPrice = CandleHelper.GetUpBeardPrice(PERIOD_H4,0);
-        double bodyPrice = CandleHelper.GetBodyPrice(PERIOD_H4,0);
+        double upPrice_4h = CandleHelper.GetUpBeardPrice(PERIOD_H4,0);
+        double bodyPrice_4h = CandleHelper.GetBodyPrice(PERIOD_H4,0);
         bool starFlg = CandleHelper.IsCandleStickStar(PERIOD_H4,0);
-        Print("上ひげ値段 = " + DoubleToStr(upPrice) + "/// 本体値段 = " + DoubleToStr(bodyPrice));
-        if(upPrice * 1.2 >= bodyPrice && starFlg == false)
+        
+        if(upPrice_4h >= bodyPrice_4h && starFlg == false)
         {
             Print("4時間足　上ひげの値段が本体足値段より大きくなった");
+            return true;
+        }
+
+        double upPrice_15M = CandleHelper.GetUpBeardPrice(PERIOD_M15,1);
+        double bodyPrice_15M = CandleHelper.GetBodyPrice(PERIOD_M15,1);
+        int bodyStyle = CandleHelper.CandleBodyStyle(PERIOD_M15,1);
+        if(upPrice_15M >= bodyPrice_15M && bodyStyle == -1)
+        {
+            Print("15分足　上ひげの値段が本体足値段より大きくなった");
             return true;
         }
 
@@ -982,10 +1041,18 @@ bool IsSettlementCheck(int positionTrend)
             return true;
         }
 
-        double downpPrice = CandleHelper.GetDownBeardPrice(PERIOD_M15,0);
-        double bodyPrice = CandleHelper.GetBodyPrice(PERIOD_M15,0);
-        bool starFlg = CandleHelper.IsCandleStickStar(PERIOD_M15,0);
-        if(downpPrice >= bodyPrice && starFlg == false)
+        double downpPrice_4h = CandleHelper.GetDownBeardPrice(PERIOD_H4,0);
+        double bodyPrice_4h = CandleHelper.GetBodyPrice(PERIOD_H4,0);
+        bool starFlg = CandleHelper.IsCandleStickStar(PERIOD_H4,0);
+        if(downpPrice_4h >= bodyPrice_4h && starFlg == false)
+        {
+            return true;
+        }
+
+        double downpPrice_15M = CandleHelper.GetUpBeardPrice(PERIOD_M15,1);
+        double bodyPrice__15M = CandleHelper.GetBodyPrice(PERIOD_M15,1);
+        int bodyStyle = CandleHelper.CandleBodyStyle(PERIOD_M15,1);
+        if(downpPrice_15M >= bodyPrice__15M && bodyStyle == 1)
         {
             return true;
         }
