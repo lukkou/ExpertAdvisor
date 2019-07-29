@@ -12,6 +12,14 @@
 #include <Arrays\ArrayObj.mqh>
 #include <Arrays\ArrayString.mqh>
 #include <Arrays\ArrayInt.mqh>
+#include <Custom/ExpertAdvisorTradeHelper.mqh>
+#include <Custom/TradeQuantityHelper.mqh>
+#include <Custom/CandleStickHelper.mqh>
+#include <Custom/TwitterHelper.mqh>
+#include <Mysql/MQLMySQL.mqh>
+
+// ローソク足補助クラス
+CandleStickHelper CandleHelper();
 
 int DB;
 string iniInfo;
@@ -59,9 +67,6 @@ void OnDeinit(const int reason)
 void OnTick()
   {
 //---
-
-
-    
     string mySymbol = Symbol();
     datetime tm = TimeLocal();
     //Print("現在の時刻は…" + tm);
