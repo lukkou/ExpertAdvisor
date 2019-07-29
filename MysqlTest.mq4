@@ -12,6 +12,7 @@
 #include <Arrays\ArrayObj.mqh>
 #include <Arrays\ArrayString.mqh>
 #include <Arrays\ArrayInt.mqh>
+#include <Arrays\ArrayDouble.mqh>
 #include <Custom/ExpertAdvisorTradeHelper.mqh>
 #include <Custom/TradeQuantityHelper.mqh>
 #include <Custom/CandleStickHelper.mqh>
@@ -35,37 +36,36 @@ int clientFlag;
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
 int OnInit()
-  {
+{
 //---
-   iniInfo = TerminalInfoString(TERMINAL_DATA_PATH) + "\\MQL4\\Experts\\MyConnection.ini";
-   Print ("パス: ",iniInfo);
-   
-Print ("パスaaa: ",TerminalInfoString(TERMINAL_DATA_PATH));
-   host = ReadIni(iniInfo, "MYSQL", "Host");
-   user = ReadIni(iniInfo, "MYSQL", "User");
-   password = ReadIni(iniInfo, "MYSQL", "Password");
-   port = StrToInteger(ReadIni(iniInfo, "MYSQL", "Port"));
-   database = ReadIni(iniInfo, "MYSQL", "Database");
-   socket =  ReadIni(iniInfo, "MYSQL", "Socket");
-   clientFlag = StrToInteger(ReadIni(iniInfo, "MYSQL", "ClientFlag"));  
-   
-   Print ("Host: ",host, ", User: ", user, ", Database: ",database);
+    iniInfo = TerminalInfoString(TERMINAL_DATA_PATH) + "\\MQL4\\Experts\\MyConnection.ini";
+    Print ("パス: ",iniInfo);
+
+    Print ("パスaaa: ",TerminalInfoString(TERMINAL_DATA_PATH));
+    host = ReadIni(iniInfo, "MYSQL", "Host");
+    user = ReadIni(iniInfo, "MYSQL", "User");
+    password = ReadIni(iniInfo, "MYSQL", "Password");
+    port = StrToInteger(ReadIni(iniInfo, "MYSQL", "Port"));
+    database = ReadIni(iniInfo, "MYSQL", "Database");
+    socket =  ReadIni(iniInfo, "MYSQL", "Socket");
+    clientFlag = StrToInteger(ReadIni(iniInfo, "MYSQL", "ClientFlag"));  
+
+    Print ("Host: ",host, ", User: ", user, ", Database: ",database);
 //---
-   return(INIT_SUCCEEDED);
-  }
+    return(INIT_SUCCEEDED);
+}
 //+------------------------------------------------------------------+
 //| Expert deinitialization function                                 |
 //+------------------------------------------------------------------+
 void OnDeinit(const int reason)
-  {
+{
 //---
-   
-  }
+}
 //+------------------------------------------------------------------+
 //| Expert tick function                                             |
 //+------------------------------------------------------------------+
 void OnTick()
-  {
+{
 //---
     string mySymbol = Symbol();
     datetime tm = TimeLocal();
@@ -90,7 +90,7 @@ void OnTick()
     DB = MySqlConnect(host, user, password, database, port, socket, clientFlag);
     
     if (DB == -1){
-      Print ("Connection failed! Error: "+MySqlErrorDescription); } else { Print ("Connected! DBID#",DB);
+        Print ("Connection failed! Error: "+MySqlErrorDescription); } else { Print ("Connected! DBID#",DB);
     }
     
     string Query = "";
@@ -115,30 +115,30 @@ void OnTick()
     string indexData[][5];
     if (result >= 0)
     {
-      int row = MySqlCursorRows(result);
-      ArrayResize(indexData,row);
-      for(int i=0; i<row; i++)
-      {
-         if (MySqlCursorFetchRow(result))
-         {
-            string guid =  MySqlGetFieldAsString(result, 0);
-            string idKye = MySqlGetFieldAsString(result, 1);
-            string currency = MySqlGetFieldAsString(result, 2);
-            string eventType = MySqlGetFieldAsString(result, 3);
-            string importance = MySqlGetFieldAsString(result, 4);
-            Print ("ROW[",i,"]: guid = ", guid, ", IdKye = ", idKye, ", 通貨 = ", currency,", イベントタイプ = ", eventType,", 重要度 = ", importance );
+        int row = MySqlCursorRows(result);
+        ArrayResize(indexData,row);
+        for(int i=0; i<row; i++)
+        {
+            if (MySqlCursorFetchRow(result))
+            {
+                string guid =  MySqlGetFieldAsString(result, 0);
+                string idKye = MySqlGetFieldAsString(result, 1);
+                string currency = MySqlGetFieldAsString(result, 2);
+                string eventType = MySqlGetFieldAsString(result, 3);
+                string importance = MySqlGetFieldAsString(result, 4);
+                Print ("ROW[",i,"]: guid = ", guid, ", IdKye = ", idKye, ", 通貨 = ", currency,", イベントタイプ = ", eventType,", 重要度 = ", importance );
             
-            indexData[i][0] = guid;
-            indexData[i][1] = idKye;
-            indexData[i][2] = currency;
-            indexData[i][3] = eventType;
-            indexData[i][4] = importance;
-         }
-      }    
+                indexData[i][0] = guid;
+                indexData[i][1] = idKye;
+                indexData[i][2] = currency;
+                indexData[i][3] = eventType;
+                indexData[i][4] = importance;
+            }
+        }
     }
     else
     {
-      Print ("セレクト無し");
+        Print ("セレクト無し");
     }
     
     string myPair = Symbol();
@@ -162,21 +162,21 @@ void OnTick()
     Print ("queryResult> ", queryResult);
     if(queryResult > -1)
     {
-      int row = MySqlCursorRows(queryResult);
-      for(int i = 0; i < row; i++){
-        if(MySqlCursorFetchRow(queryResult))
-        {
-          int indexCount = MySqlGetFieldAsInt(queryResult,0);
-          if(indexCount > 0)
-          {
-            //Print ("指標あり");
-          }
-          else
-          {
-            //Print ("指標なし");
-          }
+        int row = MySqlCursorRows(queryResult);
+        for(int i = 0; i < row; i++){
+            if(MySqlCursorFetchRow(queryResult))
+            {
+                int indexCount = MySqlGetFieldAsInt(queryResult,0);
+                if(indexCount > 0)
+                {
+                    //Print ("指標あり");
+                }
+                else
+                {
+                    //Print ("指標なし");
+                }
+            }
         }
-      }
     }
     
     
@@ -184,30 +184,26 @@ void OnTick()
     MySqlCursorClose(queryResult);
     MySqlDisconnect(DB);
     //Print ("Disconnected. Script done!");
-    
-    
 
     //Print ("一次元目の配列数" , ArrayRange(indexData,0));
 
 
-   if(ArrayRange(indexData,0) > 0){
-      for(int i=0; i<ArrayRange(indexData,0);i++)
-      {
-         Print ("配列取得: guid = ", indexData[i][0], ", IdKye = ", indexData[i][1], ", 通貨 = ", indexData[i][2],", イベントタイプ = ", indexData[i][3],", 重要度 = ", indexData[i][4] );
-         
-         int pairMatch = IsPairMatch(myPair,indexData[i][2]);
-         if(pairMatch >= 0)
-         {
-            Print ("通貨ペア：" + myPair + "指標ペア：" + indexData[i][2] + "でMatch");
-         }
-         
-         if(indexData[i][4] == "high")
-         {
-            Print ("イベントHIFGHがある"); 
-         }
-      }
-   }
- }
+    if(ArrayRange(indexData,0) > 0){
+        for(int i=0; i<ArrayRange(indexData,0);i++)
+        {
+            Print ("配列取得: guid = ", indexData[i][0], ", IdKye = ", indexData[i][1], ", 通貨 = ", indexData[i][2],", イベントタイプ = ", indexData[i][3],", 重要度 = ", indexData[i][4] );
+            int pairMatch = IsPairMatch(myPair,indexData[i][2]);
+            if(pairMatch >= 0)
+            {
+                Print ("通貨ペア：" + myPair + "指標ペア：" + indexData[i][2] + "でMatch");
+            }
+            if(indexData[i][4] == "high")
+            {
+                Print ("イベントHIFGHがある"); 
+            }
+        }
+    }
+}
 //+------------------------------------------------------------------+
 
 
@@ -221,7 +217,68 @@ datetime GetCileTime(int cileTime){
 }
 
 int IsPairMatch(string myPair,string indexPair){
-   int result = StringFind(myPair,indexPair);
-   
-   return result;
+    int result = StringFind(myPair,indexPair);
+
+    return result;
+}
+
+
+double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
+{
+    double result = 0;
+
+    int timeList[term][1]; 
+    double valueList[term][1];
+
+    int timeTotal = 0;
+    double valueTotal = 0;
+
+    for(int i = 1; i < term; i++)
+    {
+        timeList[i - 1][1] = i;
+        double indicatorValue = GetTema(timeSpan,1,i);
+        valueList[i - 1][1] = indicatorValue;
+
+        //ついで合計値を計算
+        timeAverage += i;
+        valueAverage += indicatorValue;
+    }
+
+    //平均を計算
+    double timeAverage = timeAverage / term;
+    double valueAverage = valueAverage / term;
+
+    double alphaOne = 0;
+    double alphaTwo = 0;
+
+    //最小二乗法でロスを計算
+    for(int i = 1; i < term; i++)
+    {
+        timeDiff = timeAverage - timeList[i - 1][1];
+        valueDiff = valueAverage - valueList[i - 1][1];
+
+        alphaOne = alphaOne + (timeDiff * valueDiff);
+        alphaTwo = alphaTwo + (timeDiff * timeDiff);
+    }
+
+    double alpha = alphaOne / alphaTwo;
+    regressionTilt = alpha;
+
+    double regressionSection = valueAverage - alpha * timeAverage;
+    result = regressionSection;
+
+    return result;
+}
+
+/// <summary>
+/// TEMAのインジケーター値を取得
+/// <summary>
+/// <param name="timeSpan">取得する時間軸</param>
+/// <param name="mode">取得するインジケーター値</param>
+/// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
+/// <returns>TEMAのインジケーター値を取得</returns>
+double GetTema(int timeSpan,int mode,int shift)
+{
+    double result = iCustom(Symbol(),timeSpan,"TemaCumulative",mode,shift);
+    return result;
 }
