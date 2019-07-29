@@ -806,6 +806,15 @@ bool GetDownTrendCandleStatus()
 }
 
 /// <summary>
+/// 4Hが高値更新した際にポジションを取っていいかチェック
+/// <summary>
+/// <returns>結果</returns>
+bool Is4hTrendUpCheck()
+{
+
+}
+
+/// <summary>
 /// 4Hが陽陽足の場合に15分足をチェック
 /// <summary>
 /// <returns>結果</returns>
