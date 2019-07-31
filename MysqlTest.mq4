@@ -233,15 +233,18 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
     int timeTotal = 0;
     double valueTotal = 0;
 
+    int mqlIndex = term;
+
     for(int i = 1; i < term; i++)
     {
         timeList[i - 1][1] = i;
-        double indicatorValue = GetTema(timeSpan,1,i);
+        double indicatorValue = GetTema(timeSpan,1,mqlIndex);
         valueList[i - 1][1] = indicatorValue;
 
         //ついで合計値を計算
         timeAverage += i;
         valueAverage += indicatorValue;
+        mqlIndex--;
     }
 
     //平均を計算

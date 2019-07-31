@@ -811,7 +811,11 @@ bool GetDownTrendCandleStatus()
 /// <returns>結果</returns>
 bool Is4hTrendUpCheck()
 {
+    bool result = false;
 
+    //GMMAWidth Shortが
+
+    return result;
 }
 
 /// <summary>
@@ -1147,15 +1151,6 @@ bool IsSettlementCheckNonTrade(int positionTrend)
 }
 
 /// <summary>
-/// EMAの位置取りと
-/// <summary>
-/// <returns>結果</returns>
-bool IsMovingAveragePosition()
-{
-    return false;
-}
-
-/// <summary>
 /// TEMAのインジケーター値を取得
 /// <summary>
 /// <param name="timeSpan">取得する時間軸</param>
@@ -1217,3 +1212,5 @@ datetime GetCileTime(int cileTime)
     datetime tm = TimeLocal();
     return tm + cileTime;
 }
+
+string GetTimeStr()
