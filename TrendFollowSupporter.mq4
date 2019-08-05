@@ -550,12 +550,11 @@ int GetNowLongGemaTrend()
     double beforeWidthValuePlus = GetGmmaWidth(PERIOD_H4,0,1);
     double beforeWidthValueMinus = GetGmmaWidth(PERIOD_H4,1,1);
 
+    //現在足のGMMA幅(3-15)を取得
+    double gmmaWidthShort = GetGmmaWidth(PERIOD_H4,2,0);
 
     //現在足のGMMA幅(35-60)を取得
-    double gmmaWightLong = GetGmmaWidth(PERIOD_H4,2,0);
-
-    //現在足のGMMA幅(3-15)を取得
-    double gmmaWidthShort = GetGmmaWidth(PERIOD_H4,3,0);
+    double gmmaWightLong = GetGmmaWidth(PERIOD_H4,3,0);
 
     //現在のGMMA幅の位置を取得
     if(nowWidthValuePlus > 0.01 && beforeWidthValuePlus > 0)
