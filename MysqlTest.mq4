@@ -66,6 +66,11 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void OnTick()
 {
+    double bb = 0;
+    double a = GetRegressionLine(PERIOD_M15,8,bb);
+    PrintFormat("▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽");
+    PrintFormat("y = " + DoubleToString(bb) + "x + " + DoubleToString(a));
+    return;
 //---
     string mySymbol = Symbol();
     datetime tm = TimeLocal();
@@ -233,20 +238,26 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
 {
     double result = 0;
 
-    int timeList[term][1]; 
-    double valueList[term][1];
+
+    int timeList[]; 
+    ArrayResize(timeList, term);
+    double valueList[];
+    ArrayResize(valueList, term);
 
     int timeTotal = 0;
     double valueTotal = 0;
+
+    double timeAverage = 0;
+    double valueAverage = 0;
 
     int mqlIndex = term;
 
     for(int i = 1; i < term; i++)
     {
-        timeList[i - 1][1] = i;
+        timeList[i - 1] = i;
         //ここでインジケーターの値を取得
-        double indicatorValue = GetTema(timeSpan,1,mqlIndex);
-        valueList[i - 1][1] = indicatorValue;
+        double indicatorValue = GetGmmaWidth(timeSpan,2,mqlIndex);
+        valueList[i - 1] = indicatorValue;
 
         //ついで合計値を計算
         timeAverage += i;
@@ -255,8 +266,8 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
     }
 
     //平均を計算
-    double timeAverage = timeAverage / term;
-    double valueAverage = valueAverage / term;
+    timeAverage = timeAverage / term;
+    valueAverage = valueAverage / term;
 
     double alphaOne = 0;
     double alphaTwo = 0;
@@ -264,8 +275,8 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
     //最小二乗法でロスを計算
     for(int i = 1; i < term; i++)
     {
-        timeDiff = timeAverage - timeList[i - 1][1];
-        valueDiff = valueAverage - valueList[i - 1][1];
+        double timeDiff = timeAverage - timeList[i - 1];
+        double valueDiff = valueAverage - valueList[i - 1];
 
         alphaOne = alphaOne + (timeDiff * valueDiff);
         alphaTwo = alphaTwo + (timeDiff * timeDiff);
@@ -281,14 +292,14 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
 }
 
 /// <summary>
-/// TEMAのインジケーター値を取得
+/// GMMAWidthのインジケーター値を取得
 /// <summary>
 /// <param name="timeSpan">取得する時間軸</param>
 /// <param name="mode">取得するインジケーター値</param>
 /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
 /// <returns>TEMAのインジケーター値を取得</returns>
-double GetTema(int timeSpan,int mode,int shift)
+double GetGmmaWidth(int timeSpan,int mode,int shift)
 {
-    double result = iCustom(Symbol(),timeSpan,"TemaCumulative",mode,shift);
+    double result = iCustom(Symbol(),timeSpan,"GMMAWidth",mode,shift);
     return result;
 }
