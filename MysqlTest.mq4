@@ -222,7 +222,13 @@ int IsPairMatch(string myPair,string indexPair){
     return result;
 }
 
-
+/// <summary>
+///　回帰直線を取得
+/// <summary>
+/// <param name="timeSpan">取得する時間軸</param>
+/// <param name="term">取得するインジケーター値</param>
+/// <param name="regressionTilt">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
+/// <returns>TEMAのインジケーター値を取得</returns>
 double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
 {
     double result = 0;
@@ -238,6 +244,7 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
     for(int i = 1; i < term; i++)
     {
         timeList[i - 1][1] = i;
+        //ここでインジケーターの値を取得
         double indicatorValue = GetTema(timeSpan,1,mqlIndex);
         valueList[i - 1][1] = indicatorValue;
 

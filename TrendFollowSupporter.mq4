@@ -667,13 +667,38 @@ int GetNowLongGemaTrend()
     return result;
 }
 
+bool IsHighTrendPositionCheck(int trend)
+{
+    bool result = false;
+
+    //現在の回帰直線を取得
+    double regressionTilt = 0
+    double regression = GetRegressionLine(PERIOD_M15,1,regressionTilt);
+
+    if(trend == 0)
+    {
+        
+    }
+    else if (trend == 1)
+    {
+
+    }
+    else if(trend == -1)
+    {
+
+    }
+
+
+    return result;
+}
+
 /// <summary>
 /// 上トレンドの場合にポジションを取って良いかのチェック
 /// <summary>
 /// <returns>0：ポジション無し、1：陰陽足、2：陽陽足</returns>
 int GetUpTrendCandleStatus()
 {
-    bool result = 0;
+    int result = 0;
 
     double upPrice_4h = CandleHelper.GetUpBeardPrice(PERIOD_H4,0);
     double bodyPrice_4h = CandleHelper.GetBodyPrice(PERIOD_H4,0);
@@ -801,19 +826,6 @@ bool GetDownTrendCandleStatus()
             result = 2;
         }
     }
-
-    return result;
-}
-
-/// <summary>
-/// 4Hが高値更新した際にポジションを取っていいかチェック
-/// <summary>
-/// <returns>結果</returns>
-bool Is4hTrendUpCheck()
-{
-    bool result = false;
-
-    //GMMAWidth Shortが
 
     return result;
 }
