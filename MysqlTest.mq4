@@ -275,16 +275,24 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
     //最小二乗法でロスを計算
     for(int i = 1; i < term; i++)
     {
+        //timeDiff = (Xn - Xave)
         double timeDiff = timeAverage - timeList[i - 1];
+
+        //valueDiff = (Yn - Yave)
         double valueDiff = valueAverage - valueList[i - 1];
 
+        //Σ(Xn - Xave)(Yn - Yave)
         alphaOne = alphaOne + (timeDiff * valueDiff);
+
+        //Σ(Xn - Xave)(Xn - Xave)
         alphaTwo = alphaTwo + (timeDiff * timeDiff);
     }
 
+    //傾き計算
     double alpha = alphaOne / alphaTwo;
     regressionTilt = alpha;
 
+    //切片計算
     double regressionSection = valueAverage - alpha * timeAverage;
     result = regressionSection;
 
