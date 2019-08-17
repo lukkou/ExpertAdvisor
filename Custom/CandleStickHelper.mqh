@@ -43,7 +43,14 @@ class CandleStickHelper{
     //------------------------------------------------------------------
     // ローソク足の中間値を取得
     double GetBodyMiddlePrice(int time,int shift);
+
+    // 指定の時間足の自身の前足が上三兵かを取得
+    double IsUpThreeSoldiers(int time);
+
+    // 指定の時間足の自身の前足が下三兵かを取得
+    double IsDownThreeSoldiers(int time);
 };
+
 
     //------------------------------------------------------------------
     // コンストラクタ
@@ -54,6 +61,10 @@ class CandleStickHelper{
     // デストラクタ
     CandleStickHelper::~CandleStickHelper(){
     }
+
+//+------------------------------------------------------------------+
+//| Public function　area                                            |
+//+------------------------------------------------------------------+
 
     //------------------------------------------------------------------
     // ローソク足が陽線か陰線かチェックする
@@ -83,7 +94,8 @@ class CandleStickHelper{
     ///param name="time":取得時間
     ///param name="shift":取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)
     /// Return   結果
-    bool CandleStickHelper::IsCandleStickStar(int time,int shift){
+    bool CandleStickHelper::IsCandleStickStar(int time,int shift)
+    {
         bool result = false;
 
         double open = iOpen(NULL,time,shift);
@@ -205,116 +217,3 @@ class CandleStickHelper{
         double result = (open + close) / 2;
         return result;
     }
-
-    //------------------------------------------------------------------
-    // 指定の時間足の自身の前足が上三兵かを取得
-    ///param name="time":取得時間
-    /// Return   結果
-    bool IsUpThreeSoldiers(int time)
-    {
-        bool result = false;
-
-        double beforOneOopen = iOpen(NULL,time,1);
-        double beforOneClose = iClose(NULL,time,1);
-
-        double beforTwoOopen = iOpen(NULL,time,2);
-        double beforTwoClose = iClose(NULL,time,2);
-
-        double beforThreeOopen = iOpen(NULL,time,3);
-        double beforThreeClose = iClose(NULL,time,3);
-
-        if (beforOneOopen > beforOneClose)
-        {
-            return result;
-        }
-
-        if (beforTwoOopen > beforTwoClose)
-        {
-            return result;
-        }
-
-        if (beforThreeOopen > beforThreeClose)
-        {
-            return result;
-        }
-
-        if (beforOneOopen > beforTwoOopen || beforOneClose > beforTwoClose)
-        {
-            return result;
-        }
-
-        if (beforTwoOopen > beforThreeOopen || beforTwoClose > beforThreeClose)
-        {
-            return result;
-        }
-
-        //最後が上ひげでなければOKにする
-        double brow = GetUpBeardPrice(time, 1);
-        double body = GetBodyPrice(time,1);
-        bool star =  IsCandleStickStar(time,1);
-
-        if (body * 1.2 >  brow &&  star != false)
-        {
-            result = true;
-        }
-
-        return result;
-    }
-
-
-    //------------------------------------------------------------------
-    // 指定の時間足の自身の前足が下三兵かを取得
-    ///param name="time":取得時間
-    /// Return   結果
-    bool IsDownThreeSoldiers(int time)
-    {
-        bool result = false;
-
-        double beforOneOopen = iOpen(NULL,time,1);
-        double beforOneClose = iClose(NULL,time,1);
-
-        double beforTwoOopen = iOpen(NULL,time,2);
-        double beforTwoClose = iClose(NULL,time,2);
-
-        double beforThreeOopen = iOpen(NULL,time,3);
-        double beforThreeClose = iClose(NULL,time,3);
-
-        if (beforOneOopen < beforOneClose)
-        {
-            return result;
-        }
-
-        if (beforTwoOopen < beforTwoClose)
-        {
-            return result;
-        }
-
-        if (beforThreeOopen < beforThreeClose)
-        {
-            return result;
-        }
-
-        if (beforOneOopen < beforTwoOopen || beforOneClose < beforTwoClose)
-        {
-            return result;
-        }
-
-        if (beforTwoOopen < beforThreeOopen || beforTwoClose < beforThreeClose)
-        {
-            return result;
-        }
-
-        //最後が上ひげでなければOKにする
-        double brow = GetDownBeardPrice(time, 1);
-        double body = GetBodyPrice(time,1);
-        bool star =  IsCandleStickStar(time,1);
-
-        if (body * 1.2 >  brow &&  star != false)
-        {
-            result = true;
-        }
-
-        return result;
-    }
-
-

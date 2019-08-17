@@ -1224,4 +1224,118 @@ datetime GetCileTime(int cileTime)
     return tm + cileTime;
 }
 
-string GetTimeStr()
+/// <summary>
+/// 現在時刻からの計算時間を取得
+/// <summary>
+///param name="cileTime":計算する時間(3600:1時間後,-1800:30分前,86400:1日後)
+/// <returns>最小のEMA</returns>
+    //------------------------------------------------------------------
+    // 指定の時間足の自身の前足が上三兵かを取得
+    ///param name="time":取得時間
+    /// Return   結果
+    bool IsUpThreeSoldiers(int time)
+    {
+        bool result = false;
+
+        double beforOneOopen = iOpen(NULL,time,1);
+        double beforOneClose = iClose(NULL,time,1);
+
+        double beforTwoOopen = iOpen(NULL,time,2);
+        double beforTwoClose = iClose(NULL,time,2);
+
+        double beforThreeOopen = iOpen(NULL,time,3);
+        double beforThreeClose = iClose(NULL,time,3);
+
+        if (beforOneOopen > beforOneClose)
+        {
+            return result;
+        }
+
+        if (beforTwoOopen > beforTwoClose)
+        {
+            return result;
+        }
+
+        if (beforThreeOopen > beforThreeClose)
+        {
+            return result;
+        }
+
+        if (beforOneOopen > beforTwoOopen || beforOneClose > beforTwoClose)
+        {
+            return result;
+        }
+
+        if (beforTwoOopen > beforThreeOopen || beforTwoClose > beforThreeClose)
+        {
+            return result;
+        }
+
+        //最後が上ひげでなければOKにする
+        double brow = PrivateGetUpBeardPrice(time, 1);
+        double body = PrivateGetBodyPrice(time,1);
+        bool star =  PrivateIsCandleStickStar(time,1);
+
+        if (body * 1.2 >  brow &&  star != false)
+        {
+            result = true;
+        }
+
+        return result;
+    }
+
+
+    //------------------------------------------------------------------
+    // 指定の時間足の自身の前足が下三兵かを取得
+    ///param name="time":取得時間
+    /// Return   結果
+    bool IsDownThreeSoldiers(int time)
+    {
+        bool result = false;
+
+        double beforOneOopen = iOpen(NULL,time,1);
+        double beforOneClose = iClose(NULL,time,1);
+
+        double beforTwoOopen = iOpen(NULL,time,2);
+        double beforTwoClose = iClose(NULL,time,2);
+
+        double beforThreeOopen = iOpen(NULL,time,3);
+        double beforThreeClose = iClose(NULL,time,3);
+
+        if (beforOneOopen < beforOneClose)
+        {
+            return result;
+        }
+
+        if (beforTwoOopen < beforTwoClose)
+        {
+            return result;
+        }
+
+        if (beforThreeOopen < beforThreeClose)
+        {
+            return result;
+        }
+
+        if (beforOneOopen < beforTwoOopen || beforOneClose < beforTwoClose)
+        {
+            return result;
+        }
+
+        if (beforTwoOopen < beforThreeOopen || beforTwoClose < beforThreeClose)
+        {
+            return result;
+        }
+
+        //最後が上ひげでなければOKにする
+        double brow = PrivateGetDownBeardPrice(time, 1);
+        double body = PrivateGetBodyPrice(time,1);
+        bool star =  PrivateIsCandleStickStar(time,1);
+
+        if (body * 1.2 >  brow &&  star != false)
+        {
+            result = true;
+        }
+
+        return result;
+    }
