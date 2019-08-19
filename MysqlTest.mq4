@@ -74,7 +74,20 @@ void OnTick()
     PrintFormat("▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽");
     PrintFormat("y = " + DoubleToString(bb) + "x + " + DoubleToString(a));
 
-    PrintFormat("▽▽▽▽▽▽▽▽▽▽▽▽▽三兵▽▽▽▽▽▽▽▽▽▽▽▽▽");
+    bool upThreeSoldiers = IsUpThreeSoldiers(PERIOD_M15);
+    bool downThreeSoldiers = IsDownThreeSoldiers(PERIOD_M15);
+
+    if(upThreeSoldiers == true)
+    {
+        PrintFormat("▽▽▽▽▽▽▽▽▽▽▽▽▽三兵▽▽▽▽▽▽▽▽▽▽▽▽▽");
+        PrintFormat("上三兵になっています。");
+    }
+
+    if(downThreeSoldiers == true)
+    {
+        PrintFormat("▽▽▽▽▽▽▽▽▽▽▽▽▽三兵▽▽▽▽▽▽▽▽▽▽▽▽▽");
+        PrintFormat("下三兵になっています。");
+    }
     
     return;
 //---
@@ -266,14 +279,14 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
         valueList[i - 1] = indicatorValue;
 
         //ついで合計値を計算
-        timeAverage += i;
-        valueAverage += indicatorValue;
+        timeTotal += i;
+        valueTotal += indicatorValue;
         mqlIndex--;
     }
 
     //平均を計算
-    timeAverage = timeAverage / term;
-    valueAverage = valueAverage / term;
+    timeAverage = timeTotal / term;
+    valueAverage = valueTotal / term;
 
     double alphaOne = 0;
     double alphaTwo = 0;
@@ -327,36 +340,36 @@ bool IsUpThreeSoldiers(int time)
 {
     bool result = false;
 
-    double beforOneOopen = iOpen(NULL,time,1);
+    double beforOneOpen = iOpen(NULL,time,1);
     double beforOneClose = iClose(NULL,time,1);
 
-    double beforTwoOopen = iOpen(NULL,time,2);
+    double beforTwoOpen = iOpen(NULL,time,2);
     double beforTwoClose = iClose(NULL,time,2);
 
-    double beforThreeOopen = iOpen(NULL,time,3);
+    double beforThreeOpen = iOpen(NULL,time,3);
     double beforThreeClose = iClose(NULL,time,3);
 
-    if (beforOneOopen > beforOneClose)
+    if (beforOneOpen > beforOneClose)
     {
         return result;
     }
 
-    if (beforTwoOopen > beforTwoClose)
+    if (beforTwoOpen > beforTwoClose)
     {
         return result;
     }
 
-    if (beforThreeOopen > beforThreeClose)
+    if (beforThreeOpen > beforThreeClose)
     {
         return result;
     }
 
-    if (beforOneOopen > beforTwoOopen || beforOneClose > beforTwoClose)
+    if (beforOneOpen > beforTwoOpen || beforOneClose > beforTwoClose)
     {
         return result;
     }
 
-    if (beforTwoOopen > beforThreeOopen || beforTwoClose > beforThreeClose)
+    if (beforTwoOpen > beforThreeOpen || beforTwoClose > beforThreeClose)
     {
         return result;
     }
@@ -366,7 +379,7 @@ bool IsUpThreeSoldiers(int time)
     double body = CandleHelper.GetBodyPrice(time,1);
     bool star =  CandleHelper.IsCandleStickStar(time,1);
 
-    if (body * 1.2 >  brow &&  star != false)
+    if (body * 1.5 >  brow &&  star != false)
     {
         result = true;
     }
@@ -384,36 +397,36 @@ bool IsDownThreeSoldiers(int time)
 {
     bool result = false;
 
-    double beforOneOopen = iOpen(NULL,time,1);
+    double beforOneOpen = iOpen(NULL,time,1);
     double beforOneClose = iClose(NULL,time,1);
 
-    double beforTwoOopen = iOpen(NULL,time,2);
+    double beforTwoOpen = iOpen(NULL,time,2);
     double beforTwoClose = iClose(NULL,time,2);
 
-    double beforThreeOopen = iOpen(NULL,time,3);
+    double beforThreeOpen = iOpen(NULL,time,3);
     double beforThreeClose = iClose(NULL,time,3);
 
-    if (beforOneOopen < beforOneClose)
+    if (beforOneOpen < beforOneClose)
     {
         return result;
     }
 
-    if (beforTwoOopen < beforTwoClose)
+    if (beforTwoOpen < beforTwoClose)
     {
         return result;
     }
 
-    if (beforThreeOopen < beforThreeClose)
+    if (beforThreeOpen < beforThreeClose)
     {
         return result;
     }
 
-    if (beforOneOopen < beforTwoOopen || beforOneClose < beforTwoClose)
+    if (beforOneOpen < beforTwoOpen || beforOneClose < beforTwoClose)
     {
         return result;
     }
 
-    if (beforTwoOopen < beforThreeOopen || beforTwoClose < beforThreeClose)
+    if (beforTwoOpen < beforThreeOpen || beforTwoClose < beforThreeClose)
     {
         return result;
     }
@@ -423,7 +436,7 @@ bool IsDownThreeSoldiers(int time)
     double body = CandleHelper.GetBodyPrice(time,1);
     bool star =  CandleHelper.IsCandleStickStar(time,1);
 
-    if (body * 1.2 >  brow &&  star != false)
+    if (body * 1.5 >  brow &&  star != false)
     {
         result = true;
     }
