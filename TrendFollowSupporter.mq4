@@ -1225,117 +1225,114 @@ datetime GetCileTime(int cileTime)
 }
 
 /// <summary>
-/// 現在時刻からの計算時間を取得
+/// 指定の時間足の自身の前足が上三兵かを取得
 /// <summary>
-///param name="cileTime":計算する時間(3600:1時間後,-1800:30分前,86400:1日後)
-/// <returns>最小のEMA</returns>
-    //------------------------------------------------------------------
-    // 指定の時間足の自身の前足が上三兵かを取得
-    ///param name="time":取得時間
-    /// Return   結果
-    bool IsUpThreeSoldiers(int time)
+///<param name="time">取得時間</param>
+/// <returns>上三兵の結果</returns>
+bool IsUpThreeSoldiers(int time)
+{
+    bool result = false;
+
+    double beforOneOpen = iOpen(NULL,time,1);
+    double beforOneClose = iClose(NULL,time,1);
+
+    double beforTwoOpen = iOpen(NULL,time,2);
+    double beforTwoClose = iClose(NULL,time,2);
+
+    double beforThreeOpen = iOpen(NULL,time,3);
+    double beforThreeClose = iClose(NULL,time,3);
+
+    if (beforOneOpen > beforOneClose)
     {
-        bool result = false;
-
-        double beforOneOopen = iOpen(NULL,time,1);
-        double beforOneClose = iClose(NULL,time,1);
-
-        double beforTwoOopen = iOpen(NULL,time,2);
-        double beforTwoClose = iClose(NULL,time,2);
-
-        double beforThreeOopen = iOpen(NULL,time,3);
-        double beforThreeClose = iClose(NULL,time,3);
-
-        if (beforOneOopen > beforOneClose)
-        {
-            return result;
-        }
-
-        if (beforTwoOopen > beforTwoClose)
-        {
-            return result;
-        }
-
-        if (beforThreeOopen > beforThreeClose)
-        {
-            return result;
-        }
-
-        if (beforOneOopen > beforTwoOopen || beforOneClose > beforTwoClose)
-        {
-            return result;
-        }
-
-        if (beforTwoOopen > beforThreeOopen || beforTwoClose > beforThreeClose)
-        {
-            return result;
-        }
-
-        //最後が上ひげでなければOKにする
-        double brow = PrivateGetUpBeardPrice(time, 1);
-        double body = PrivateGetBodyPrice(time,1);
-        bool star =  PrivateIsCandleStickStar(time,1);
-
-        if (body * 1.2 >  brow &&  star != false)
-        {
-            result = true;
-        }
-
         return result;
     }
 
-
-    //------------------------------------------------------------------
-    // 指定の時間足の自身の前足が下三兵かを取得
-    ///param name="time":取得時間
-    /// Return   結果
-    bool IsDownThreeSoldiers(int time)
+    if (beforTwoOpen > beforTwoClose)
     {
-        bool result = false;
-
-        double beforOneOopen = iOpen(NULL,time,1);
-        double beforOneClose = iClose(NULL,time,1);
-
-        double beforTwoOopen = iOpen(NULL,time,2);
-        double beforTwoClose = iClose(NULL,time,2);
-
-        double beforThreeOopen = iOpen(NULL,time,3);
-        double beforThreeClose = iClose(NULL,time,3);
-
-        if (beforOneOopen < beforOneClose)
-        {
-            return result;
-        }
-
-        if (beforTwoOopen < beforTwoClose)
-        {
-            return result;
-        }
-
-        if (beforThreeOopen < beforThreeClose)
-        {
-            return result;
-        }
-
-        if (beforOneOopen < beforTwoOopen || beforOneClose < beforTwoClose)
-        {
-            return result;
-        }
-
-        if (beforTwoOopen < beforThreeOopen || beforTwoClose < beforThreeClose)
-        {
-            return result;
-        }
-
-        //最後が上ひげでなければOKにする
-        double brow = PrivateGetDownBeardPrice(time, 1);
-        double body = PrivateGetBodyPrice(time,1);
-        bool star =  PrivateIsCandleStickStar(time,1);
-
-        if (body * 1.2 >  brow &&  star != false)
-        {
-            result = true;
-        }
-
         return result;
     }
+
+    if (beforThreeOpen > beforThreeClose)
+    {
+        return result;
+    }
+
+    if (beforOneOpen > beforTwoOpen || beforOneClose > beforTwoClose)
+    {
+        return result;
+    }
+
+    if (beforTwoOpen > beforThreeOpen || beforTwoClose > beforThreeClose)
+    {
+        return result;
+    }
+
+    //最後が上ひげでなければOKにする
+    double brow = CandleHelper.GetUpBeardPrice(time, 1);
+    double body = CandleHelper.GetBodyPrice(time,1);
+    bool star =  CandleHelper.IsCandleStickStar(time,1);
+
+    if (body * 1.5 >  brow &&  star != false)
+    {
+        result = true;
+    }
+
+    return result;
+}
+
+
+/// <summary>
+/// 指定の時間足の自身の前足が下三兵かを取得
+/// <summary>
+///<param name="time">取得時間</param>
+/// <returns>下三兵の結果</returns>
+bool IsDownThreeSoldiers(int time)
+{
+    bool result = false;
+
+    double beforOneOpen = iOpen(NULL,time,1);
+    double beforOneClose = iClose(NULL,time,1);
+
+    double beforTwoOpen = iOpen(NULL,time,2);
+    double beforTwoClose = iClose(NULL,time,2);
+
+    double beforThreeOpen = iOpen(NULL,time,3);
+    double beforThreeClose = iClose(NULL,time,3);
+
+    if (beforOneOpen < beforOneClose)
+    {
+        return result;
+    }
+
+    if (beforTwoOpen < beforTwoClose)
+    {
+        return result;
+    }
+
+    if (beforThreeOpen < beforThreeClose)
+    {
+        return result;
+    }
+
+    if (beforOneOpen < beforTwoOpen || beforOneClose < beforTwoClose)
+    {
+        return result;
+    }
+
+    if (beforTwoOpen < beforThreeOpen || beforTwoClose < beforThreeClose)
+    {
+        return result;
+    }
+
+    //最後が上ひげでなければOKにする
+    double brow = CandleHelper.GetDownBeardPrice(time, 1);
+    double body = CandleHelper.GetBodyPrice(time,1);
+    bool star =  CandleHelper.IsCandleStickStar(time,1);
+
+    if (body * 1.5 >  brow &&  star != false)
+    {
+        result = true;
+    }
+
+    return result;
+}
