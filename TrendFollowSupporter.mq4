@@ -671,7 +671,7 @@ bool IsHighTrendPositionCheck(int trend)
     bool result = false;
 
     //現在の回帰直線を取得
-    double regressionTilt = 0
+    double regressionTilt = 0;
     double regression = GetRegressionLine(PERIOD_M15,1,regressionTilt);
 
     if(trend == 0)
@@ -1333,6 +1333,78 @@ bool IsDownThreeSoldiers(int time)
     {
         result = true;
     }
+
+    return result;
+}
+
+/// <summary>
+///　回帰直線を取得
+/// <summary>
+/// <param name="timeSpan">取得する時間軸</param>
+/// <param name="term">取得するインジケーター値</param>
+/// <param name="regressionTilt">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
+/// <returns>TEMAのインジケーター値を取得</returns>
+double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
+{
+    double result = 0;
+
+
+    int timeList[]; 
+    ArrayResize(timeList, term);
+    double valueList[];
+    ArrayResize(valueList, term);
+
+    int timeTotal = 0;
+    double valueTotal = 0;
+
+    double timeAverage = 0;
+    double valueAverage = 0;
+
+    int mqlIndex = term;
+
+    for(int i = 1; i < term; i++)
+    {
+        timeList[i - 1] = i;
+        //ここでインジケーターの値を取得
+        double indicatorValue = GetGmmaWidth(timeSpan,2,mqlIndex);
+        valueList[i - 1] = indicatorValue;
+
+        //ついで合計値を計算
+        timeTotal += i;
+        valueTotal += indicatorValue;
+        mqlIndex--;
+    }
+
+    //平均を計算
+    timeAverage = timeTotal / term;
+    valueAverage = valueTotal / term;
+
+    double alphaOne = 0;
+    double alphaTwo = 0;
+
+    //最小二乗法でロスを計算
+    for(int i = 1; i < term; i++)
+    {
+        //timeDiff = (Xn - Xave)
+        double timeDiff = timeAverage - timeList[i - 1];
+
+        //valueDiff = (Yn - Yave)
+        double valueDiff = valueAverage - valueList[i - 1];
+
+        //Σ(Xn - Xave)(Yn - Yave)
+        alphaOne = alphaOne + (timeDiff * valueDiff);
+
+        //Σ(Xn - Xave)(Xn - Xave)
+        alphaTwo = alphaTwo + (timeDiff * timeDiff);
+    }
+
+    //傾き計算
+    double alpha = alphaOne / alphaTwo;
+    regressionTilt = alpha;
+
+    //切片計算
+    double regressionSection = valueAverage - alpha * timeAverage;
+    result = regressionSection;
 
     return result;
 }
