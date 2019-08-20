@@ -32,9 +32,6 @@ string database;
 int socket;
 int clientFlag;
 
-// ローソク足補助クラス
-CandleStickHelper CandleHelper();
-
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
@@ -79,13 +76,13 @@ void OnTick()
 
     if(upThreeSoldiers == true)
     {
-        PrintFormat("▽▽▽▽▽▽▽▽▽▽▽▽▽三兵▽▽▽▽▽▽▽▽▽▽▽▽▽");
+        PrintFormat("▼▼▼▼▼▼▼▼▼▼▼▼▼三兵▼▼▼▼▼▼▼▼▼▼▼▼▼");
         PrintFormat("上三兵になっています。");
     }
 
     if(downThreeSoldiers == true)
     {
-        PrintFormat("▽▽▽▽▽▽▽▽▽▽▽▽▽三兵▽▽▽▽▽▽▽▽▽▽▽▽▽");
+        PrintFormat("▼▼▼▼▼▼▼▼▼▼▼▼▼三兵▼▼▼▼▼▼▼▼▼▼▼▼▼");
         PrintFormat("下三兵になっています。");
     }
     
@@ -255,8 +252,8 @@ int IsPairMatch(string myPair,string indexPair){
 /// <returns>TEMAのインジケーター値を取得</returns>
 double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
 {
+    PrintFormat("※※※※※※※※※※※※※※※※※※※※※※※※※※※※");
     double result = 0;
-
 
     int timeList[]; 
     ArrayResize(timeList, term);
@@ -271,11 +268,13 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
 
     int mqlIndex = term;
 
-    for(int i = 1; i < term; i++)
+    for(int i = 1; i <= term; i++)
     {
         timeList[i - 1] = i;
         //ここでインジケーターの値を取得
         double indicatorValue = GetGmmaWidth(timeSpan,2,mqlIndex);
+        indicatorValue = indicatorValue * 10;
+        PrintFormat("GmmaWidth = " + DoubleToStr(indicatorValue));
         valueList[i - 1] = indicatorValue;
 
         //ついで合計値を計算
@@ -283,16 +282,20 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
         valueTotal += indicatorValue;
         mqlIndex--;
     }
-
+    PrintFormat("時間トータル = " + DoubleToStr(timeTotal));
+    PrintFormat("値トータル = " + DoubleToStr(valueTotal));
     //平均を計算
     timeAverage = timeTotal / term;
     valueAverage = valueTotal / term;
+
+    PrintFormat("トータル平均値 = " + DoubleToStr(timeAverage));
+    PrintFormat("値平均値 = " + DoubleToStr(valueAverage));
 
     double alphaOne = 0;
     double alphaTwo = 0;
 
     //最小二乗法でロスを計算
-    for(int i = 1; i < term; i++)
+    for(int i = 1; i <= term; i++)
     {
         //timeDiff = (Xn - Xave)
         double timeDiff = timeAverage - timeList[i - 1];
@@ -306,7 +309,8 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
         //Σ(Xn - Xave)(Xn - Xave)
         alphaTwo = alphaTwo + (timeDiff * timeDiff);
     }
-
+    PrintFormat("alphaOne = " + DoubleToStr(alphaOne));
+    PrintFormat("alphaTwo = " + DoubleToStr(alphaTwo));
     //傾き計算
     double alpha = alphaOne / alphaTwo;
     regressionTilt = alpha;
@@ -351,26 +355,31 @@ bool IsUpThreeSoldiers(int time)
 
     if (beforOneOpen > beforOneClose)
     {
+        PrintFormat("NG１");
         return result;
     }
 
     if (beforTwoOpen > beforTwoClose)
     {
+        PrintFormat("NG２");
         return result;
     }
 
     if (beforThreeOpen > beforThreeClose)
     {
+        PrintFormat("NG３");
         return result;
     }
 
     if (beforOneOpen > beforTwoOpen || beforOneClose > beforTwoClose)
     {
+        PrintFormat("NG４");
         return result;
     }
 
     if (beforTwoOpen > beforThreeOpen || beforTwoClose > beforThreeClose)
     {
+        PrintFormat("NG５");
         return result;
     }
 
@@ -379,8 +388,9 @@ bool IsUpThreeSoldiers(int time)
     double body = CandleHelper.GetBodyPrice(time,1);
     bool star =  CandleHelper.IsCandleStickStar(time,1);
 
-    if (body * 1.5 >  brow &&  star != false)
+    if (body > brow * 1.5 &&  star != false)
     {
+        PrintFormat("OK");
         result = true;
     }
 
@@ -436,7 +446,7 @@ bool IsDownThreeSoldiers(int time)
     double body = CandleHelper.GetBodyPrice(time,1);
     bool star =  CandleHelper.IsCandleStickStar(time,1);
 
-    if (body * 1.5 >  brow &&  star != false)
+    if (body > brow * 1.5 &&  star != false)
     {
         result = true;
     }
