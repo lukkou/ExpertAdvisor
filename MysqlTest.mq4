@@ -252,7 +252,7 @@ int IsPairMatch(string myPair,string indexPair){
 /// <returns>TEMAのインジケーター値を取得</returns>
 double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
 {
-    PrintFormat("※※※※※※※※※※※※※※※※※※※※※※※※※※※※");
+    //PrintFormat("※※※※※※※※※※※※※※※※※※※※※※※※※※※※");
     double result = 0;
 
     int timeList[]; 
@@ -274,7 +274,7 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
         //ここでインジケーターの値を取得
         double indicatorValue = GetGmmaWidth(timeSpan,2,mqlIndex);
         indicatorValue = indicatorValue * 10;
-        PrintFormat("GmmaWidth = " + DoubleToStr(indicatorValue));
+        //PrintFormat("GmmaWidth = " + DoubleToStr(indicatorValue));
         valueList[i - 1] = indicatorValue;
 
         //ついで合計値を計算
@@ -282,14 +282,14 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
         valueTotal += indicatorValue;
         mqlIndex--;
     }
-    PrintFormat("時間トータル = " + DoubleToStr(timeTotal));
-    PrintFormat("値トータル = " + DoubleToStr(valueTotal));
+    //PrintFormat("時間トータル = " + DoubleToStr(timeTotal));
+    //PrintFormat("値トータル = " + DoubleToStr(valueTotal));
     //平均を計算
     timeAverage = timeTotal / term;
     valueAverage = valueTotal / term;
 
-    PrintFormat("トータル平均値 = " + DoubleToStr(timeAverage));
-    PrintFormat("値平均値 = " + DoubleToStr(valueAverage));
+    //PrintFormat("トータル平均値 = " + DoubleToStr(timeAverage));
+    //PrintFormat("値平均値 = " + DoubleToStr(valueAverage));
 
     double alphaOne = 0;
     double alphaTwo = 0;
@@ -309,8 +309,8 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
         //Σ(Xn - Xave)(Xn - Xave)
         alphaTwo = alphaTwo + (timeDiff * timeDiff);
     }
-    PrintFormat("alphaOne = " + DoubleToStr(alphaOne));
-    PrintFormat("alphaTwo = " + DoubleToStr(alphaTwo));
+    //PrintFormat("alphaOne = " + DoubleToStr(alphaOne));
+    //PrintFormat("alphaTwo = " + DoubleToStr(alphaTwo));
     //傾き計算
     double alpha = alphaOne / alphaTwo;
     regressionTilt = alpha;
@@ -371,13 +371,13 @@ bool IsUpThreeSoldiers(int time)
         return result;
     }
 
-    if (beforOneOpen > beforTwoOpen || beforOneClose > beforTwoClose)
+    if (beforThreeOpen > beforTwoOpen || beforThreeClose > beforTwoClose)
     {
         PrintFormat("NG４");
         return result;
     }
 
-    if (beforTwoOpen > beforThreeOpen || beforTwoClose > beforThreeClose)
+    if (beforTwoOpen > beforOneOpen || beforTwoClose > beforOneClose)
     {
         PrintFormat("NG５");
         return result;
@@ -388,7 +388,11 @@ bool IsUpThreeSoldiers(int time)
     double body = CandleHelper.GetBodyPrice(time,1);
     bool star =  CandleHelper.IsCandleStickStar(time,1);
 
-    if (body > brow * 1.5 &&  star != false)
+    PrintFormat("ローソク足本体：" + DoubleToStr(body));
+    PrintFormat("ローソク足上髭：" + DoubleToStr(brow * 1.5));
+    PrintFormat("星チェック：" + IntegerToString(star));
+
+    if (body > brow * 1.5 && star == false)
     {
         PrintFormat("OK");
         result = true;
@@ -431,12 +435,12 @@ bool IsDownThreeSoldiers(int time)
         return result;
     }
 
-    if (beforOneOpen < beforTwoOpen || beforOneClose < beforTwoClose)
+    if (beforThreeOpen < beforTwoOpen || beforThreeClose < beforTwoClose)
     {
         return result;
     }
 
-    if (beforTwoOpen < beforThreeOpen || beforTwoClose < beforThreeClose)
+    if (beforTwoOpen < beforOneOpen || beforTwoClose < beforOneClose)
     {
         return result;
     }
@@ -446,7 +450,7 @@ bool IsDownThreeSoldiers(int time)
     double body = CandleHelper.GetBodyPrice(time,1);
     bool star =  CandleHelper.IsCandleStickStar(time,1);
 
-    if (body > brow * 1.5 &&  star != false)
+    if (body > brow * 1.5 && star == false)
     {
         result = true;
     }
