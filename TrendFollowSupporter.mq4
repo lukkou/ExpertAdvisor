@@ -1257,12 +1257,12 @@ bool IsUpThreeSoldiers(int time)
         return result;
     }
 
-    if (beforOneOpen > beforTwoOpen || beforOneClose > beforTwoClose)
+    if (beforThreeOpen > beforTwoOpen || beforThreeClose > beforTwoClose)
     {
         return result;
     }
 
-    if (beforTwoOpen > beforThreeOpen || beforTwoClose > beforThreeClose)
+    if (beforTwoOpen > beforOneOpen || beforTwoClose > beforOneClose)
     {
         return result;
     }
@@ -1272,7 +1272,7 @@ bool IsUpThreeSoldiers(int time)
     double body = CandleHelper.GetBodyPrice(time,1);
     bool star =  CandleHelper.IsCandleStickStar(time,1);
 
-    if (body * 1.5 >  brow &&  star != false)
+    if (body > brow * 1.5 && star == false)
     {
         result = true;
     }
@@ -1314,12 +1314,12 @@ bool IsDownThreeSoldiers(int time)
         return result;
     }
 
-    if (beforOneOpen < beforTwoOpen || beforOneClose < beforTwoClose)
+    if (beforThreeOpen < beforTwoOpen || beforThreeClose < beforTwoClose)
     {
         return result;
     }
 
-    if (beforTwoOpen < beforThreeOpen || beforTwoClose < beforThreeClose)
+    if (beforTwoOpen < beforOneOpen || beforTwoClose < beforOneClose)
     {
         return result;
     }
@@ -1329,7 +1329,7 @@ bool IsDownThreeSoldiers(int time)
     double body = CandleHelper.GetBodyPrice(time,1);
     bool star =  CandleHelper.IsCandleStickStar(time,1);
 
-    if (body * 1.5 >  brow &&  star != false)
+    if (body > brow * 1.5 && star == false)
     {
         result = true;
     }
@@ -1345,9 +1345,8 @@ bool IsDownThreeSoldiers(int time)
 /// <param name="regressionTilt">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
 /// <returns>TEMAのインジケーター値を取得</returns>
 double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
-{
-    double result = 0;
 
+    double result = 0;
 
     int timeList[]; 
     ArrayResize(timeList, term);
@@ -1362,11 +1361,12 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
 
     int mqlIndex = term;
 
-    for(int i = 1; i < term; i++)
+    for(int i = 1; i <= term; i++)
     {
         timeList[i - 1] = i;
         //ここでインジケーターの値を取得
         double indicatorValue = GetGmmaWidth(timeSpan,2,mqlIndex);
+        indicatorValue = indicatorValue * 10;
         valueList[i - 1] = indicatorValue;
 
         //ついで合計値を計算
@@ -1374,7 +1374,6 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
         valueTotal += indicatorValue;
         mqlIndex--;
     }
-
     //平均を計算
     timeAverage = timeTotal / term;
     valueAverage = valueTotal / term;
@@ -1383,7 +1382,7 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
     double alphaTwo = 0;
 
     //最小二乗法でロスを計算
-    for(int i = 1; i < term; i++)
+    for(int i = 1; i <= term; i++)
     {
         //timeDiff = (Xn - Xave)
         double timeDiff = timeAverage - timeList[i - 1];
