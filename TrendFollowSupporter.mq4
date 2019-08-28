@@ -793,6 +793,12 @@ bool GetDownTrendCandleStatus()
         return result;
     }
 
+    //現在のGmmaWidthShort回帰直線を取得しチェック
+    double inclination = 0;
+    double section = GetRegressionLine(PERIOD_M15,8,inclination);
+
+    if 
+
     //今足の形状を取得(0 = 星 1 = 陽線 -1 = 陰線)
     int nowCandleStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,0);
     //前足の形状を取得(0 = 星 1 = 陽線 -1 = 陰線)
@@ -837,14 +843,19 @@ bool IsUpTrendShortCheck()
     bool result = false;
 
     //今から４本前(一時間前)までのGMMAIndexを取得
-    double indexNow = GetGmmaIndex(PERIOD_M15,2,0);
-    double indexBefore15 = GetGmmaIndex(PERIOD_M15,2,1);
-    double indexBefore30 = GetGmmaIndex(PERIOD_M15,2,2);
-    double indexBefore45 = GetGmmaIndex(PERIOD_M15,2,3);
+    double indexNow = GetGmmaIndex(PERIOD_M15,1,0);
+    double indexBefore15 = GetGmmaIndex(PERIOD_M15,1,1);
+    double indexBefore30 = GetGmmaIndex(PERIOD_M15,1,2);
+    double indexBefore45 = GetGmmaIndex(PERIOD_M15,1,3);
 
-    double temaUp = GetTema(PERIOD_M15,1,0);
-    double temaDown = GetTema(PERIOD_M15,2,0);
-
+    double temaUp = GetTema(PERIOD_M15,0,0);
+    double temaDown = GetTema(PERIOD_M15,1,0);
+    Print("indexNow:" + DoubleToStr(indexNow));
+    Print("indexBefore15:" + DoubleToStr(indexBefore15));
+    Print("indexBefore30:" + DoubleToStr(indexBefore30));
+    Print("indexBefore45:" + DoubleToStr(indexBefore45));
+    Print("temaUp:" + DoubleToStr(temaUp));
+    Print("temaDown:" + DoubleToStr(temaDown));
     if(indexNow > 0 && indexBefore15 > 0 && indexBefore30 > 0 && indexBefore45 > 0)
     {
         if(temaUp > 0 && temaDown == 0)
@@ -993,7 +1004,7 @@ bool IsSettlementCheck(int positionTrend)
     if(positionTrend == OP_BUY)
     {
         //ポシジョンの方向が買いの場合に決済するかの判断
-        double gmmaShortIndex =  GetGmmaIndex(PERIOD_M15,0,0);
+        double gmmaShortIndex = GetGmmaIndex(PERIOD_M15,0,0);
         double ema13 = iMA(Symbol(),PERIOD_M15,13,0,MODE_EMA,PRICE_CLOSE,0);
         Print("ShortIndex = " + DoubleToStr(gmmaShortIndex));
         Print("Ema13 = " + DoubleToStr(ema13) + "/// 現在値 = " + DoubleToStr(nowPrice));

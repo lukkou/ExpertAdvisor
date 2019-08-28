@@ -71,6 +71,11 @@ void OnTick()
     PrintFormat("▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽");
     PrintFormat("y = " + DoubleToString(bb) + "x + " + DoubleToString(a));
 
+    double nowPrice = iClose(Symbol(),PERIOD_M15,0);
+    double prediction = bb * 9 + a;
+    PrintFormat("予測される値段 = " + DoubleToString(prediction));
+
+
     bool upThreeSoldiers = IsUpThreeSoldiers(PERIOD_M15);
     bool downThreeSoldiers = IsDownThreeSoldiers(PERIOD_M15);
 
@@ -274,7 +279,7 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
         //ここでインジケーターの値を取得
         double indicatorValue = GetGmmaWidth(timeSpan,2,mqlIndex);
         indicatorValue = indicatorValue * 10;
-        //PrintFormat("GmmaWidth = " + DoubleToStr(indicatorValue));
+        //PrintFormat("GmmaWidth = " + DoubleToStr(i87ndicatorValue));
         valueList[i - 1] = indicatorValue;
 
         //ついで合計値を計算
