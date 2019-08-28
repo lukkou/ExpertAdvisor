@@ -76,10 +76,17 @@ void OnTick()
     double gmmaWidth_2 = GetGmmaWidth(PERIOD_M15,2,0);
     double gmmaWidth_3 = GetGmmaWidth(PERIOD_M15,3,0);
 
+    if(gmmaWidth_0 == 2147483647 || gmmaWidth_1 == 2147483647 || gmmaWidth_2 == 2147483647 || gmmaWidth_3 == 2147483647)
+    {
+        PrintFormat("2147483647はおかしい!!!!!!!!!!!!!!!!!!");
+    }
+
     PrintFormat("GMMA UP   :" + DoubleToString(gmmaWidth_0));
     PrintFormat("GMMA DOWN :" + DoubleToString(gmmaWidth_1));
     PrintFormat("GMMA SHORT:" + DoubleToString(gmmaWidth_2));
     PrintFormat("GMMA LONG :" + DoubleToString(gmmaWidth_3));
+
+    return;
 
 
     bool upThreeSoldiers = IsUpThreeSoldiers(PERIOD_M15);
@@ -97,7 +104,7 @@ void OnTick()
         PrintFormat("下三兵になっています。");
     }
     
-    return;
+    
 //---
     string mySymbol = Symbol();
     datetime tm = TimeLocal();
