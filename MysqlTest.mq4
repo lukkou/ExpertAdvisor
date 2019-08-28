@@ -71,9 +71,15 @@ void OnTick()
     PrintFormat("▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽");
     PrintFormat("y = " + DoubleToString(bb) + "x + " + DoubleToString(a));
 
-    double nowPrice = iClose(Symbol(),PERIOD_M15,0);
-    double prediction = bb * 9 + a;
-    PrintFormat("予測される値段 = " + DoubleToString(prediction));
+    double gmmaWidth_0 = GetGmmaWidth(PERIOD_M15,0,0);
+    double gmmaWidth_1 = GetGmmaWidth(PERIOD_M15,1,0);
+    double gmmaWidth_2 = GetGmmaWidth(PERIOD_M15,2,0);
+    double gmmaWidth_3 = GetGmmaWidth(PERIOD_M15,3,0);
+
+    PrintFormat("GMMA UP   :" + DoubleToString(gmmaWidth_0));
+    PrintFormat("GMMA DOWN :" + DoubleToString(gmmaWidth_1));
+    PrintFormat("GMMA SHORT:" + DoubleToString(gmmaWidth_2));
+    PrintFormat("GMMA LONG :" + DoubleToString(gmmaWidth_3));
 
 
     bool upThreeSoldiers = IsUpThreeSoldiers(PERIOD_M15);
