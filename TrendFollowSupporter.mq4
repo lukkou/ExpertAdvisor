@@ -722,6 +722,18 @@ int GetUpTrendCandleStatus()
         return result;
     }
 
+    //現在のGmmaWidthShort回帰直線を取得しチェック
+    double inclination = 0;
+    double section = GetRegressionLine(PERIOD_M15,8,inclination);
+    double gmmaWidthUp = GetGmmaWidth(PERIOD_H4,0,0);
+    double gmmaWidthDown = GetGmmaWidth(PERIOD_H4,1,0);
+
+    //回帰直線がマイナストレンドの場合は判定なし
+    if (inclination <= 0 && gmmaWidthUp == 0)
+    {
+        return result;
+    } 
+
     //今足の形状を取得(0 = 星 1 = 陽線 -1 = 陰線)
     int nowCandleStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,0);
     //前足の形状を取得(0 = 星 1 = 陽線 -1 = 陰線)
@@ -797,7 +809,8 @@ bool GetDownTrendCandleStatus()
     double inclination = 0;
     double section = GetRegressionLine(PERIOD_M15,8,inclination);
 
-    if 
+    //回帰直線が
+    if inclination > 0 
 
     //今足の形状を取得(0 = 星 1 = 陽線 -1 = 陰線)
     int nowCandleStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,0);
