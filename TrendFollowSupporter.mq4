@@ -1017,7 +1017,8 @@ bool IsSettlementCheck(int positionTrend)
         double bodyPrice_4h = CandleHelper.GetBodyPrice(PERIOD_H4,0);
         bool starFlg = CandleHelper.IsCandleStickStar(PERIOD_H4,0);
         
-        if(upPrice_4h >= bodyPrice_4h && starFlg == false)
+        double befourBodyPrice = CandleHelper.GetBodyMiddlePrice(PERIOD_H4, 1);
+        if(upPrice_4h >= bodyPrice_4h && starFlg == false && befourBodyPrice < nowPrice)
         {
             //Print("4時間足　上ひげの値段が本体足値段より大きくなった");
             return true;
