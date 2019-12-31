@@ -50,7 +50,7 @@ int _clientFlag;
 int OnInit()
 {
     string iniInfo = TerminalInfoString(TERMINAL_DATA_PATH) + "\\MQL4\\Experts\\MyConnection.ini";
-    //Print ("パス: ",iniInfo);
+    Print ("パス: ",iniInfo);
 
     _host = ReadIni(iniInfo, "MYSQL", "Host");
     _user = ReadIni(iniInfo, "MYSQL", "User");
@@ -60,7 +60,7 @@ int OnInit()
     _socket =  ReadIni(iniInfo, "MYSQL", "Socket");
     _clientFlag = StrToInteger(ReadIni(iniInfo, "MYSQL", "ClientFlag"));  
 
-    //Print ("Host: ",_host, ", User: ", _user, ", Database: ",_database);
+    Print ("Host: ",_host, ", User: ", _user, ", Database: ",_database);
 
     return(INIT_SUCCEEDED);
 }
@@ -79,10 +79,10 @@ void OnDeinit(const int reason)
 void OnTick()
 {
     //int db = MySqlConnect(_host, _user, _password, _database, _port, _socket, _clientFlag);
-    //Print ("-------------------Tick Start-------------------");
+    Print ("-------------------Tick Start-------------------");
     int db = 1;
     if (db == -1){
-        //Print ("Connection failed! Error: " + MySqlErrorDescription);
+        Print ("Connection failed! Error: " + MySqlErrorDescription);
 
         //エラーだったら繋がらない情報をツイッターリプライで告知
         return;
@@ -152,21 +152,21 @@ void OnTick()
     int longTrend = GetNowLongGemaTrend();
     if(longTrend == 2147483647)
     {
-        //Print("現在のトレンドは「2147483647」のため判断不可　何もしない！！！");
+        Print("現在のトレンドは「2147483647」のため判断不可　何もしない！！！");
         //MySqlDisconnect(db);
 
         //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
         //Sleep(500);
         return;
     }
-    //Print("現在のトレンドは：" + IntegerToString(longTrend));
+    Print("現在のトレンドは：" + IntegerToString(longTrend));
 
     //---売却確認用ロジック---
     if(hasPosition)
     {
         //4時間足のトレンドによって決済を変更
         int orderType = OrderHelper.GetOrderType(0);
-        //Print("現在のorderTypeは：" + IntegerToString(orderType));
+        Print("現在のorderTypeは：" + IntegerToString(orderType));
         if(longTrend == 0)
         {
             bool checkFlg = IsSettlementCheckNonTrade(orderType);
@@ -276,7 +276,7 @@ void OnTick()
     else
     {
         bool saleFlg = false;
-        //Print("▽▽▽▽▽ポジションを取る前に決済判断をチェック▽▽▽▽▽");
+        Print("▽▽▽▽▽ポジションを取る前に決済判断をチェック▽▽▽▽▽");
         
         if(longTrend == 0)
         {
@@ -306,11 +306,11 @@ void OnTick()
 
             //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
             //Sleep(500);
-            //Print("△△△△△△△△△△△△△△△△△△△△△△△△△△△△△");
+            Print("△△△△△△△△△△△△△△△△△△△△△△△△△△△△△");
             return;
         }
         
-        //Print("▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲");
+        Print("▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲");
     }
 
     //---ここから新規ポジション用ロジック---
@@ -318,7 +318,7 @@ void OnTick()
     {
         //4hトレンドが無い場合
         int trendStatus = IsNonTradeCheck();
-        //Print("トレンドが無い場合の売買判定は" + IntegerToString(trendStatus));
+        Print("トレンドが無い場合の売買判定は" + IntegerToString(trendStatus));
         if(trendStatus != 0)
         {
             double lossRenge = LotHelper.GetSdLossRenge();
@@ -357,7 +357,7 @@ void OnTick()
 
         //アップトレンドの場合
         int upTrendStatus = GetUpTrendCandleStatus();
-        //Print("アップトレンドの場合の売買判定は" + IntegerToString(upTrendStatus));
+        Print("アップトレンドの場合の売買判定は" + IntegerToString(upTrendStatus));
         if(upTrendStatus == 1)
         {
             tradeFlg = true;
@@ -399,7 +399,7 @@ void OnTick()
 
         //ダウントレンドの場合
         int downTrendStatus = GetDownTrendCandleStatus();
-        //Print("ダウントレンドの場合の売買判定は" + IntegerToString(downTrendStatus));
+        Print("ダウントレンドの場合の売買判定は" + IntegerToString(downTrendStatus));
         if(downTrendStatus == 1)
         {
             tradeFlg = true;
@@ -538,8 +538,8 @@ int GetNowLongGemaTrend()
     double nowWidthValuePlus = GetGmmaWidth(PERIOD_H4,0,0);
     double nowWidthValueMinus = GetGmmaWidth(PERIOD_H4,1,0);
 
-    //Print("ValuePlus:" + DoubleToStr(GetGmmaWidth(PERIOD_H4,0,0)));
-    //Print("ValueMinus:" + DoubleToStr(GetGmmaWidth(PERIOD_H4,1,0)));
+    Print("ValuePlus:" + DoubleToStr(GetGmmaWidth(PERIOD_H4,0,0)));
+    Print("ValueMinus:" + DoubleToStr(GetGmmaWidth(PERIOD_H4,1,0)));
 
     if(nowWidthValueMinus == 2147483647 || nowWidthValuePlus == 2147483647)
     {
@@ -575,18 +575,18 @@ int GetNowLongGemaTrend()
     //トレンドがあってもLong Shortの幅が無ければトレンドなしの判断
     if(MathAbs(gmmaWightLong) < 0.05 && MathAbs(gmmaWidthShort) < 0.05)
     {
-        //Print("幅がNGだった:Short" + DoubleToStr(gmmaWidthShort) + "//Long:" + DoubleToStr(gmmaWightLong));
+        Print("幅がNGだった:Short" + DoubleToStr(gmmaWidthShort) + "//Long:" + DoubleToStr(gmmaWightLong));
         result = 0;
     }
 
     //RCI中、長期がオーバー+-70でなければトレンドなしと判断（前足もトレンドありの場合）
     double rciMiddle = GetThreeLineRci(PERIOD_H4,1,0);
     double rciLong = GetThreeLineRci(PERIOD_H4,2,0);
-    //Print(DoubleToStr(MathAbs(rciMiddle)));
-    //Print(DoubleToStr(MathAbs(rciLong)));
+    Print(DoubleToStr(MathAbs(rciMiddle)));
+    Print(DoubleToStr(MathAbs(rciLong)));
     if(MathAbs(rciMiddle) < 70 && MathAbs(rciLong) < 50)
     {
-        //Print("RCIがNGだった:Middle" + DoubleToStr(rciMiddle) + "//Long:" + DoubleToStr(rciLong));
+        Print("RCIがNGだった:Middle" + DoubleToStr(rciMiddle) + "//Long:" + DoubleToStr(rciLong));
         //RCIがNGでもポジションとRCI数値で再度確認
         double nowPrice = iClose(Symbol(),PERIOD_H4,0);
         
@@ -616,7 +616,7 @@ int GetNowLongGemaTrend()
             
             if(nowPrice > highPrice)
             {
-                //Print("RCIがNGだったが過去高値を上抜く" + DoubleToStr(nowPrice) + ">" + DoubleToStr(highPrice));
+                Print("RCIがNGだったが過去高値を上抜く" + DoubleToStr(nowPrice) + ">" + DoubleToStr(highPrice));
                 result = 1;
             }
             else
@@ -649,7 +649,7 @@ int GetNowLongGemaTrend()
             
             if(nowPrice < lowPrice)
             {
-                //Print("RCIがNGだったが過去安値を下抜く" + DoubleToStr(nowPrice) + "<" + DoubleToStr(lowPrice));
+                Print("RCIがNGだったが過去安値を下抜く" + DoubleToStr(nowPrice) + "<" + DoubleToStr(lowPrice));
                 result = -1;
             }
             else
@@ -671,7 +671,7 @@ bool IsHighTrendPositionCheck(int trend)
     bool result = false;
 
     //現在の回帰直線を取得
-    double regressionTilt = 0
+    double regressionTilt = 0;
     double regression = GetRegressionLine(PERIOD_M15,1,regressionTilt);
 
     if(trend == 0)
@@ -722,6 +722,17 @@ int GetUpTrendCandleStatus()
         return result;
     }
 
+    //現在のGmmaWidthShort回帰直線を取得しチェック
+    double inclination = 0;
+    double section = GetRegressionLine(PERIOD_M15,8,inclination);
+    double gmmaWidthUp = GetGmmaWidth(PERIOD_M15,0,0);
+
+    //回帰直線がマイナストレンドの場合は判定なし
+    if (inclination <= 0 || gmmaWidthUp == 0)
+    {
+        return result;
+    } 
+
     //今足の形状を取得(0 = 星 1 = 陽線 -1 = 陰線)
     int nowCandleStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,0);
     //前足の形状を取得(0 = 星 1 = 陽線 -1 = 陰線)
@@ -729,32 +740,32 @@ int GetUpTrendCandleStatus()
     //現在値
     double nowPrice = iClose(Symbol(),PERIOD_H4,0);
     //double nowPrice = iClose[0];
-    //Print("一つ前の足は：" + IntegerToString(beforeCandleStyle) + "//////今の足は：" + IntegerToString(nowCandleStyle));
+    Print("一つ前の足は：" + IntegerToString(beforeCandleStyle) + "//////今の足は：" + IntegerToString(nowCandleStyle));
 
     if(beforeCandleStyle == -1 && nowCandleStyle == 1)
     {
-        //Print("陰陽線の場合");
+        Print("陰陽線の場合");
         double beforeOpen = iOpen(Symbol(),PERIOD_H4,1);
 
-        //現在足のGMMA幅(35-60)を取得
-        double gmmaWightLong = GetGmmaWidth(PERIOD_H4,2,0);
-
         //現在足のGMMA幅(3-15)を取得
-        double gmmaWidthShort = GetGmmaWidth(PERIOD_H4,3,0);
-        //Print("WightLong：" + DoubleToStr(gmmaWightLong) + "///WidthShort：" + DoubleToStr(gmmaWidthShort));
-        if(nowPrice > beforeOpen && MathAbs(gmmaWightLong) > 0.05 && MathAbs(gmmaWidthShort) > 0.05)
+        double gmmaWidthShort = GetGmmaWidth(PERIOD_H4,2,0);
+        //現在足のGMMA幅(35-60)を取得
+        double gmmaWightLong = GetGmmaWidth(PERIOD_H4,3,0);
+
+        Print("WightLong：" + DoubleToStr(gmmaWightLong) + "///WidthShort：" + DoubleToStr(gmmaWidthShort));
+        if(nowPrice > beforeOpen && gmmaWightLong > 0.05 && gmmaWidthShort > 0.05)
         {
             result = 1;
         }
     }
     else if(beforeCandleStyle == 1 && nowCandleStyle == 1)
     {
-        //Print("陰陽線の場合");
+        Print("陰陽線の場合");
         double beforeHigh = iHigh(Symbol(),PERIOD_H4,1);
-        //Print("前の高値：" + DoubleToStr(beforeHigh) + "///今の値段：" + DoubleToStr(nowPrice));
+        Print("前の高値：" + DoubleToStr(beforeHigh) + "///今の値段：" + DoubleToStr(nowPrice));
         if(nowPrice > beforeHigh)
         {
-            //Print("陽線で高値越えた");
+            Print("陽線で高値越えた");
             result = 2;
         }
     }
@@ -793,6 +804,17 @@ bool GetDownTrendCandleStatus()
         return result;
     }
 
+    //現在のGmmaWidthShort回帰直線を取得しチェック
+    double inclination = 0;
+    double section = GetRegressionLine(PERIOD_M15,8,inclination);
+    double gmmaWidthDown = GetGmmaWidth(PERIOD_M15,1,0);
+
+    //回帰直線がマイナストレンドの場合は判定なし
+    if (inclination >= 0 || gmmaWidthDown == 0)
+    {
+        return result;
+    } 
+
     //今足の形状を取得(0 = 星 1 = 陽線 -1 = 陰線)
     int nowCandleStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,0);
     //前足の形状を取得(0 = 星 1 = 陽線 -1 = 陰線)
@@ -805,13 +827,12 @@ bool GetDownTrendCandleStatus()
     {
         double beforeOpen = iOpen(Symbol(),PERIOD_H4,1);
 
-        //現在足のGMMA幅(35-60)を取得
-        double gmmaWightLong = GetGmmaWidth(PERIOD_H4,2,0);
-
         //現在足のGMMA幅(3-15)を取得
-        double gmmaWidthShort = GetGmmaWidth(PERIOD_H4,3,0);
+        double gmmaWidthShort = GetGmmaWidth(PERIOD_H4,2,0);
+        //現在足のGMMA幅(35-60)を取得
+        double gmmaWightLong = GetGmmaWidth(PERIOD_H4,3,0);
 
-        if(nowPrice < beforeOpen && MathAbs(gmmaWightLong) < 0.05 && MathAbs(gmmaWidthShort) < 0.05)
+        if(nowPrice < beforeOpen && gmmaWightLong > -0.05 && gmmaWidthShort > -0.05)
         {
             result = 1;
         }
@@ -838,14 +859,19 @@ bool IsUpTrendShortCheck()
     bool result = false;
 
     //今から４本前(一時間前)までのGMMAIndexを取得
-    double indexNow = GetGmmaIndex(PERIOD_M15,2,0);
-    double indexBefore15 = GetGmmaIndex(PERIOD_M15,2,1);
-    double indexBefore30 = GetGmmaIndex(PERIOD_M15,2,2);
-    double indexBefore45 = GetGmmaIndex(PERIOD_M15,2,3);
+    double indexNow = GetGmmaIndex(PERIOD_M15,1,0);
+    double indexBefore15 = GetGmmaIndex(PERIOD_M15,1,1);
+    double indexBefore30 = GetGmmaIndex(PERIOD_M15,1,2);
+    double indexBefore45 = GetGmmaIndex(PERIOD_M15,1,3);
 
-    double temaUp = GetTema(PERIOD_M15,1,0);
-    double temaDown = GetTema(PERIOD_M15,2,0);
-
+    double temaUp = GetTema(PERIOD_M15,0,0);
+    double temaDown = GetTema(PERIOD_M15,1,0);
+    Print("indexNow:" + DoubleToStr(indexNow));
+    Print("indexBefore15:" + DoubleToStr(indexBefore15));
+    Print("indexBefore30:" + DoubleToStr(indexBefore30));
+    Print("indexBefore45:" + DoubleToStr(indexBefore45));
+    Print("temaUp:" + DoubleToStr(temaUp));
+    Print("temaDown:" + DoubleToStr(temaDown));
     if(indexNow > 0 && indexBefore15 > 0 && indexBefore30 > 0 && indexBefore45 > 0)
     {
         if(temaUp > 0 && temaDown == 0)
@@ -919,13 +945,13 @@ int IsNonTradeCheck()
         //陽線の場合
         if(gmmaWidthLongNow < 0)
         {
-            //Print("トレンドなし前提なし" + DoubleToStr(gmmaWidthLongNow));
+            Print("トレンドなし前提なし" + DoubleToStr(gmmaWidthLongNow));
             return result;
         }
-        //Print(DoubleToStr(nowOpneEma60) + ">" + DoubleToStr(open) + ":" + DoubleToStr(nowCloseEma30) + "<" + DoubleToStr(close));
+        Print(DoubleToStr(nowOpneEma60) + ">" + DoubleToStr(open) + ":" + DoubleToStr(nowCloseEma30) + "<" + DoubleToStr(close));
         if(nowOpneEma60 > open && nowCloseEma30 < close)
         {
-            //Print("上トレンドブレイクの前提OK");
+            Print("上トレンドブレイクの前提OK");
             //前提がそろった場合のみ15mをチェック
             double nowTema = GetTema(PERIOD_M15,0,0);
             double gmmaIndexShort = GetGmmaIndex(PERIOD_M15,0,0);
@@ -939,7 +965,7 @@ int IsNonTradeCheck()
             }
             
             
-            //Print("nowTema:" + DoubleToStr(nowTema) + " // gmmaIndexShort:" + DoubleToStr(gmmaIndexShort) + " // changePercent:" + DoubleToStr(changePercent) + " // gmmaWidthSHortNow:" + DoubleToStr(gmmaWidthShortNow));
+            Print("nowTema:" + DoubleToStr(nowTema) + " // gmmaIndexShort:" + DoubleToStr(gmmaIndexShort) + " // changePercent:" + DoubleToStr(changePercent) + " // gmmaWidthSHortNow:" + DoubleToStr(gmmaWidthShortNow));
             if(nowTema > 0 && gmmaIndexShort == 5 && changePercent >= 0.2 && gmmaWidthShortNow >= 0.5)
             {
                 result = 1;
@@ -956,7 +982,7 @@ int IsNonTradeCheck()
 
         if(nowOpneEma60 < open && nowCloseEma30 > close)
         {
-            //Print("下トレンドブレイクの前提OK");
+            Print("下トレンドブレイクの前提OK");
             //前提がそろった場合のみ15mをチェック
             double nowTema = GetTema(PERIOD_M15,0,0);
             double gmmaIndexLong = GetGmmaIndex(PERIOD_M15,0,0);
@@ -971,7 +997,7 @@ int IsNonTradeCheck()
             }
             
             
-            //Print("nowTema:" + DoubleToStr(nowTema) + " // gmmaIndexShort:" + DoubleToStr(gmmaIndexShort) +" // changePercent:" + DoubleToStr(changePercent));
+            Print("nowTema:" + DoubleToStr(nowTema) + " // gmmaIndexShort:" + DoubleToStr(gmmaIndexShort) +" // changePercent:" + DoubleToStr(changePercent));
             if(nowTema < 0 && gmmaIndexShort == -5 && changePercent >= 0.2 && gmmaWidthShortNow <= -0.5)
             {
                 result = 2;
@@ -994,22 +1020,22 @@ bool IsSettlementCheck(int positionTrend)
     if(positionTrend == OP_BUY)
     {
         //ポシジョンの方向が買いの場合に決済するかの判断
-        double gmmaShortIndex =  GetGmmaIndex(PERIOD_M15,0,0);
+        double gmmaShortIndex = GetGmmaIndex(PERIOD_M15,0,0);
         double ema13 = iMA(Symbol(),PERIOD_M15,13,0,MODE_EMA,PRICE_CLOSE,0);
-        //Print("ShortIndex = " + DoubleToStr(gmmaShortIndex));
-        //Print("Ema13 = " + DoubleToStr(ema13) + "/// 現在値 = " + DoubleToStr(nowPrice));
+        Print("ShortIndex = " + DoubleToStr(gmmaShortIndex));
+        Print("Ema13 = " + DoubleToStr(ema13) + "/// 現在値 = " + DoubleToStr(nowPrice));
         if(gmmaShortIndex <= 0 && ema13 < nowPrice)
         {
-            //Print("15分 ShortIndexかつEma13より現在値段が小さい");
+            Print("15分 ShortIndexかつEma13より現在値段が小さい");
             return true;
         }
 
         double temaUp = GetTema(PERIOD_M15,0,0);
         double temaDown = GetTema(PERIOD_M15,1,0);
-        //Print("TemaUp = " + DoubleToStr(temaUp) + "/// TemaDown = " + DoubleToStr(temaDown));
+        Print("TemaUp = " + DoubleToStr(temaUp) + "/// TemaDown = " + DoubleToStr(temaDown));
         if(temaUp == 0 && temaDown <= 0)
         {
-            //Print("15分TEMAがマイナストレンドに");
+            Print("15分TEMAがマイナストレンドに");
             return true;
         }
 
@@ -1020,7 +1046,7 @@ bool IsSettlementCheck(int positionTrend)
         double befourBodyPrice = CandleHelper.GetBodyMiddlePrice(PERIOD_H4, 1);
         if(upPrice_4h >= bodyPrice_4h && starFlg == false && befourBodyPrice < nowPrice)
         {
-            //Print("4時間足　上ひげの値段が本体足値段より大きくなった");
+            Print("4時間足　上ひげの値段が本体足値段より大きくなった");
             return true;
         }
 
@@ -1029,24 +1055,24 @@ bool IsSettlementCheck(int positionTrend)
         int bodyStyle = CandleHelper.CandleBodyStyle(PERIOD_M15,1);
         if(upPrice_15M >= bodyPrice_15M && bodyStyle == -1)
         {
-            //Print("15分足　上ひげの値段が本体足値段より大きくなった");
+            Print("15分足　上ひげの値段が本体足値段より大きくなった");
             return true;
         }
 
         int afterBodyStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,1);
         if(afterBodyStyle == 1)
         {
-            //Print("4時間足　ひとつ前が陽線だった場合");
+            Print("4時間足　ひとつ前が陽線だった場合");
             double afterBodyMiddlePrice = CandleHelper.GetBodyMiddlePrice(PERIOD_H4,1);
             if(afterBodyMiddlePrice > nowPrice)
             {
-                //Print("1本前の足の中間値より現在値段がしたになった");
+                Print("1本前の足の中間値より現在値段がしたになった");
                 return true;
             }
         }
         else if(afterBodyStyle == -1)
         {
-            //Print("4時間足　ひとつ前が陰線だった場合");
+            Print("4時間足　ひとつ前が陰線だった場合");
         }
     }
     else if(positionTrend == OP_SELL)
@@ -1113,26 +1139,26 @@ bool IsSettlementCheckNonTrade(int positionTrend)
     
     if(positionTrend == OP_BUY)
     {
-        //Print("OP_BUYの場合の判定");
+        Print("OP_BUYの場合の判定");
         if(nowTema <= 0)
         {
-            //Print("nowTemaがマイナス" + DoubleToStr(nowTema));
+            Print("nowTemaがマイナス" + DoubleToStr(nowTema));
             return true;
         }
 
         if(gmmaIndexShort != 5 && nowPrice <= candleBodyMiddleBeforePrice)
         {
-            //Print("前回本体値段より今値段がした");
-            //Print("本体中央値段：" + DoubleToStr(candleBodyMiddleBeforePrice));
-            //Print("今値段：" + DoubleToStr(nowPrice));
+            Print("前回本体値段より今値段がした");
+            Print("本体中央値段：" + DoubleToStr(candleBodyMiddleBeforePrice));
+            Print("今値段：" + DoubleToStr(nowPrice));
             return true;
         }
 
         if(nowPrice <= ema15)
         {
-            //Print("ema15より現在値段がした");
-            //Print("ema15" + DoubleToStr(ema15));
-            //Print("今値段：" + DoubleToStr(nowPrice));
+            Print("ema15より現在値段がした");
+            Print("ema15" + DoubleToStr(ema15));
+            Print("今値段：" + DoubleToStr(nowPrice));
             return true;
         }
     }
@@ -1140,21 +1166,21 @@ bool IsSettlementCheckNonTrade(int positionTrend)
     {
         if(nowTema >= 0)
         {
-            //Print("nowTemaがプラス" + DoubleToStr(nowTema));
+            Print("nowTemaがプラス" + DoubleToStr(nowTema));
             return true;
         }
 
         if(nowPrice >= candleBodyMiddleBeforePrice)
         {
-            //Print("前回本体値段より今値段がした");
-            //Print("本体中央値段：" + DoubleToStr(candleBodyMiddleBeforePrice));
-            //Print("今値段：" + DoubleToStr(nowPrice));
+            Print("前回本体値段より今値段がした");
+            Print("本体中央値段：" + DoubleToStr(candleBodyMiddleBeforePrice));
+            Print("今値段：" + DoubleToStr(nowPrice));
             return true;
         }
 
         if(nowPrice >= ema15)
         {
-            //Print("ema15より現在値段がうえ");
+            Print("ema15より現在値段がうえ");
             return true;
         }
     }
@@ -1226,117 +1252,185 @@ datetime GetCileTime(int cileTime)
 }
 
 /// <summary>
-/// 現在時刻からの計算時間を取得
+/// 指定の時間足の自身の前足が上三兵かを取得
 /// <summary>
-///param name="cileTime":計算する時間(3600:1時間後,-1800:30分前,86400:1日後)
-/// <returns>最小のEMA</returns>
-    //------------------------------------------------------------------
-    // 指定の時間足の自身の前足が上三兵かを取得
-    ///param name="time":取得時間
-    /// Return   結果
-    bool IsUpThreeSoldiers(int time)
+///<param name="time">取得時間</param>
+/// <returns>上三兵の結果</returns>
+bool IsUpThreeSoldiers(int time)
+{
+    bool result = false;
+
+    double beforOneOpen = iOpen(NULL,time,1);
+    double beforOneClose = iClose(NULL,time,1);
+
+    double beforTwoOpen = iOpen(NULL,time,2);
+    double beforTwoClose = iClose(NULL,time,2);
+
+    double beforThreeOpen = iOpen(NULL,time,3);
+    double beforThreeClose = iClose(NULL,time,3);
+
+    if (beforOneOpen > beforOneClose)
     {
-        bool result = false;
-
-        double beforOneOopen = iOpen(NULL,time,1);
-        double beforOneClose = iClose(NULL,time,1);
-
-        double beforTwoOopen = iOpen(NULL,time,2);
-        double beforTwoClose = iClose(NULL,time,2);
-
-        double beforThreeOopen = iOpen(NULL,time,3);
-        double beforThreeClose = iClose(NULL,time,3);
-
-        if (beforOneOopen > beforOneClose)
-        {
-            return result;
-        }
-
-        if (beforTwoOopen > beforTwoClose)
-        {
-            return result;
-        }
-
-        if (beforThreeOopen > beforThreeClose)
-        {
-            return result;
-        }
-
-        if (beforOneOopen > beforTwoOopen || beforOneClose > beforTwoClose)
-        {
-            return result;
-        }
-
-        if (beforTwoOopen > beforThreeOopen || beforTwoClose > beforThreeClose)
-        {
-            return result;
-        }
-
-        //最後が上ひげでなければOKにする
-        double brow = PrivateGetUpBeardPrice(time, 1);
-        double body = PrivateGetBodyPrice(time,1);
-        bool star =  PrivateIsCandleStickStar(time,1);
-
-        if (body * 1.2 >  brow &&  star != false)
-        {
-            result = true;
-        }
-
         return result;
     }
 
-
-    //------------------------------------------------------------------
-    // 指定の時間足の自身の前足が下三兵かを取得
-    ///param name="time":取得時間
-    /// Return   結果
-    bool IsDownThreeSoldiers(int time)
+    if (beforTwoOpen > beforTwoClose)
     {
-        bool result = false;
-
-        double beforOneOopen = iOpen(NULL,time,1);
-        double beforOneClose = iClose(NULL,time,1);
-
-        double beforTwoOopen = iOpen(NULL,time,2);
-        double beforTwoClose = iClose(NULL,time,2);
-
-        double beforThreeOopen = iOpen(NULL,time,3);
-        double beforThreeClose = iClose(NULL,time,3);
-
-        if (beforOneOopen < beforOneClose)
-        {
-            return result;
-        }
-
-        if (beforTwoOopen < beforTwoClose)
-        {
-            return result;
-        }
-
-        if (beforThreeOopen < beforThreeClose)
-        {
-            return result;
-        }
-
-        if (beforOneOopen < beforTwoOopen || beforOneClose < beforTwoClose)
-        {
-            return result;
-        }
-
-        if (beforTwoOopen < beforThreeOopen || beforTwoClose < beforThreeClose)
-        {
-            return result;
-        }
-
-        //最後が上ひげでなければOKにする
-        double brow = PrivateGetDownBeardPrice(time, 1);
-        double body = PrivateGetBodyPrice(time,1);
-        bool star =  PrivateIsCandleStickStar(time,1);
-
-        if (body * 1.2 >  brow &&  star != false)
-        {
-            result = true;
-        }
-
         return result;
     }
+
+    if (beforThreeOpen > beforThreeClose)
+    {
+        return result;
+    }
+
+    if (beforThreeOpen > beforTwoOpen || beforThreeClose > beforTwoClose)
+    {
+        return result;
+    }
+
+    if (beforTwoOpen > beforOneOpen || beforTwoClose > beforOneClose)
+    {
+        return result;
+    }
+
+    //最後が上ひげでなければOKにする
+    double brow = CandleHelper.GetUpBeardPrice(time, 1);
+    double body = CandleHelper.GetBodyPrice(time,1);
+    bool star =  CandleHelper.IsCandleStickStar(time,1);
+
+    if (body > brow * 1.5 && star == false)
+    {
+        result = true;
+    }
+
+    return result;
+}
+
+
+/// <summary>
+/// 指定の時間足の自身の前足が下三兵かを取得
+/// <summary>
+///<param name="time">取得時間</param>
+/// <returns>下三兵の結果</returns>
+bool IsDownThreeSoldiers(int time)
+{
+    bool result = false;
+
+    double beforOneOpen = iOpen(NULL,time,1);
+    double beforOneClose = iClose(NULL,time,1);
+
+    double beforTwoOpen = iOpen(NULL,time,2);
+    double beforTwoClose = iClose(NULL,time,2);
+
+    double beforThreeOpen = iOpen(NULL,time,3);
+    double beforThreeClose = iClose(NULL,time,3);
+
+    if (beforOneOpen < beforOneClose)
+    {
+        return result;
+    }
+
+    if (beforTwoOpen < beforTwoClose)
+    {
+        return result;
+    }
+
+    if (beforThreeOpen < beforThreeClose)
+    {
+        return result;
+    }
+
+    if (beforThreeOpen < beforTwoOpen || beforThreeClose < beforTwoClose)
+    {
+        return result;
+    }
+
+    if (beforTwoOpen < beforOneOpen || beforTwoClose < beforOneClose)
+    {
+        return result;
+    }
+
+    //最後が上ひげでなければOKにする
+    double brow = CandleHelper.GetDownBeardPrice(time, 1);
+    double body = CandleHelper.GetBodyPrice(time,1);
+    bool star =  CandleHelper.IsCandleStickStar(time,1);
+
+    if (body > brow * 1.5 && star == false)
+    {
+        result = true;
+    }
+
+    return result;
+}
+
+/// <summary>
+///　回帰直線を取得
+/// <summary>
+/// <param name="timeSpan">取得する時間軸</param>
+/// <param name="term">取得するインジケーター値</param>
+/// <param name="regressionTilt">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
+/// <returns>TEMAのインジケーター値を取得</returns>
+double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
+{
+    double result = 0;
+
+    int timeList[]; 
+    ArrayResize(timeList, term);
+    double valueList[];
+    ArrayResize(valueList, term);
+
+    int timeTotal = 0;
+    double valueTotal = 0;
+
+    double timeAverage = 0;
+    double valueAverage = 0;
+
+    int mqlIndex = term;
+
+    for(int i = 1; i <= term; i++)
+    {
+        timeList[i - 1] = i;
+        //ここでインジケーターの値を取得
+        double indicatorValue = GetGmmaWidth(timeSpan,2,mqlIndex);
+        indicatorValue = indicatorValue * 10;
+        valueList[i - 1] = indicatorValue;
+
+        //ついで合計値を計算
+        timeTotal += i;
+        valueTotal += indicatorValue;
+        mqlIndex--;
+    }
+    //平均を計算
+    timeAverage = timeTotal / term;
+    valueAverage = valueTotal / term;
+
+    double alphaOne = 0;
+    double alphaTwo = 0;
+
+    //最小二乗法でロスを計算
+    for(int i = 1; i <= term; i++)
+    {
+        //timeDiff = (Xn - Xave)
+        double timeDiff = timeAverage - timeList[i - 1];
+
+        //valueDiff = (Yn - Yave)
+        double valueDiff = valueAverage - valueList[i - 1];
+
+        //Σ(Xn - Xave)(Yn - Yave)
+        alphaOne = alphaOne + (timeDiff * valueDiff);
+
+        //Σ(Xn - Xave)(Xn - Xave)
+        alphaTwo = alphaTwo + (timeDiff * timeDiff);
+    }
+
+    //傾き計算
+    double alpha = alphaOne / alphaTwo;
+    regressionTilt = alpha;
+
+    //切片計算
+    double regressionSection = valueAverage - alpha * timeAverage;
+    result = regressionSection;
+
+    return result;
+}

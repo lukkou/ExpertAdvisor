@@ -68,9 +68,43 @@ void OnTick()
 {
     double bb = 0;
     double a = GetRegressionLine(PERIOD_M15,8,bb);
-    PrintFormat("▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽");
+    PrintFormat("▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽▽");
     PrintFormat("y = " + DoubleToString(bb) + "x + " + DoubleToString(a));
+
+    double gmmaWidth_0 = GetGmmaWidth(PERIOD_M15,0,0);
+    double gmmaWidth_1 = GetGmmaWidth(PERIOD_M15,1,0);
+    double gmmaWidth_2 = GetGmmaWidth(PERIOD_M15,2,0);
+    double gmmaWidth_3 = GetGmmaWidth(PERIOD_M15,3,0);
+
+    if(gmmaWidth_0 == 2147483647 || gmmaWidth_1 == 2147483647 || gmmaWidth_2 == 2147483647 || gmmaWidth_3 == 2147483647)
+    {
+        PrintFormat("2147483647はおかしい!!!!!!!!!!!!!!!!!!");
+    }
+
+    PrintFormat("GMMA UP   :" + DoubleToString(gmmaWidth_0));
+    PrintFormat("GMMA DOWN :" + DoubleToString(gmmaWidth_1));
+    PrintFormat("GMMA SHORT:" + DoubleToString(gmmaWidth_2));
+    PrintFormat("GMMA LONG :" + DoubleToString(gmmaWidth_3));
+
     return;
+
+
+    bool upThreeSoldiers = IsUpThreeSoldiers(PERIOD_M15);
+    bool downThreeSoldiers = IsDownThreeSoldiers(PERIOD_M15);
+
+    if(upThreeSoldiers == true)
+    {
+        PrintFormat("▼▼▼▼▼▼▼▼▼▼▼▼▼三兵▼▼▼▼▼▼▼▼▼▼▼▼▼");
+        PrintFormat("上三兵になっています。");
+    }
+
+    if(downThreeSoldiers == true)
+    {
+        PrintFormat("▼▼▼▼▼▼▼▼▼▼▼▼▼三兵▼▼▼▼▼▼▼▼▼▼▼▼▼");
+        PrintFormat("下三兵になっています。");
+    }
+    
+    
 //---
     string mySymbol = Symbol();
     datetime tm = TimeLocal();
@@ -236,8 +270,8 @@ int IsPairMatch(string myPair,string indexPair){
 /// <returns>TEMAのインジケーター値を取得</returns>
 double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
 {
+    //PrintFormat("※※※※※※※※※※※※※※※※※※※※※※※※※※※※");
     double result = 0;
-
 
     int timeList[]; 
     ArrayResize(timeList, term);
@@ -252,28 +286,34 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
 
     int mqlIndex = term;
 
-    for(int i = 1; i < term; i++)
+    for(int i = 1; i <= term; i++)
     {
         timeList[i - 1] = i;
         //ここでインジケーターの値を取得
         double indicatorValue = GetGmmaWidth(timeSpan,2,mqlIndex);
+        indicatorValue = indicatorValue * 10;
+        //PrintFormat("GmmaWidth = " + DoubleToStr(i87ndicatorValue));
         valueList[i - 1] = indicatorValue;
 
         //ついで合計値を計算
-        timeAverage += i;
-        valueAverage += indicatorValue;
+        timeTotal += i;
+        valueTotal += indicatorValue;
         mqlIndex--;
     }
-
+    //PrintFormat("時間トータル = " + DoubleToStr(timeTotal));
+    //PrintFormat("値トータル = " + DoubleToStr(valueTotal));
     //平均を計算
-    timeAverage = timeAverage / term;
-    valueAverage = valueAverage / term;
+    timeAverage = timeTotal / term;
+    valueAverage = valueTotal / term;
+
+    //PrintFormat("トータル平均値 = " + DoubleToStr(timeAverage));
+    //PrintFormat("値平均値 = " + DoubleToStr(valueAverage));
 
     double alphaOne = 0;
     double alphaTwo = 0;
 
     //最小二乗法でロスを計算
-    for(int i = 1; i < term; i++)
+    for(int i = 1; i <= term; i++)
     {
         //timeDiff = (Xn - Xave)
         double timeDiff = timeAverage - timeList[i - 1];
@@ -287,7 +327,8 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
         //Σ(Xn - Xave)(Xn - Xave)
         alphaTwo = alphaTwo + (timeDiff * timeDiff);
     }
-
+    //PrintFormat("alphaOne = " + DoubleToStr(alphaOne));
+    //PrintFormat("alphaTwo = " + DoubleToStr(alphaTwo));
     //傾き計算
     double alpha = alphaOne / alphaTwo;
     regressionTilt = alpha;
@@ -309,5 +350,128 @@ double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
 double GetGmmaWidth(int timeSpan,int mode,int shift)
 {
     double result = iCustom(Symbol(),timeSpan,"GMMAWidth",mode,shift);
+    return result;
+}
+
+/// <summary>
+/// 指定の時間足の自身の前足が上三兵かを取得
+/// <summary>
+///<param name="time">取得時間</param>
+/// <returns>上三兵の結果</returns>
+bool IsUpThreeSoldiers(int time)
+{
+    bool result = false;
+
+    double beforOneOpen = iOpen(NULL,time,1);
+    double beforOneClose = iClose(NULL,time,1);
+
+    double beforTwoOpen = iOpen(NULL,time,2);
+    double beforTwoClose = iClose(NULL,time,2);
+
+    double beforThreeOpen = iOpen(NULL,time,3);
+    double beforThreeClose = iClose(NULL,time,3);
+
+    if (beforOneOpen > beforOneClose)
+    {
+        PrintFormat("NG１");
+        return result;
+    }
+
+    if (beforTwoOpen > beforTwoClose)
+    {
+        PrintFormat("NG２");
+        return result;
+    }
+
+    if (beforThreeOpen > beforThreeClose)
+    {
+        PrintFormat("NG３");
+        return result;
+    }
+
+    if (beforThreeOpen > beforTwoOpen || beforThreeClose > beforTwoClose)
+    {
+        PrintFormat("NG４");
+        return result;
+    }
+
+    if (beforTwoOpen > beforOneOpen || beforTwoClose > beforOneClose)
+    {
+        PrintFormat("NG５");
+        return result;
+    }
+
+    //最後が上ひげでなければOKにする
+    double brow = CandleHelper.GetUpBeardPrice(time, 1);
+    double body = CandleHelper.GetBodyPrice(time,1);
+    bool star =  CandleHelper.IsCandleStickStar(time,1);
+
+    PrintFormat("ローソク足本体：" + DoubleToStr(body));
+    PrintFormat("ローソク足上髭：" + DoubleToStr(brow * 1.5));
+    PrintFormat("星チェック：" + IntegerToString(star));
+
+    if (body > brow * 1.5 && star == false)
+    {
+        PrintFormat("OK");
+        result = true;
+    }
+
+    return result;
+}
+
+
+/// <summary>
+/// 指定の時間足の自身の前足が下三兵かを取得
+/// <summary>
+///<param name="time">取得時間</param>
+/// <returns>下三兵の結果</returns>
+bool IsDownThreeSoldiers(int time)
+{
+    bool result = false;
+
+    double beforOneOpen = iOpen(NULL,time,1);
+    double beforOneClose = iClose(NULL,time,1);
+
+    double beforTwoOpen = iOpen(NULL,time,2);
+    double beforTwoClose = iClose(NULL,time,2);
+
+    double beforThreeOpen = iOpen(NULL,time,3);
+    double beforThreeClose = iClose(NULL,time,3);
+
+    if (beforOneOpen < beforOneClose)
+    {
+        return result;
+    }
+
+    if (beforTwoOpen < beforTwoClose)
+    {
+        return result;
+    }
+
+    if (beforThreeOpen < beforThreeClose)
+    {
+        return result;
+    }
+
+    if (beforThreeOpen < beforTwoOpen || beforThreeClose < beforTwoClose)
+    {
+        return result;
+    }
+
+    if (beforTwoOpen < beforOneOpen || beforTwoClose < beforOneClose)
+    {
+        return result;
+    }
+
+    //最後が上ひげでなければOKにする
+    double brow = CandleHelper.GetDownBeardPrice(time, 1);
+    double body = CandleHelper.GetBodyPrice(time,1);
+    bool star =  CandleHelper.IsCandleStickStar(time,1);
+
+    if (body > brow * 1.5 && star == false)
+    {
+        result = true;
+    }
+
     return result;
 }
