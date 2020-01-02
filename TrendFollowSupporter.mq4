@@ -866,12 +866,7 @@ bool IsUpTrendShortCheck()
 
     double temaUp = GetTema(PERIOD_M15,0,0);
     double temaDown = GetTema(PERIOD_M15,1,0);
-    Print("indexNow:" + DoubleToStr(indexNow));
-    Print("indexBefore15:" + DoubleToStr(indexBefore15));
-    Print("indexBefore30:" + DoubleToStr(indexBefore30));
-    Print("indexBefore45:" + DoubleToStr(indexBefore45));
-    Print("temaUp:" + DoubleToStr(temaUp));
-    Print("temaDown:" + DoubleToStr(temaDown));
+
     if(indexNow > 0 && indexBefore15 > 0 && indexBefore30 > 0 && indexBefore45 > 0)
     {
         if(temaUp > 0 && temaDown == 0)
@@ -918,6 +913,7 @@ bool InDownTrendShortCheck()
 int IsNonTradeCheck()
 {
     int result = 0;
+    return result;
 
     //4h足はエントリーの形になっているか？
     bool candleStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,0);
@@ -1043,8 +1039,8 @@ bool IsSettlementCheck(int positionTrend)
         double bodyPrice_4h = CandleHelper.GetBodyPrice(PERIOD_H4,0);
         bool starFlg = CandleHelper.IsCandleStickStar(PERIOD_H4,0);
         
-        double befourBodyPrice = CandleHelper.GetBodyMiddlePrice(PERIOD_H4, 1);
-        if(upPrice_4h >= bodyPrice_4h && starFlg == false && befourBodyPrice < nowPrice)
+        double befourBodyMiddlePrice = CandleHelper.GetBodyMiddlePrice(PERIOD_H4, 1);
+        if(upPrice_4h >= bodyPrice_4h && starFlg == false && befourBodyMiddlePrice < nowPrice)
         {
             Print("4時間足　上ひげの値段が本体足値段より大きくなった");
             return true;
@@ -1053,26 +1049,10 @@ bool IsSettlementCheck(int positionTrend)
         double upPrice_15M = CandleHelper.GetUpBeardPrice(PERIOD_M15,1);
         double bodyPrice_15M = CandleHelper.GetBodyPrice(PERIOD_M15,1);
         int bodyStyle = CandleHelper.CandleBodyStyle(PERIOD_M15,1);
-        if(upPrice_15M >= bodyPrice_15M && bodyStyle == -1)
+        if(upPrice_15M >= bodyPrice_15M && bodyStyle == -1 && befourBodyMiddlePrice < nowPrice)
         {
             Print("15分足　上ひげの値段が本体足値段より大きくなった");
             return true;
-        }
-
-        int afterBodyStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,1);
-        if(afterBodyStyle == 1)
-        {
-            Print("4時間足　ひとつ前が陽線だった場合");
-            double afterBodyMiddlePrice = CandleHelper.GetBodyMiddlePrice(PERIOD_H4,1);
-            if(afterBodyMiddlePrice > nowPrice)
-            {
-                Print("1本前の足の中間値より現在値段がしたになった");
-                return true;
-            }
-        }
-        else if(afterBodyStyle == -1)
-        {
-            Print("4時間足　ひとつ前が陰線だった場合");
         }
     }
     else if(positionTrend == OP_SELL)
@@ -1082,6 +1062,7 @@ bool IsSettlementCheck(int positionTrend)
         double ema13 = iMA(Symbol(),PERIOD_M15,13,0,MODE_EMA,PRICE_CLOSE,0);
         if(gmmaShortIndex >= 0 && ema13 > nowPrice)
         {
+            Print("15分 LongIndexかつEma13より現在値段が大きい");
             return true;
         }
 
@@ -1089,33 +1070,28 @@ bool IsSettlementCheck(int positionTrend)
         double temaDown = GetTema(PERIOD_M15,1,0);
         if(temaUp > 0 && temaDown == 0)
         {
+            Print("15分TEMAがプラストレンドに");
             return true;
         }
 
         double downpPrice_4h = CandleHelper.GetDownBeardPrice(PERIOD_H4,0);
         double bodyPrice_4h = CandleHelper.GetBodyPrice(PERIOD_H4,0);
         bool starFlg = CandleHelper.IsCandleStickStar(PERIOD_H4,0);
-        if(downpPrice_4h >= bodyPrice_4h && starFlg == false)
+
+        double befourBodyMiddlePrice = CandleHelper.GetBodyMiddlePrice(PERIOD_H4, 1);
+        if(downpPrice_4h >= bodyPrice_4h && starFlg == false　&& befourBodyMiddlePrice > nowPrice)
         {
+            Print("4時間足　下ひげの値段が本体足値段より大きくなった");
             return true;
         }
 
         double downpPrice_15M = CandleHelper.GetUpBeardPrice(PERIOD_M15,1);
         double bodyPrice__15M = CandleHelper.GetBodyPrice(PERIOD_M15,1);
         int bodyStyle = CandleHelper.CandleBodyStyle(PERIOD_M15,1);
-        if(downpPrice_15M >= bodyPrice__15M && bodyStyle == 1)
+        if(downpPrice_15M >= bodyPrice__15M && bodyStyle == 1　&& befourBodyMiddlePrice > nowPrice))
         {
+            Print("15分足　下ひげの値段が本体足値段より大きくなった");
             return true;
-        }
-
-        int afterBodyStyle = CandleHelper.CandleBodyStyle(PERIOD_H4,1);
-        if(afterBodyStyle == 1)
-        {
-            double afterBodyMiddlePrice = CandleHelper.GetBodyMiddlePrice(PERIOD_H4,1);
-            if(afterBodyMiddlePrice < nowPrice)
-            {
-                return true;
-            }
         }
     }
     
