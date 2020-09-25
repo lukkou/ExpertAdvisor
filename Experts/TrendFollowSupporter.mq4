@@ -1079,7 +1079,7 @@ bool IsSettlementCheck(int positionTrend)
         bool starFlg = CandleHelper.IsCandleStickStar(PERIOD_H4,0);
 
         double befourBodyMiddlePrice = CandleHelper.GetBodyMiddlePrice(PERIOD_H4, 1);
-        if(downpPrice_4h >= bodyPrice_4h && starFlg == false　&& befourBodyMiddlePrice > nowPrice)
+        if(downpPrice_4h >= bodyPrice_4h && starFlg == false && befourBodyMiddlePrice > nowPrice)
         {
             Print("4時間足　下ひげの値段が本体足値段より大きくなった");
             return true;
@@ -1088,7 +1088,7 @@ bool IsSettlementCheck(int positionTrend)
         double downpPrice_15M = CandleHelper.GetUpBeardPrice(PERIOD_M15,1);
         double bodyPrice__15M = CandleHelper.GetBodyPrice(PERIOD_M15,1);
         int bodyStyle = CandleHelper.CandleBodyStyle(PERIOD_M15,1);
-        if(downpPrice_15M >= bodyPrice__15M && bodyStyle == 1　&& befourBodyMiddlePrice > nowPrice))
+        if(downpPrice_15M >= bodyPrice__15M && bodyStyle == 1 && befourBodyMiddlePrice > nowPrice)
         {
             Print("15分足　下ひげの値段が本体足値段より大きくなった");
             return true;
