@@ -1,0 +1,26 @@
+//+------------------------------------------------------------------+
+//|                                              TrendCheckLogic.mqh |
+//| CandleStickHelper v1.0.0                  Copyright 2017, Lukkou |
+//|                                             https://www.mql5.com |
+//+------------------------------------------------------------------+
+#property copyright "Copyright 2017,  lukkou"
+#property link      "https://twitter.com/lukkou_position"
+#property version   "1.00"
+#property strict
+
+class TrendCheckLogic
+{
+    private:
+    
+    public:
+        //------------------------------------------------------------------
+        // コンストラクタ
+        TrendCheckLogic();
+        
+        //------------------------------------------------------------------
+        // デストラクタ
+        ~TrendCheckLogic();
+
+
+
+}
