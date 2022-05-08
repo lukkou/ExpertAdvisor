@@ -28,13 +28,13 @@ input uint TakeProfit = 100;      //利益確定
 
 input string TweetCmdPash = "C:\\PROGRA~2\\dentakurou\\Tweet\\Tweet.exe";       //自動投稿exeパス
 
-string Host;
-string User;
-string Password;
-int Port;
-string Database;
-int Socket;
-int ClientFlag;
+string _host;
+string _user;
+string _password;
+int _port;
+string _database;
+int _socket;
+int _clientFlag;
 
 
 // トレード補助クラス
@@ -47,30 +47,31 @@ TradeQuantityHelper *LotHelper;
 TwitterHelper *TweetHelper;
 
 // 売買判定クラス
-TrendCheckLogic *TrendCheckLogic;
+TrendCheckLogic *TrendCheck;
 
 /// <summary>
 /// Expert initialization function(ロード時)
 /// </summary>
 int OnInit()
 {
+    Print ("-------------------On Start Expert-------------------");
     string iniInfo = TerminalInfoString(TERMINAL_DATA_PATH) + "\\MQL4\\Experts\\MyConnection.ini";
     Print ("パス: ",iniInfo);
 
-    Host = ReadIni(iniInfo, "MYSQL", "Host");
-    User = ReadIni(iniInfo, "MYSQL", "User");
-    Password = ReadIni(iniInfo, "MYSQL", "Password");
-    Port = StrToInteger(ReadIni(iniInfo, "MYSQL", "Port"));
-    Database = ReadIni(iniInfo, "MYSQL", "Database");
-    Socket =  ReadIni(iniInfo, "MYSQL", "Socket");
-    ClientFlag = StrToInteger(ReadIni(iniInfo, "MYSQL", "ClientFlag"));  
+    _host = ReadIni(iniInfo, "MYSQL", "Host");
+    _user = ReadIni(iniInfo, "MYSQL", "User");
+    _password = ReadIni(iniInfo, "MYSQL", "Password");
+    _port = StrToInteger(ReadIni(iniInfo, "MYSQL", "Port"));
+    _database = ReadIni(iniInfo, "MYSQL", "Database");
+    _socket =  ReadIni(iniInfo, "MYSQL", "Socket");
+    _clientFlag = StrToInteger(ReadIni(iniInfo, "MYSQL", "ClientFlag"));  
 
     Print ("Host: ",_host, ", User: ", _user, ", Database: ",_database);
 
     OrderHelper = OrderHelper(Symbol(), MagicNumber, MaxPosition, SpreadFilter);
     LotHelper = LotHelper(Symbol(), PERIOD_H4, 15, 0, MODE_EMA, PRICE_CLOSE, 2, SdSigma, RiskPercent);
     TweetHelper = TweetHelper(TweetCmdPash);
-    TrendCheckLogic = TrendCheckLogic();
+    TrendCheck = TrendCheckLogic();
 
     return(INIT_SUCCEEDED);
 }
@@ -80,7 +81,7 @@ int OnInit()
 /// </summary>
 void OnDeinit(const int reason)
 {
-
+    Print ("-------------------On End Expert-------------------");
 }
 
 /// <summary>
@@ -95,10 +96,126 @@ void OnTick()
         Print ("Connection failed! Error: " + MySqlErrorDescription);
 
         //エラーだったら繋がらない情報をツイッターリプライで告知
+        ExpertRemove();
         return;
     }
 
+    //自身の通貨ペアポジションがあるか？
+    bool hasPosition = (OrderHelper.GetPositionCount() > 0);
+    if(hasPosition)
+    {
+        //通貨ペアの現在時刻より60分後 又は30分前に重要指標の発表があるか？
+        bool importantExist = IsImportantReleaseExist(db);
+        if(importantExist == true)
+        {
+            PositionClose();
 
+            //MySqlDisconnect(db);
+
+            //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
+            //Sleep(500);
+            return;
+        }
+
+        //平日のみトレードを行う（日本時間土曜日は行わない）
+        int weekCount = GetNowWeekCount(db);
+        if(weekCount == 1 || weekCount == 7)
+        {
+            ositionClose();
+            //MySqlDisconnect(db);
+
+            //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
+            //Sleep(500);
+            return;
+        }
+
+        int orderType = OrderHelper.GetOrderType(0);
+        if(orderType == OP_BUY)
+        {
+            int status = TrendCheck.GetUpTrendPositionCut();
+            if(status == POSITION_CUT_ON)
+            {
+                PositionClose();
+            }
+        }else
+        {
+            int status = TrendCheck.GetDownTrendPositionCut();
+            if(status == POSITION_CUT_ON)
+            {
+                PositionClose();
+            }
+        }
+    }
+
+    // トレード判定
+    int longTrend = TrendCheck.GetLongTrendStatus();
+    if(longTrend == LONG_TREND_PLUS)
+    {
+        int trendEntry = TrendCheck.GetUpTrendEntryStatus();
+        if(trendEntry == ENTRY_ON)
+        {
+            PositionOpen(OP_BUY);
+        }
+    }
+    else if(longTrend == LONG_TREND_MINUS)
+    {
+        int trendEntry = TrendCheck.GetDownTrendEntryStatus();
+        if(trendEntry == ENTRY_ON)
+        {
+            PositionOpen(OP_SELL);
+        }
+    }
+
+    //MySqlDisconnect(db);
+
+    //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
+    //Sleep(500);
+}
+
+/// <summary>
+/// 新規ポジションを建てる
+/// </summary>
+/// <param name="orderType">売買タイプ
+///　買い:OP_BUY 売り:OP_SELL
+/// </param>
+void PositionOpen(int orderType)
+{
+    double lossRenge = LotHelper.GetSdLossRenge();
+    //double lotSize = LotHelper.GetSdLotSize(lossRenge);
+    double pLotSize = LotHelper.GetLotSize(lossRenge);
+
+    //新規ポジション
+    OrderHelper.SendOrder(orderType, pLotSize, 0, Slippage, lossRenge, TakeProfit );
+
+    //ツイート用の情報取得
+    int orderNo = OrderHelper.GetTicket(0);
+    string symbol = OrderHelper.GetSymbol();
+    double price = OrderHelper.GetOrderClose(0);
+    double profits = OrderHelper.GetOrderProfit(0);
+    string type = "New";
+    
+    //ついーと！！
+    TweetHelper.NewOrderTweet(orderNo, symbol, orderType, price, type);
+}
+
+/// <summary>
+/// 現在のポジションを決済する
+/// </summary>
+void PositionClose()
+{
+    //ツイート用の情報取得
+    int orderNo = OrderHelper.GetTicket(0);
+    string symbol = OrderHelper.GetSymbol();
+    string orderType = OrderHelper.GetOrderType(0);
+    double price = OrderHelper.GetOrderClose(0);
+    double profits = OrderHelper.GetOrderProfit(0);
+    string type = "Settlement";
+
+    //決済
+    OrderHelper.CloseOrder(0, Slippage);
+
+    //ついーと！！
+    TweetHelper.SettementOrderTweet(orderNo, symbol, orderType, price, profits, type);
 }
 
 /// <summary>
@@ -112,9 +229,9 @@ bool IsImportantReleaseExist(int db){
     string pair1 = StringSubstr(myPair,0,3);
     string pair2 = StringSubstr(myPair,3,3);
 
-    //現在時刻から30分後と15分前の時刻を取得
-    datetime startTime = TrendCheckLogic.GetCileTime(-3600);
-    datetime endTime = TrendCheckLogic.GetCileTime(3600);
+    //現在時刻から30分後と60分前の時刻を取得
+    datetime startTime = GetCileTime(-1800);
+    datetime endTime = GetCileTime(3600);
 
     string startTimeStr = TimeToStr(startTime,TIME_DATE|TIME_SECONDS);
     string endTimeStr = TimeToStr(endTime,TIME_DATE|TIME_SECONDS);
@@ -183,4 +300,15 @@ int GetNowWeekCount(int db)
     MySqlCursorClose(queryResult);
 
     return result;
+}
+
+/// <summary>
+/// 現在時刻からの計算時間を取得
+/// <summary>
+///param name="cileTime":計算する時間(3600:1時間後,-1800:30分前,86400:1日後)
+/// <returns>最小のEMA</returns>
+datetime GetCileTime(int cileTime)
+{
+    datetime tm = TimeLocal();
+    return tm + cileTime;
 }
