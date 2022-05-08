@@ -28,8 +28,6 @@ class IndicatorLogic{
 
     double GetThreeLineRci(int timeSpan,int mode,int shift);
 
-    datetime GetCileTime(int cileTime);
-
     double GetGmmaRegressionLine(double timeSpan,double term,double &regressionTilt);
 };
 
@@ -103,17 +101,6 @@ class IndicatorLogic{
     {
         double result = iCustom(Symbol(),timeSpan,"RCI_3Line_v130",mode,shift);
         return result;
-    }
-
-    /// <summary>
-    /// 現在時刻からの計算時間を取得
-    /// <summary>
-    ///param name="cileTime":計算する時間(3600:1時間後,-1800:30分前,86400:1日後)
-    /// <returns>最小のEMA</returns>
-    datetime IndicatorLogic::GetCileTime(int cileTime)
-    {
-        datetime tm = TimeLocal();
-        return tm + cileTime;
     }
 
     /// <summary>

@@ -24,9 +24,15 @@ class TrendCheckLogic
         // デストラクタ
         ~TrendCheckLogic();
 
+        int GetLongTrendStatus();
+
         int GetUpTrendEntryStatus();
 
-        int GetDownTrendEntryStatus()
+        int GetDownTrendEntryStatus();
+
+        int GetUpTrendPositionCut();
+
+        int GetDownTrendPositionCut();
 };
 
     //------------------------------------------------------------------
@@ -40,7 +46,7 @@ class TrendCheckLogic
     // デストラクタ
     TrendCheckLogic::~TrendCheckLogic()
     {
-        indicator = NULL
+        indicator = NULL;
     }
 
     /// <summary>
@@ -66,7 +72,7 @@ class TrendCheckLogic
         double tmmaDown = indicator.GetGmmaWidth(PERIOD_H4, 1, 1);
 
         // GMMA Width 傾き
-        double regressionTilt = 0
+        double regressionTilt = 0;
         double gmmaRegressionLine = indicator.GetGmmaRegressionLine(PERIOD_H4, 6 ,regressionTilt);
 
         if(gmmaWidthUp == 2147483647 || gmmaWidthDown == 2147483647)
