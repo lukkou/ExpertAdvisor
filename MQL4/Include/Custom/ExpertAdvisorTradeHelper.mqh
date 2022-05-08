@@ -11,9 +11,9 @@
 #property strict
 
 #include <Arrays/ArrayInt.mqh>
-#include <Custom/TradingDefines.mqh>
 #include <stdlib.mqh>
 #include <stderror.mqh>
+#include <Defines/Defines.mqh>
 
 class ExpertAdvisorTradeHelper
 {
@@ -843,7 +843,10 @@ int ExpertAdvisorTradeHelper::GetTicket(int index)
 int ExpertAdvisorTradeHelper::GetOrderType(int index)
 {
     int ticket = GetTicket(index);
-    if( ticket < 0 ) return OP_NONE;
+    if( ticket < 0 )
+    {
+        return OP_NONE;
+    }
     if( OrderSelect(ticket, SELECT_BY_TICKET) ) return OrderType();
    
     return OP_NONE;
