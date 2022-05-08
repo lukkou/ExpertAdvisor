@@ -24,6 +24,7 @@
 
 // 指標発表無し
 #define INDEX_RELEASE_NOTEXIST (0)
+
 // 指標発表有り
 #define INDEX_RELEASE_EXIST (1)
 
