@@ -1344,7 +1344,7 @@ bool IsDownThreeSoldiers(int time)
 ///　回帰直線を取得
 /// <summary>
 /// <param name="timeSpan">取得する時間軸</param>
-/// <param name="term">取得するインジケーター値</param>
+/// <param name="term">傾きにを計算する期間(ローソク足の本数)</param>
 /// <param name="regressionTilt">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
 /// <returns>TEMAのインジケーター値を取得</returns>
 double GetRegressionLine(double timeSpan,double term,double &regressionTilt)
