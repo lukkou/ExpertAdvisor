@@ -205,7 +205,7 @@ class TrendCheckLogic
 
         // 黒三兵フラグ
         bool blackFlg = indicator.ThreeRedArmies(PERIOD_M15, 1);
-        if(redFlg)
+        if(blackFlg)
         {
             // 現在値
             double nowPrice = iClose(Symbol(), PERIOD_M5 , 0);

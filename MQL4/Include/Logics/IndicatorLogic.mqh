@@ -32,7 +32,7 @@ class IndicatorLogic{
 
     bool ThreeRedArmies(int timeSpan,int shift);
 
-    bool ThreeBlackArmies(int timeSpan,int shift)
+    bool ThreeBlackArmies(int timeSpan,int shift);
 };
 
     //------------------------------------------------------------------
@@ -193,16 +193,6 @@ class IndicatorLogic{
         }
 
         return result;
-    }
-
-    /// <summary>
-    /// TEMAが赤三兵になってるかを取得
-    /// <summary>
-    /// <param name="shift">判定対象のTickTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
-    /// <returns>赤三兵判定結果</returns>
-    bool IndicatorLogic::TemaThreeBlackArmies(int timeSpan,int shift)
-    {
-
     }
 
     /// <summary>
