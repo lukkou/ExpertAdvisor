@@ -156,7 +156,6 @@ void OnTick()
         int trendEntry = TrendCheck.GetUpTrendEntryStatus();
         if(trendEntry == ENTRY_ON)
         {
-            Print ("-------------------Plus Entry On-------------------");
             PositionOpen(OP_BUY);
         }
     }
@@ -165,7 +164,6 @@ void OnTick()
         int trendEntry = TrendCheck.GetDownTrendEntryStatus();
         if(trendEntry == ENTRY_ON)
         {
-            Print ("-------------------Minus Entry On-------------------");
             PositionOpen(OP_SELL);
         }
     }

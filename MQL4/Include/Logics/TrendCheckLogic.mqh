@@ -137,6 +137,7 @@ class TrendCheckLogic
             // トリガー条件
             if(nowGmmaIndex == 5)
             {
+                Print ("-------------------GMMA Up Entry On-------------------");
                 result = ENTRY_ON;
                 return result;
             }
@@ -152,6 +153,7 @@ class TrendCheckLogic
             double nowBb = iBands(Symbol(), 0, 20, 2, 0, PRICE_CLOSE, MODE_UPPER, 0);
             if(nowPrice > nowBb)
             {
+                Print ("-------------------THREE RED Up Entry On-------------------");
                 result = ENTRY_ON;
                 return result;
             }
@@ -198,6 +200,7 @@ class TrendCheckLogic
             // トリガー条件
             if(nowGmmaIndex == -5)
             {
+                Print ("-------------------GMMA Down Entry On-------------------");
                 result = ENTRY_ON;
                 return result;
             }
@@ -213,6 +216,7 @@ class TrendCheckLogic
             double nowBb = iBands(Symbol(), 0, 20, 2, 0, PRICE_CLOSE, MODE_LOWER, 0);
             if(nowPrice > nowBb)
             {
+                Print ("-------------------THREE BLACK Down Entry On-------------------");
                 result = ENTRY_ON;
                 return result;
             }
