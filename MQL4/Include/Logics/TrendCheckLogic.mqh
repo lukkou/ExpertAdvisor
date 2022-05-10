@@ -15,6 +15,7 @@ class TrendCheckLogic
 {
     private:
     IndicatorLogic indicator;
+    string _symbol;
 
     public:
         //------------------------------------------------------------------
@@ -41,6 +42,7 @@ class TrendCheckLogic
     TrendCheckLogic::TrendCheckLogic()
     {
         indicator = IndicatorLogic();
+        _symbol = Symbol()
     }
 
     //------------------------------------------------------------------
@@ -48,7 +50,7 @@ class TrendCheckLogic
     TrendCheckLogic::~TrendCheckLogic()
     {
     }
-
+g
     /// <summary>
     /// 現在の4Hトレンドを取得
     /// <summary>
@@ -148,9 +150,9 @@ class TrendCheckLogic
         if(redFlg)
         {
             // 現在値
-            double nowPrice = iClose(Symbol(), PERIOD_M5 , 0);
+            double nowPrice = iClose(_symbol, PERIOD_M5 , 0);
             // ボリンジャーバンド
-            double nowBb = iBands(Symbol(), 0, 20, 2, 0, PRICE_CLOSE, MODE_UPPER, 0);
+            double nowBb = iBands(_symbol, 0, 20, 2, 0, PRICE_CLOSE, MODE_UPPER, 0);
             if(nowPrice > nowBb)
             {
                 Print ("-------------------THREE RED Up Entry On-------------------");
@@ -211,9 +213,9 @@ class TrendCheckLogic
         if(blackFlg)
         {
             // 現在値
-            double nowPrice = iClose(Symbol(), PERIOD_M5 , 0);
+            double nowPrice = iClose(_symbol, PERIOD_M5 , 0);
             // ボリンジャーバンド
-            double nowBb = iBands(Symbol(), 0, 20, 2, 0, PRICE_CLOSE, MODE_LOWER, 0);
+            double nowBb = iBands(_symbol, 0, 20, 2, 0, PRICE_CLOSE, MODE_LOWER, 0);
             if(nowPrice > nowBb)
             {
                 Print ("-------------------THREE BLACK Down Entry On-------------------");
@@ -238,10 +240,10 @@ class TrendCheckLogic
         double gmmaIndexShort = indicator.GetGmmaIndex(PERIOD_M15, 0, 0);
 
         // 現在値
-        double nowPrice = iClose(Symbol(), PERIOD_M5 , 0);
+        double nowPrice = iClose(_symbol, PERIOD_M5 , 0);
 
         // iMA（1:string symbol,2:int timeframe,3:int period,4:int ma_shift,5:int ma_methid,6:int applied_price,7:int shift）。
-        double ema30 = iMA(Symbol(), PERIOD_M15, 30, 0, MODE_EMA, PRICE_CLOSE, 0);
+        double ema30 = iMA(_symbol, PERIOD_M15, 30, 0, MODE_EMA, PRICE_CLOSE, 0);
         
         // RSI 9
         double rsiShort = indicator.GetThreeLineRci(PERIOD_M15, 0, 0);
@@ -283,10 +285,10 @@ class TrendCheckLogic
         if(regressionTilt > 0)
         {
             // 現在値
-            double nowPrice = iClose(Symbol(),  PERIOD_M5 , 0);
+            double nowPrice = iClose(_symbol,  PERIOD_M5 , 0);
 
             // iMA（1:string symbol,2:int timeframe,3:int period,4:int ma_shift,5:int ma_methid,6:int applied_price,7:int shift）。
-            double ema30 = iMA(Symbol(), PERIOD_M15, 30, 0, MODE_EMA, PRICE_CLOSE, 0);
+            double ema30 = iMA(_symbol, PERIOD_M15, 30, 0, MODE_EMA, PRICE_CLOSE, 0);
             double gmmaIndexShort = indicator.GetGmmaIndex(PERIOD_M15, 0, 0);
 
             // RSI 9
