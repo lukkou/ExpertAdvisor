@@ -57,15 +57,21 @@ class TrendCheckLogic
     {
         int result = LONG_TREND_NON;
 
+        // GMMA Width
+        double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_H4, 0, 1);
+        double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_H4, 1, 1);
+
+        // エラー数値の場合
+        if(gmmaWidthUp == 2147483647 || gmmaWidthDown == 2147483647)
+        {
+            return result;
+        }
+
         // GMMA Index Long
         double gmmaIndexLong = indicator.GetGmmaIndex(PERIOD_H4, 1, 0);
 
         // GMMA Index Short
         double gmmaIndexShort = indicator.GetGmmaIndex(PERIOD_H4, 0, 0);
-
-        // GMMA Width
-        double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_H4, 0, 1);
-        double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_H4, 1, 1);
 
         // TEMA
         double beforeTmmaUp = indicator.GetGmmaWidth(PERIOD_H4, 0, 1);
@@ -73,15 +79,9 @@ class TrendCheckLogic
         double nowTmmaUp = indicator.GetGmmaWidth(PERIOD_H4, 0, 0);
         double nowTmmaDown = indicator.GetGmmaWidth(PERIOD_H4, 1, 0);
 
-
         // GMMA Width 傾き
         double regressionTilt = 0;
         double gmmaRegressionLine = indicator.GetGmmaRegressionLine(PERIOD_H4, 6 ,regressionTilt);
-
-        if(gmmaWidthUp == 2147483647 || gmmaWidthDown == 2147483647)
-        {
-            return 2147483647;
-        }
 
         if (gmmaIndexLong == 5 && gmmaIndexShort == 5 && gmmaWidthUp > 0 && beforeTmmaUp > 0 && nowTmmaUp > 0)
         {
@@ -102,6 +102,15 @@ class TrendCheckLogic
     int TrendCheckLogic::GetUpTrendEntryStatus()
     {
         int result = ENTRY_OFF;
+
+        // GMMA Width
+        double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
+        double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_M15, 1, 0);
+        // そもその判定の価値なしトレンド
+        if((gmmaWidthUp == 2147483647 && gmmaWidthDown == 2147483647) || (gmmaWidthUp == 0 && gmmaWidthDown == 0))
+        {
+            return result;
+        }
 
         // GMMA Index Long
         double gmmaIndexLong = indicator.GetGmmaIndex(PERIOD_M15, 1, 1);
@@ -135,8 +144,19 @@ class TrendCheckLogic
 
         // 赤三兵フラグ
         bool redFlg = indicator.ThreeRedArmies(PERIOD_M15, 1);
-        double nowBb = iBands(Symbol(), 0, 20, 2, 0, PRICE_CLOSE, MODE_UPPER, 0);
-
+        if(redFlg)
+        {
+            // 現在値
+            double nowPrice = iClose(Symbol(), PERIOD_M5 , 0);
+            // ボリンジャーバンド
+            double nowBb = iBands(Symbol(), 0, 20, 2, 0, PRICE_CLOSE, MODE_UPPER, 0);
+            if(nowPrice > nowBb)
+            {
+                result = ENTRY_ON;
+                return result;
+            }
+        }
+        
         return result;
     }
 
@@ -147,6 +167,15 @@ class TrendCheckLogic
     int TrendCheckLogic::GetDownTrendEntryStatus()
     {
         int result = ENTRY_OFF;
+
+        // GMMA Width
+        double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
+        double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_M15, 1, 0);
+        // そもその判定の価値なしトレンド
+        if((gmmaWidthUp == 2147483647 && gmmaWidthDown == 2147483647) || (gmmaWidthUp == 0 && gmmaWidthDown == 0))
+        {
+            return result;
+        }
 
         // GMMA Index
         double gmmaIndexLong = indicator.GetGmmaIndex(PERIOD_M15, 1, 1);
@@ -176,7 +205,18 @@ class TrendCheckLogic
 
         // 黒三兵フラグ
         bool blackFlg = indicator.ThreeRedArmies(PERIOD_M15, 1);
-        double nowBb = iBands(Symbol(), 0, 20, 2, 0, PRICE_CLOSE, MODE_LOWER, 0);
+        if(redFlg)
+        {
+            // 現在値
+            double nowPrice = iClose(Symbol(), PERIOD_M5 , 0);
+            // ボリンジャーバンド
+            double nowBb = iBands(Symbol(), 0, 20, 2, 0, PRICE_CLOSE, MODE_LOWER, 0);
+            if(nowPrice > nowBb)
+            {
+                result = ENTRY_ON;
+                return result;
+            }
+        }
 
         return result;
     }
@@ -194,10 +234,10 @@ class TrendCheckLogic
         double gmmaIndexShort = indicator.GetGmmaIndex(PERIOD_M15, 0, 0);
 
         // 現在値
-        double nowPrice = iClose(NULL, PERIOD_M5 , 0);
+        double nowPrice = iClose(Symbol(), PERIOD_M5 , 0);
 
         // iMA（1:string symbol,2:int timeframe,3:int period,4:int ma_shift,5:int ma_methid,6:int applied_price,7:int shift）。
-        double ema30 = iMA(NULL,PERIOD_M15, 30, 0, MODE_EMA, PRICE_CLOSE, 0);
+        double ema30 = iMA(Symbol(), PERIOD_M15, 30, 0, MODE_EMA, PRICE_CLOSE, 0);
         
         // RSI 9
         double rsiShort = indicator.GetThreeLineRci(PERIOD_M15, 0, 0);
@@ -212,9 +252,9 @@ class TrendCheckLogic
             Print ("-------------------GMMA INDEX Position Cut-------------------");
             result  = POSITION_CUT_ON;
         }
-        else if(rsiShort < 0)
+        else if(rsiShort <= 0)
         {
-            Print ("-------------------GMMA INDEX Position Cut-------------------");
+            Print ("-------------------RSI Position Cut-------------------");
             result  = POSITION_CUT_ON;
         }
 
@@ -239,11 +279,14 @@ class TrendCheckLogic
         if(regressionTilt > 0)
         {
             // 現在値
-            double nowPrice = iClose(NULL, PERIOD_M5 , 0);
+            double nowPrice = iClose(Symbol(),  PERIOD_M5 , 0);
 
             // iMA（1:string symbol,2:int timeframe,3:int period,4:int ma_shift,5:int ma_methid,6:int applied_price,7:int shift）。
-            double ema30 = iMA(NULL,PERIOD_M15, 30, 0, MODE_EMA, PRICE_CLOSE, 0);
+            double ema30 = iMA(Symbol(), PERIOD_M15, 30, 0, MODE_EMA, PRICE_CLOSE, 0);
             double gmmaIndexShort = indicator.GetGmmaIndex(PERIOD_M15, 0, 0);
+
+            // RSI 9
+            double rsiShort = indicator.GetThreeLineRci(PERIOD_M15, 0, 0);
 
             if(nowPrice > ema30)
             {
@@ -253,6 +296,11 @@ class TrendCheckLogic
             else if(agoGmmaIndexShort < gmmaIndexShort + 1)
             {
                 Print ("-------------------GMMA INDEX Position Cut-------------------");
+                result  = POSITION_CUT_ON;
+            }
+            else if(rsiShort >= 0)
+            {
+                Print ("-------------------RSI Position Cut-------------------");
                 result  = POSITION_CUT_ON;
             }
         }
