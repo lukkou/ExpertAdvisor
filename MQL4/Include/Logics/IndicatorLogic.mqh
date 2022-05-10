@@ -29,6 +29,10 @@ class IndicatorLogic{
     double GetThreeLineRci(int timeSpan,int mode,int shift);
 
     double GetGmmaRegressionLine(double timeSpan,double term,double &regressionTilt);
+
+    bool ThreeRedArmies(int timeSpan,int shift);
+
+    bool ThreeBlackArmies(int timeSpan,int shift)
 };
 
     //------------------------------------------------------------------
@@ -51,7 +55,7 @@ class IndicatorLogic{
     /// 0:TemaUp 1:TemaDown
     /// </param>
     /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
-    /// <returns>TEMAのインジケーター値を取得</returns>
+    /// <returns>TEMAのインジケーター値</returns>
     double IndicatorLogic::GetTema(int timeSpan,int mode,int shift)
     {
         double result = iCustom(Symbol(),timeSpan,"TemaCumulative",mode,shift);
@@ -66,7 +70,7 @@ class IndicatorLogic{
     /// 0:ShortIndex 1:LongIndex
     /// </param>
     /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
-    /// <returns>TEMAのインジケーター値を取得</returns>
+    /// <returns>TEMAのインジケーター値</returns>
     double IndicatorLogic::GetGmmaIndex(int timeSpan,int mode,int shift)
     {
         double result = iCustom(Symbol(),timeSpan,"GMMAIndex",mode,shift);
@@ -81,7 +85,7 @@ class IndicatorLogic{
     /// 0:Up 1:Down 2:ShortWidth 3:LongWidth
     /// </param>
     /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
-    /// <returns>TEMAのインジケーター値を取得</returns>
+    /// <returns>TEMAのインジケーター値</returns>
     double IndicatorLogic::GetGmmaWidth(int timeSpan,int mode,int shift)
     {
         double result = iCustom(Symbol(),timeSpan,"GMMAWidth",mode,shift);
@@ -96,11 +100,109 @@ class IndicatorLogic{
     /// 0:RCI9 1:RCI26 2:RCI52
     /// </param>
     /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
-    /// <returns>TEMAのインジケーター値を取得</returns>
+    /// <returns>TEMAのインジケーター値</returns>
     double IndicatorLogic::GetThreeLineRci(int timeSpan,int mode,int shift)
     {
         double result = iCustom(Symbol(),timeSpan,"RCI_3Line_v130",mode,shift);
         return result;
+    }
+
+    /// <summary>
+    /// 現在の足が赤三兵になってるかを取得
+    /// <summary>
+    /// <param name="shift">判定対象のTickTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
+    /// <returns>赤三兵判定結果</returns>
+    bool IndicatorLogic::ThreeRedArmies(int timeSpan,int shift)
+    {
+        bool result = false;
+
+        double nowOpenPrice = iOpen(Symbol(), timeSpan , 0 + shift);
+        double before1OpenPrice = iOpen(Symbol(), timeSpan , 1 + shift);
+        double before2OpenPrice = iOpen(Symbol(), timeSpan , 2 + shift);
+
+        double nowClosePrice = iClose(Symbol(), timeSpan , 0 + shift);
+        double before1ClosePrice = iClose(Symbol(), timeSpan , 1 + shift);
+        double before2ClosePrice = iClose(Symbol(), timeSpan , 2 + shift);
+
+        double nowEma = iMA(Symbol(), timeSpan, 3, 0, MODE_EMA, PRICE_CLOSE, 0 + shift);
+        double before1Ema = iMA(Symbol(),timeSpan,3, 0, MODE_EMA, PRICE_CLOSE, 1 + shift);
+        double before2Ema = iMA(Symbol(),timeSpan,3, 0, MODE_EMA, PRICE_CLOSE, 2 + shift);
+
+        // それぞれの足が陽線かのチェック
+        bool nowRed = nowClosePrice > nowOpenPrice;
+        bool before1Red = before1ClosePrice > before1OpenPrice;
+        bool before2Red = before2ClosePrice > before2OpenPrice;
+
+        // それぞれの終値がEMAより高値かのチェック
+        bool nowUp = nowClosePrice > nowEma;
+        bool before1Up = before1ClosePrice > before1Ema;
+        bool before2Up = before2ClosePrice > before2Ema;
+
+        // それぞれの足の終わり値が高値を更新しているかのチェック
+        bool updateNow = nowClosePrice > before1ClosePrice;
+        bool updateBefore = before1ClosePrice > before2ClosePrice;
+
+
+        if(nowRed && before1Red && before2Red && updateNow && updateBefore && nowUp && before1Up && before2Up)
+        {
+            result = true;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 現在の足が黒三兵になってるかを取得
+    /// <summary>
+    /// <param name="shift">判定対象のTickTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
+    /// <returns>黒三兵判定結果</returns>
+    bool IndicatorLogic::ThreeBlackArmies(int timeSpan,int shift)
+    {
+        bool result = false;
+
+        double nowOpenPrice = iOpen(Symbol(), timeSpan , 0 + shift);
+        double before1OpenPrice = iOpen(Symbol(), timeSpan , 1 + shift);
+        double before2OpenPrice = iOpen(Symbol(), timeSpan , 2 + shift);
+
+        double nowClosePrice = iClose(Symbol(), timeSpan , 0 + shift);
+        double before1ClosePrice = iClose(Symbol(), timeSpan , 1 + shift);
+        double before2ClosePrice = iClose(Symbol(), timeSpan , 2 + shift);
+
+        double nowEma = iMA(Symbol(), timeSpan, 3, 0, MODE_EMA, PRICE_CLOSE, 0 + shift);
+        double before1Ema = iMA(Symbol(),timeSpan,3, 0, MODE_EMA, PRICE_CLOSE, 1 + shift);
+        double before2Ema = iMA(Symbol(),timeSpan,3, 0, MODE_EMA, PRICE_CLOSE, 2 + shift);
+
+        // それぞれの足が陰線かのチェック
+        bool nowBlack = nowClosePrice < nowOpenPrice;
+        bool before1Black = before1ClosePrice < before1OpenPrice;
+        bool before2Black = before2ClosePrice < before2OpenPrice;
+
+        // それぞれの終値がEMAより安値かのチェック
+        bool nowUp = nowClosePrice < nowEma;
+        bool before1Up = before1ClosePrice < before1Ema;
+        bool before2Up = before2ClosePrice < before2Ema;
+
+        // それぞれの足の終わり値が安値を更新しているかのチェック
+        bool updateNow = nowClosePrice < before1ClosePrice;
+        bool updateBefore = before1ClosePrice < before2ClosePrice;
+
+
+        if(nowBlack && before1Black && before2Black && updateNow && updateBefore && nowUp && before1Up && before2Up)
+        {
+            result = true;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// TEMAが赤三兵になってるかを取得
+    /// <summary>
+    /// <param name="shift">判定対象のTickTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
+    /// <returns>赤三兵判定結果</returns>
+    bool IndicatorLogic::TemaThreeBlackArmies(int timeSpan,int shift)
+    {
+
     }
 
     /// <summary>
