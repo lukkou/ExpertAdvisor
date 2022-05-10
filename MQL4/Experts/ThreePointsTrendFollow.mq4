@@ -188,11 +188,11 @@ void OnTick()
 void PositionOpen(int orderType)
 {
     double lossRenge = LotHelper.GetSdLossRenge();
-    //double lotSize = LotHelper.GetSdLotSize(lossRenge);
-    double pLotSize = LotHelper.GetLotSize(lossRenge);
+    double lotSize = LotHelper.GetSdLotSize(lossRenge);
+    //double pLotSize = LotHelper.GetLotSize(lossRenge);
 
     //新規ポジション
-    OrderHelper.SendOrder(orderType, pLotSize, 0, Slippage, lossRenge, TakeProfit );
+    OrderHelper.SendOrder(orderType, lotSize, 0, Slippage, lossRenge, TakeProfit );
 
     //ツイート用の情報取得
     int orderNo = OrderHelper.GetTicket(0);
