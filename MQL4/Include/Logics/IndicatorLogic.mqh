@@ -11,6 +11,9 @@
 #property strict
 
 class IndicatorLogic{
+    private:
+    string _symbol;
+
     public:
     //------------------------------------------------------------------
     // コンストラクタ
@@ -39,6 +42,7 @@ class IndicatorLogic{
     // コンストラクタ
     IndicatorLogic::IndicatorLogic()
     {
+        _symbol = Symbol()
     }
 
     //------------------------------------------------------------------
@@ -58,7 +62,7 @@ class IndicatorLogic{
     /// <returns>TEMAのインジケーター値</returns>
     double IndicatorLogic::GetTema(int timeSpan,int mode,int shift)
     {
-        double result = iCustom(Symbol(),timeSpan,"TemaCumulative",mode,shift);
+        double result = iCustom(_symbol,timeSpan,"TemaCumulative",mode,shift);
         return result;
     }
 
@@ -73,7 +77,7 @@ class IndicatorLogic{
     /// <returns>TEMAのインジケーター値</returns>
     double IndicatorLogic::GetGmmaIndex(int timeSpan,int mode,int shift)
     {
-        double result = iCustom(Symbol(),timeSpan,"GMMAIndex",mode,shift);
+        double result = iCustom(_symbol,timeSpan,"GMMAIndex",mode,shift);
         return result;
     }
 
@@ -88,7 +92,7 @@ class IndicatorLogic{
     /// <returns>TEMAのインジケーター値</returns>
     double IndicatorLogic::GetGmmaWidth(int timeSpan,int mode,int shift)
     {
-        double result = iCustom(Symbol(),timeSpan,"GMMAWidth",mode,shift);
+        double result = iCustom(_symbol,timeSpan,"GMMAWidth",mode,shift);
         return result;
     }
 
@@ -103,7 +107,7 @@ class IndicatorLogic{
     /// <returns>TEMAのインジケーター値</returns>
     double IndicatorLogic::GetThreeLineRci(int timeSpan,int mode,int shift)
     {
-        double result = iCustom(Symbol(),timeSpan,"RCI_3Line_v130",mode,shift);
+        double result = iCustom(_symbol,timeSpan,"RCI_3Line_v130",mode,shift);
         return result;
     }
 
@@ -116,17 +120,17 @@ class IndicatorLogic{
     {
         bool result = false;
 
-        double nowOpenPrice = iOpen(Symbol(), timeSpan , 0 + shift);
-        double before1OpenPrice = iOpen(Symbol(), timeSpan , 1 + shift);
-        double before2OpenPrice = iOpen(Symbol(), timeSpan , 2 + shift);
+        double nowOpenPrice = iOpen(_symbol, timeSpan , 0 + shift);
+        double before1OpenPrice = iOpen(_symbol, timeSpan , 1 + shift);
+        double before2OpenPrice = iOpen(_symbol, timeSpan , 2 + shift);
 
-        double nowClosePrice = iClose(Symbol(), timeSpan , 0 + shift);
-        double before1ClosePrice = iClose(Symbol(), timeSpan , 1 + shift);
-        double before2ClosePrice = iClose(Symbol(), timeSpan , 2 + shift);
+        double nowClosePrice = iClose(_symbol, timeSpan , 0 + shift);
+        double before1ClosePrice = iClose(_symbol, timeSpan , 1 + shift);
+        double before2ClosePrice = iClose(_symbol, timeSpan , 2 + shift);
 
-        double nowEma = iMA(Symbol(), timeSpan, 3, 0, MODE_EMA, PRICE_CLOSE, 0 + shift);
-        double before1Ema = iMA(Symbol(),timeSpan,3, 0, MODE_EMA, PRICE_CLOSE, 1 + shift);
-        double before2Ema = iMA(Symbol(),timeSpan,3, 0, MODE_EMA, PRICE_CLOSE, 2 + shift);
+        double nowEma = iMA(_symbol, timeSpan, 3, 0, MODE_EMA, PRICE_CLOSE, 0 + shift);
+        double before1Ema = iMA(_symbol,timeSpan,3, 0, MODE_EMA, PRICE_CLOSE, 1 + shift);
+        double before2Ema = iMA(_symbol,timeSpan,3, 0, MODE_EMA, PRICE_CLOSE, 2 + shift);
 
         // それぞれの足が陽線かのチェック
         bool nowRed = nowClosePrice > nowOpenPrice;
@@ -160,17 +164,17 @@ class IndicatorLogic{
     {
         bool result = false;
 
-        double nowOpenPrice = iOpen(Symbol(), timeSpan , 0 + shift);
-        double before1OpenPrice = iOpen(Symbol(), timeSpan , 1 + shift);
-        double before2OpenPrice = iOpen(Symbol(), timeSpan , 2 + shift);
+        double nowOpenPrice = iOpen(_symbol, timeSpan , 0 + shift);
+        double before1OpenPrice = iOpen(_symbol, timeSpan , 1 + shift);
+        double before2OpenPrice = iOpen(_symbol, timeSpan , 2 + shift);
 
-        double nowClosePrice = iClose(Symbol(), timeSpan , 0 + shift);
-        double before1ClosePrice = iClose(Symbol(), timeSpan , 1 + shift);
-        double before2ClosePrice = iClose(Symbol(), timeSpan , 2 + shift);
+        double nowClosePrice = iClose(_symbol, timeSpan , 0 + shift);
+        double before1ClosePrice = iClose(_symbol, timeSpan , 1 + shift);
+        double before2ClosePrice = iClose(_symbol, timeSpan , 2 + shift);
 
-        double nowEma = iMA(Symbol(), timeSpan, 3, 0, MODE_EMA, PRICE_CLOSE, 0 + shift);
-        double before1Ema = iMA(Symbol(),timeSpan,3, 0, MODE_EMA, PRICE_CLOSE, 1 + shift);
-        double before2Ema = iMA(Symbol(),timeSpan,3, 0, MODE_EMA, PRICE_CLOSE, 2 + shift);
+        double nowEma = iMA(_symbol, timeSpan, 3, 0, MODE_EMA, PRICE_CLOSE, 0 + shift);
+        double before1Ema = iMA(_symbol,timeSpan,3, 0, MODE_EMA, PRICE_CLOSE, 1 + shift);
+        double before2Ema = iMA(_symbol,timeSpan,3, 0, MODE_EMA, PRICE_CLOSE, 2 + shift);
 
         // それぞれの足が陰線かのチェック
         bool nowBlack = nowClosePrice < nowOpenPrice;
