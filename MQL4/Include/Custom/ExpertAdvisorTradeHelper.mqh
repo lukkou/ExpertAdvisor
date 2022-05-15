@@ -302,7 +302,7 @@ ExpertAdvisorTradeHelper::~ExpertAdvisorTradeHelper()
 
 //------------------------------------------------------------------
 // 発注する
-// Return   発注成功時インデックス それ以外-1
+// Return   発注成功時インデックス それ以外-1 エラーの場合は-2
 int ExpertAdvisorTradeHelper::SendOrder(
     int cmd,                //売買種別  
     double volume,            //売買ロット
@@ -332,8 +332,10 @@ int ExpertAdvisorTradeHelper::SendOrder(
         double ask = MarketInfo(m_symbol, MODE_ASK);
     
         // スプレットが大きすぎる場合は取引しない。
-        if( NormalizeDouble(MathAbs(ask - bid), m_digit) > m_spreadFilter )
+        double mathAbs = NormalizeDouble(MathAbs(ask - bid), m_digit);
+        if( mathAbs > m_spreadFilter )
         {
+            Print("BID:",bid," ASK:",ask," MathAbs:",mathAbs," 最大スプレット:",m_spreadFilter);
             Print("Order failed. spread over.");
             return -1;
         }
@@ -361,18 +363,20 @@ int ExpertAdvisorTradeHelper::SendOrder(
             {
                 int errorCode = GetLastError();
                 Print("AccountFreeMarginCheck Error[",errorCode ,"]");
-                return -1;
+                return -2;
             }
        
             int tiket = -1;
             if( m_isCountdown )
             {
+                Print("注文価格：",price,"損切り価格：",0,"利益確定価格：",0,"ストップレベル：",MarketInfo(m_symbol,MODE_STOPLEVEL));
                 tiket = ::OrderSend(m_symbol, cmd, volume, price,
                 slippage * m_pipsRate, 0, 0, 
                 comment, m_magicNumber, expiration, arrowColor);
             }
             else
             {
+                Print("注文価格：",price,"損切り価格：",stoplossValue,"利益確定価格：",takeprofitValue,"ストップレベル：",MarketInfo(m_symbol,MODE_STOPLEVEL));
                 tiket = ::OrderSend(m_symbol, cmd, volume, price,
                 slippage * m_pipsRate, stoplossValue, takeprofitValue, 
                 comment, m_magicNumber, expiration, arrowColor);
@@ -411,7 +415,7 @@ int ExpertAdvisorTradeHelper::SendOrder(
 
 //------------------------------------------------------------------
 // 発注する
-// Return   発注成功時インデックス それ以外-1
+// Return   発注成功時インデックス それ以外-1 エラーの場合は-2
 int ExpertAdvisorTradeHelper::SendOrderPrice(
     int cmd,                //売買種別  
     double volume,            //売買ロット
@@ -469,7 +473,7 @@ int ExpertAdvisorTradeHelper::SendOrderPrice(
             {
                 int errorCode = GetLastError();
                 Print("AccountFreeMarginCheck Error[",errorCode ,"]");
-                return -1;
+                return -2;
             }
        
         int tiket = -1;
