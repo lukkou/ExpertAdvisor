@@ -17,14 +17,15 @@
 
 //マジックナンバー 他のEAと当らない値を使用する。
 input int MagicNumber = 11180003; 
-input double SpreadFilter = 2;    //最大スプレット値(PIPS)
+input double SpreadFilter = 5;    //最大スプレット値(PIPS)
 
 extern int MaxPosition = 1;        //最大ポジション数
 extern int SdSigma = 3;
-extern double RiskPercent = 2.0;
+extern double RiskPercent = 4.0;
 
-input double Slippage = 40;      //許容スリッピング（Pips単位）
-input uint TakeProfit = 100;      //利益確定
+input double Slippage = 20;      //許容スリッピング（Pips単位）
+input uint TakeProfit = 50;      //利益確定
+input uint LoseProfit = 20;      //利益確定
 
 input string TweetCmdPash = "C:\\PROGRA~2\\dentakurou\\Tweet\\Tweet.exe";       //自動投稿exeパス
 
@@ -138,6 +139,9 @@ void OnTick()
             if(status == POSITION_CUT_ON)
             {
                 PositionClose();
+                //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
+                //Sleep(500);
+                return;
             }
         }else
         {
@@ -145,30 +149,36 @@ void OnTick()
             if(status == POSITION_CUT_ON)
             {
                 PositionClose();
+                //バックテスト時のみ一秒止める(Mysqlへの過剰接続を止めるため)
+                //Sleep(500);
+                return;
             }
         }
     }
 
     // トレード判定
-    int longTrend = TrendCheck.GetLongTrendStatus();
-    if(longTrend == LONG_TREND_PLUS)
+    if(!hasPosition)
     {
-        int trendEntry = TrendCheck.GetUpTrendEntryStatus();
-        if(trendEntry == ENTRY_ON)
+        int longTrend = TrendCheck.GetLongTrendStatus();
+        if(longTrend == LONG_TREND_PLUS)
         {
-            PositionOpen(OP_BUY);
+            int trendEntry = TrendCheck.GetUpTrendEntryStatus();
+            if(trendEntry == ENTRY_ON)
+            {
+                PositionOpen(OP_BUY);
+            }
         }
-    }
-    else if(longTrend == LONG_TREND_MINUS)
-    {
-        int trendEntry = TrendCheck.GetDownTrendEntryStatus();
-        if(trendEntry == ENTRY_ON)
+        else if(longTrend == LONG_TREND_MINUS)
         {
-            PositionOpen(OP_SELL);
+            int trendEntry = TrendCheck.GetDownTrendEntryStatus();
+            if(trendEntry == ENTRY_ON)
+            {
+                PositionOpen(OP_SELL);
+            }
         }
-    }
-    else
-    {
+        else
+        {
+        }
     }
 
     //MySqlDisconnect(db);
@@ -186,11 +196,19 @@ void OnTick()
 void PositionOpen(int orderType)
 {
     double lossRenge = LotHelper.GetSdLossRenge();
-    double lotSize = LotHelper.GetSdLotSize(lossRenge);
-    //double pLotSize = LotHelper.GetLotSize(lossRenge);
+    //double lotSize = LotHelper.GetSdLotSize(lossRenge);
+    double pLotSize = LotHelper.GetLotSize(lossRenge);
+    if(lossRenge <= LoseProfit)
+    {
+        lossRenge = LoseProfit;
+    }
 
     //新規ポジション
-    OrderHelper.SendOrder(orderType, lotSize, 0, Slippage, lossRenge, TakeProfit );
+    int orderStatus = OrderHelper.SendOrder(orderType, pLotSize, 0, Slippage, lossRenge, TakeProfit );
+    if(orderStatus == -2)
+    {
+        ExpertRemove();
+    }
 
     //ツイート用の情報取得
     int orderNo = OrderHelper.GetTicket(0);
