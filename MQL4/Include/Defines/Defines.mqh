@@ -28,6 +28,11 @@
 // 指標発表有り
 #define INDEX_RELEASE_EXIST (1)
 
+// 日付レンド上 下 無
+#define DAY_TREND_PLUS (1)
+#define DAY_TREND_MINUS (-1)
+#define DAY_TREND_NON (0)
+
 // 長期(4H)トレンド上 下 無
 #define LONG_TREND_PLUS (1)
 #define LONG_TREND_MINUS (-1)
