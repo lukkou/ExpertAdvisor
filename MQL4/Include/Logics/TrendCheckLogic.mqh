@@ -26,6 +26,8 @@ class TrendCheckLogic
         // デストラクタ
         ~TrendCheckLogic();
 
+        int GetDayTrendStatus()
+
         int GetLongTrendStatus();
 
         int GetUpTrendEntryStatus();
@@ -49,6 +51,23 @@ class TrendCheckLogic
     // デストラクタ
     TrendCheckLogic::~TrendCheckLogic()
     {
+    }
+
+    /// <summary>
+    /// 現在の日足レンドを取得
+    /// <summary>
+    /// <returns>上トレンド:1 下トレンド:-1 無トレンド:0 エラー:2147483647</returns>
+    int TrendCheckLogic::GetDayTrendStatus()
+    {
+        int result = DAY_TREND_NON;
+
+        // GMMA Index
+        double gmmaDayIndexShort = indicator.GetGmmaIndex(PERIOD_H4, 0, 0);
+        double gmmaDayIndexLong = indicator.GetGmmaIndex(PERIOD_H4, 1, 0);
+
+        
+
+        return result;
     }
 
     /// <summary>
@@ -123,8 +142,8 @@ class TrendCheckLogic
         double gmmaRegressionLine = indicator.GetGmmaRegressionLine(PERIOD_M15, 16 ,regressionTilt);
 
         // TEMA 傾き
-        double beforeTemaUp = indicator.GetTema(PERIOD_M15, 0, 1);
-        double beforeTemaDown = indicator.GetTema(PERIOD_M15, 1, 1);
+        double beforeTemaUp = indicator.GetTemaIndex(PERIOD_M15, 0, 1);
+        double beforeTemaDown = indicator.GetTemaIndex(PERIOD_M15, 1, 1);
 
         // RSI3
         double rsiShort = indicator.GetThreeLineRci(PERIOD_M15, 0, 1);
@@ -144,8 +163,8 @@ class TrendCheckLogic
             double nowGmmaIndexShort = indicator.GetGmmaIndex(PERIOD_M15, 0, 0);
             double nowGmmaIndexLong = indicator.GetGmmaIndex(PERIOD_M15, 1, 0);
             // TEMA 傾き
-            double temaUp = indicator.GetTema(PERIOD_M15, 0, 0);
-            double temaDown = indicator.GetTema(PERIOD_M15, 1, 0);
+            double temaUp = indicator.GetTemaIndex(PERIOD_M15, 0, 0);
+            double temaDown = indicator.GetTemaIndex(PERIOD_M15, 1, 0);
 
             // トリガー条件
             if(nowGmmaIndexShort == 5 && 
@@ -188,8 +207,8 @@ class TrendCheckLogic
         double gmmaRegressionLine = indicator.GetGmmaRegressionLine(PERIOD_M15, 16 ,regressionTilt);
 
         // TEMA 傾き
-        double beforeTemaUp = indicator.GetTema(PERIOD_M15, 0, 1);
-        double beforeTemaDown = indicator.GetTema(PERIOD_M15, 1, 1);
+        double beforeTemaUp = indicator.GetTemaIndex(PERIOD_M15, 0, 1);
+        double beforeTemaDown = indicator.GetTemaIndex(PERIOD_M15, 1, 1);
 
         // RSI3
         double rsiShort = indicator.GetThreeLineRci(PERIOD_M15, 0, 1);
@@ -208,8 +227,8 @@ class TrendCheckLogic
         {
             double nowGmmaIndex = indicator.GetGmmaIndex(PERIOD_M15, 0, 0);
             // TEMA 傾き
-            double temaUp = indicator.GetTema(PERIOD_M15, 0, 0);
-            double temaDown = indicator.GetTema(PERIOD_M15, 1, 0);
+            double temaUp = indicator.GetTemaIndex(PERIOD_M15, 0, 0);
+            double temaDown = indicator.GetTemaIndex(PERIOD_M15, 1, 0);
 
             // トリガー条件
             if(nowGmmaIndex == -5 && temaUp == 0 && temaDown < 0)
@@ -240,9 +259,9 @@ class TrendCheckLogic
         double gmmaRegressionLine = indicator.GetGmmaRegressionLine(PERIOD_M15, 16 ,regressionTilt);
 
         // TEMA 傾き
-        double beforeTemaUp = indicator.GetTema(PERIOD_M15, 0, 1);;
-        double temaUp = indicator.GetTema(PERIOD_M15, 0, 0);
-        double temaDown = indicator.GetTema(PERIOD_M15, 1, 0);
+        double beforeTemaUp = indicator.GetTemaIndex(PERIOD_M15, 0, 1);;
+        double temaUp = indicator.GetTemaIndex(PERIOD_M15, 0, 0);
+        double temaDown = indicator.GetTemaIndex(PERIOD_M15, 1, 0);
 
         // RSI3
         double rsiMiddle = indicator.GetThreeLineRci(PERIOD_M15, 1, 0);
@@ -284,8 +303,8 @@ class TrendCheckLogic
         double gmmaRegressionLine = indicator.GetGmmaRegressionLine(PERIOD_M15, 16 ,regressionTilt);
 
         // TEMA 傾き
-        double beforeTemaDown = indicator.GetTema(PERIOD_M15, 1, 1);
-        double temaDown = indicator.GetTema(PERIOD_M15, 1, 0);
+        double beforeTemaDown = indicator.GetTemaIndex(PERIOD_M15, 1, 1);
+        double temaDown = indicator.GetTemaIndex(PERIOD_M15, 1, 0);
 
         // RSI3
         double rsiMiddle = indicator.GetThreeLineRci(PERIOD_M15, 1, 0);
