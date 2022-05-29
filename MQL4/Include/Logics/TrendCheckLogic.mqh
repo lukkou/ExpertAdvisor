@@ -56,33 +56,35 @@ class TrendCheckLogic
     /// <summary>
     /// 現在の日足レンドを取得
     /// <summary>
-    /// <returns>上トレンド:1 下トレンド:-1 無トレンド:0 エラー:2147483647</returns>
+    /// <returns>上トレンド:1 下トレンド:-1 無トレンド:0</returns>
     int TrendCheckLogic::GetDayTrendStatus()
     {
         int result = DAY_TREND_NON;
+        double nowPrice = iClose(_symbol, PERIOD_D1, 0);
 
         // GMMA Index
         double gmmaDayIndexShort = indicator.GetGmmaIndex(PERIOD_D1, 0, 0);
         double gmmaDayIndexLong = indicator.GetGmmaIndex(PERIOD_D1, 1, 0);
+        double ema30 = indicator.GetMa(PERIOD_D1, 30, MODE_EMA, PRICE_CLOSE, 0)
 
-        if(gmmaDayIndexShort == 5 && gmmaDayIndexLong)
+        if(gmmaDayIndexLong == 5 && (gmmaDayIndexShort >= 0 || ema30 < nowPrice))
         {
-            // TEMA Up
-            double tmeaUp = indicator.GetTema(PERIOD_D1, 0, 0);
-            double nowPrice = iClose(_symbol, PERIOD_D1 , 0);
-            if(nowPrice > tmeaUp)
+            double tmeaUp = indicator.GetTemaIndex(PERIOD_D1, 0, 0);
+            double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_D1, 0, 0);
+            
+            if(tmeaUp >= 0.1 && gmmaWidthUp > 0)
             {
                 result = DAY_TREND_PLUS;
             }
         }
-        else if(gmmaDayIndexShort == -5 && gmmaDayIndexLong == -5)
+        else if(gmmaDayIndexLong == -5 && (gmmaDayIndexShort <= 0 || ema30 > nowPrice))
         {
-            // TEMA Down
-            double tmeaDown = indicator.GetTema(PERIOD_D1, 1, 0);
-            double nowPrice = iClose(_symbol, PERIOD_D1 , 0);
-            if(nowPrice > tmeaDown)
+            double tmeaDown = indicator.GetTemaIndex(PERIOD_D1, 1, 0);
+            double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_D1, 1, 0);
+
+            if(tmeaDown <= -0.1 && gmmaWidthDown < 0)
             {
-                result = DAY_TREND_MINUS
+                result = DAY_TREND_MINUS;
             }
         }
 
@@ -97,12 +99,19 @@ class TrendCheckLogic
     {
         int result = LONG_TREND_NON;
 
+        // GMMA Width 傾き
+        double regressionTilt = 0;
+        double gmmaRegressionLine = indicator.GetGmmaRegressionLine(PERIOD_H4, 6 ,regressionTilt);
+
         // GMMA Width
-        double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_H4, 0, 1);
-        double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_H4, 1, 1);
+        double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_H4, 0, 0);
+        double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_H4, 1, 0);
+
+        if(regressionTilt > 0)
+
 
         // エラー数値の場合
-        if (gmmaWidthUp == 2147483647 || gmmaWidthDown == 2147483647)
+        if (gmmaWidthUp == EMPTY_VALUE || gmmaWidthDown == EMPTY_VALUE)
         {
             return result;
         }
@@ -118,10 +127,6 @@ class TrendCheckLogic
         double beforeTmmaDown = indicator.GetGmmaWidth(PERIOD_H4, 1, 1);
         double nowTmmaUp = indicator.GetGmmaWidth(PERIOD_H4, 0, 0);
         double nowTmmaDown = indicator.GetGmmaWidth(PERIOD_H4, 1, 0);
-
-        // GMMA Width 傾き
-        double regressionTilt = 0;
-        double gmmaRegressionLine = indicator.GetGmmaRegressionLine(PERIOD_H4, 6 ,regressionTilt);
 
         if (gmmaIndexLong == 5 && gmmaIndexShort == 5 && gmmaWidthUp > 0 && beforeTmmaUp >= 0.1 && nowTmmaUp >= 0.1)
         {
