@@ -28,6 +28,11 @@
 // 指標発表有り
 #define INDEX_RELEASE_EXIST (1)
 
+// 日足の陽線陰線
+#define PLUS_STICK (1)
+#define MINUS_STICK (-1)
+#define NON_STICK (0)
+
 // 日付レンド上 下 無
 #define DAY_TREND_PLUS (1)
 #define DAY_TREND_MINUS (-1)
