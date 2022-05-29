@@ -24,8 +24,8 @@ extern int SdSigma = 3;
 extern double RiskPercent = 4.0;
 
 input double Slippage = 20;      //許容スリッピング（Pips単位）
-input uint TakeProfit = 50;      //利益確定
-input uint LoseProfit = 20;      //利益確定
+input uint TakeProfit = 100;      //利益確定幅
+input uint LoseProfit = 30;      //ロスカット確定幅
 
 input string TweetCmdPash = "C:\\PROGRA~2\\dentakurou\\Tweet\\Tweet.exe";       //自動投稿exeパス
 
