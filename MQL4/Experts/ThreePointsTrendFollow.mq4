@@ -159,7 +159,8 @@ void OnTick()
     // トレード判定
     if(!hasPosition)
     {
-        int longTrend = TrendCheck.GetLongTrendStatus();
+        int dayTrend = TrendCheck.GetDayTrendStatus();
+        int longTrend = TrendCheck.GetLongTrendStatus(dayTrend);
         if(longTrend == LONG_TREND_PLUS)
         {
             int trendEntry = TrendCheck.GetUpTrendEntryStatus();
