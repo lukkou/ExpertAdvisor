@@ -11,10 +11,13 @@
 #property strict
 
 class IndicatorLogic{
+    private:
+    string _symbol;
+
     public:
     //------------------------------------------------------------------
     // コンストラクタ
-    IndicatorLogic();
+    IndicatorLogic(string symbol);
 
     //------------------------------------------------------------------
     // デストラクタ
@@ -30,19 +33,33 @@ class IndicatorLogic{
 
     double GetThreeLineRci(int timeSpan,int mode,int shift);
 
+    double GetROC3(int timeSpan,int mode,int shift);
+
+    double GetBbSqueeze(int timeSpan,int mode,int shift);
+
     double GetGmmaRegressionLine(double timeSpan,double term,double &regressionTilt);
 };
 
     //------------------------------------------------------------------
     // コンストラクタ
-    IndicatorLogic::IndicatorLogic()
+    IndicatorLogic::IndicatorLogic(string symbol)
     {
+        _symbol = symbol;
     }
 
     //------------------------------------------------------------------
     // デストラクタ
     IndicatorLogic::~IndicatorLogic()
     {
+    }
+
+    double GetPriceMedian(int timeSpan,int shift)
+    {
+        double high = iHigh(_symbol, timeSpan, shift)
+        double low = iLow(_symbol, timeSpan, shift)
+
+        double result = (high + low) /2;
+        return result;
     }
 
     /// <summary>
@@ -56,7 +73,7 @@ class IndicatorLogic{
     /// <returns>TEMAのインジケーター値</returns>
     double IndicatorLogic::GetTema(int timeSpan,int mode,int shift)
     {
-        double result = iCustom(Symbol(),timeSpan,"TEMA",mode,shift);
+        double result = iCustom(_symbol,timeSpan,"TEMA",mode,shift);
         return result;
     }
 
@@ -71,7 +88,7 @@ class IndicatorLogic{
     /// <returns>TEMAのインジケーター値</returns>
     double IndicatorLogic::GetTemaIndex(int timeSpan,int mode,int shift)
     {
-        double result = iCustom(Symbol(),timeSpan,"TemaCumulative",mode,shift);
+        double result = iCustom(_symbol,timeSpan,"TemaCumulative",mode,shift);
         return result;
     }
 
@@ -86,7 +103,7 @@ class IndicatorLogic{
     /// <returns>TEMAのインジケーター値</returns>
     double IndicatorLogic::GetGmmaIndex(int timeSpan,int mode,int shift)
     {
-        double result = iCustom(Symbol(),timeSpan,"GMMAIndex",mode,shift);
+        double result = iCustom(_symbol,timeSpan,"GMMAIndex",mode,shift);
         return result;
     }
 
@@ -101,7 +118,7 @@ class IndicatorLogic{
     /// <returns>TEMAのインジケーター値</returns>
     double IndicatorLogic::GetGmmaWidth(int timeSpan,int mode,int shift)
     {
-        double result = iCustom(Symbol(),timeSpan,"GMMAWidth",mode,shift);
+        double result = iCustom(_symbol,timeSpan,"GMMAWidth",mode,shift);
         return result;
     }
 
@@ -110,13 +127,44 @@ class IndicatorLogic{
     /// <summary>
     /// <param name="timeSpan">取得する時間軸</param>
     /// <param name="mode">取得するインジケーター値</param>
-    /// 0:RCI9 1:RCI26 2:RCI52
+    /// 0:RCI9 1:RCI26 2:RCI52　3:RCI Ave
     /// </param>
     /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
     /// <returns>TEMAのインジケーター値</returns>
     double IndicatorLogic::GetThreeLineRci(int timeSpan,int mode,int shift)
     {
-        double result = iCustom(Symbol(),timeSpan,"RCI_3Line_v130",mode,shift);
+        double result = iCustom(_symbol,timeSpan,"RCI_3Line_v130",mode,shift);
+        return result;
+    }
+
+    /// <summary>
+    /// KeysROC3のインジケーター値を取得
+    /// <summary>
+    /// <param name="timeSpan">取得する時間軸</param>
+    /// <param name="mode">取得するインジケーター値</param>
+    /// 0:ROC 1:シグナル
+    /// </param>
+    /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
+    /// <returns>TEMAのインジケーター値</returns>
+    double IndicatorLogic::GetROC3(int timeSpan,int mode,int shift)
+    {
+        double result = iCustom(_symbol,timeSpan,"keys_ROC3",mode,shift);
+        return result;
+    }
+
+
+    /// <summary>
+    /// BbSqueezeWAlertNmcのインジケーター値を取得
+    /// <summary>
+    /// <param name="timeSpan">取得する時間軸</param>
+    /// <param name="mode">取得するインジケーター値</param>
+    /// 0:BbSqueeze Up 1:BbSqueeze Down 2:BbSqueeze NonTrend 3:BbSqueeze Trend
+    /// </param>
+    /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
+    /// <returns>TEMAのインジケーター値</returns>
+    double IndicatorLogic::GetBbSqueeze(int timeSpan,int mode,int shift)
+    {
+        double result = iCustom(_symbol,timeSpan,"bbsqueeze w Alert nmc",mode,shift);
         return result;
     }
 
