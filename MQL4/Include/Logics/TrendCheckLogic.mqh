@@ -43,8 +43,8 @@ class TrendCheckLogic
     // コンストラクタ
     TrendCheckLogic::TrendCheckLogic()
     {
-        indicator = IndicatorLogic();
         _symbol = Symbol();
+        indicator = IndicatorLogic(_symbol);
     }
 
     //------------------------------------------------------------------
@@ -62,10 +62,29 @@ class TrendCheckLogic
         int result = DAY_TREND_NON;
 
         // GMMA Index
-        double gmmaDayIndexShort = indicator.GetGmmaIndex(PERIOD_H4, 0, 0);
-        double gmmaDayIndexLong = indicator.GetGmmaIndex(PERIOD_H4, 1, 0);
+        double gmmaDayIndexShort = indicator.GetGmmaIndex(PERIOD_D1, 0, 0);
+        double gmmaDayIndexLong = indicator.GetGmmaIndex(PERIOD_D1, 1, 0);
 
-        
+        if(gmmaDayIndexShort == 5 && gmmaDayIndexLong)
+        {
+            // TEMA Up
+            double tmeaUp = indicator.GetTema(PERIOD_D1, 0, 0);
+            double nowPrice = iClose(_symbol, PERIOD_D1 , 0);
+            if(nowPrice > tmeaUp)
+            {
+                result = DAY_TREND_PLUS;
+            }
+        }
+        else if(gmmaDayIndexShort == -5 && gmmaDayIndexLong == -5)
+        {
+            // TEMA Down
+            double tmeaDown = indicator.GetTema(PERIOD_D1, 1, 0);
+            double nowPrice = iClose(_symbol, PERIOD_D1 , 0);
+            if(nowPrice > tmeaDown)
+            {
+                result = DAY_TREND_MINUS
+            }
+        }
 
         return result;
     }
