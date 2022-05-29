@@ -25,11 +25,13 @@ class IndicatorLogic{
     // デストラクタ
     ~IndicatorLogic();
 
-    int GetDayBodyPriceType();
+    int GetDayBodyPriceType(int timeSpan);
 
     double GetBodyPrice(int timeSpan, int shift);
 
     double GetMa(int timeSpan, int maSpan, int mode, int priceType, int shift);
+
+    double GetEmaWidth(int timeSpan, int shift, int emaUnder, int emaUpper);
 
     double GetTema(int timeSpan, int mode, int shift);
 
@@ -45,7 +47,7 @@ class IndicatorLogic{
 
     double GetBbSqueeze(int timeSpan, int mode, int shift);
 
-    double GetGmmaRegressionLine(double timeSpan, double term, double &regressionTilt);
+    double GetGmmaRegressionLine(double timeSpan, double term, int mode, double &regressionTilt);
 };
 
     //------------------------------------------------------------------
@@ -62,15 +64,16 @@ class IndicatorLogic{
     }
 
     /// <summary>
-    /// 現在の日足の陽線陰線を取得
+    /// 現在の足の陽線陰線を取得
     /// <summary>
+    /// <param name="timeSpan">取得する時間軸</param>
     /// <returns>現在の日足の陽線陰線タイプ</returns>
-    int IndicatorLogic::GetDayBodyPriceType()
+    int IndicatorLogic::GetDayBodyPriceType(int timeSpan)
     {
         int result = NON_STICK;
 
-        double open = iOpen(_symbol, PERIOD_D1, 0);
-        double close = iClose(_symbol, PERIOD_D1, 0);
+        double open = iOpen(_symbol, timeSpan, 0);
+        double close = iClose(_symbol, timeSpan, 0);
 
         if(open > close)
         {
@@ -93,18 +96,11 @@ class IndicatorLogic{
     double IndicatorLogic::GetBodyPrice(int timeSpan, int shift)
     {
         double result = 0;
+
         double open = iOpen(_symbol, timeSpan, shift);
         double close = iClose(_symbol, timeSpan, shift);
 
-        if(open > close)
-        {
-            result = open - close;
-        }
-        else if(open < close)
-        {
-            result = close - open;
-        }
-        
+        result = MathAbs(open - close);
         return result;
     }
 
@@ -114,7 +110,7 @@ class IndicatorLogic{
     /// <param name="timeSpan">取得する時間軸</param>
     /// <param name="maSpan">MAの期間</param>
     /// <param name="mode">使用する移動平均モード
-    /// MODE_SMA MODE_EMA　MODE_SMMA　MODE_LWMA
+    /// MODE_SMA MODE_EMA MODE_SMMA MODE_LWMA
     /// https://yukifx.web.fc2.com/sub/reference/02_stdconstans/indicator/indicator_smoothing.html
     /// </param>
     ///<param name="mode">使用する価格定数
@@ -126,6 +122,25 @@ class IndicatorLogic{
     double IndicatorLogic::GetMa(int timeSpan, int maSpan, int mode, int priceType, int shift)
     {
         double result = iMA(_symbol, timeSpan , maSpan, 0, mode, priceType, shift);
+        return result;
+    }
+
+    /// <summary>
+    /// EMA値の幅を取得
+    /// <summary>
+    /// <param name="timeSpan">取得する時間軸</param>
+    /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
+    /// <param name="emaUnder">幅の下時間軸</param>
+    /// <param name="emaUpper">幅の上時間軸</param>
+    /// <returns>EMA値の幅</returns>
+    double IndicatorLogic::GetEmaWidth(int timeSpan, int shift, int emaUnder, int emaUpper)
+    {
+        double result = 0;
+
+        double underEma = GetMa(timeSpan, emaUnder, MODE_EMA, PRICE_CLOSE, shift);
+        double upperEma = GetMa(timeSpan, emaUpper, MODE_EMA, PRICE_CLOSE, shift);
+
+        result = MathAbs(underEma - upperEma);
         return result;
     }
 
@@ -218,7 +233,6 @@ class IndicatorLogic{
         double result = iCustom(_symbol,timeSpan,"keys_ROC3",mode,shift);
         return result;
     }
-
 
     /// <summary>
     /// BbSqueezeWAlertNmcのインジケーター値を取得
