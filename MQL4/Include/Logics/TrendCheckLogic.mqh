@@ -94,8 +94,9 @@ class TrendCheckLogic
     /// <summary>
     /// 現在の4Hトレンドを取得
     /// <summary>
+    /// <param name="dayTrend">日足トレンド</param>
     /// <returns>上トレンド:1 下トレンド:-1 無トレンド:0 エラー:2147483647</returns>
-    int TrendCheckLogic::GetLongTrendStatus()
+    int TrendCheckLogic::GetLongTrendStatus(int dayTrend)
     {
         int result = LONG_TREND_NON;
         // GMMA Width
@@ -112,7 +113,7 @@ class TrendCheckLogic
         double regressionTiltLogn = 0;
         double gmmaRegressionLineLogn = indicator.GetGmmaRegressionLine(PERIOD_H4, 6, 3, regressionTilt);
 
-        if(regressionTiltShort > 0 && (regressionTiltLogn > 0 || gmmaWidthLong > 0))
+        if(dayTrend == DAY_TREND_PLUS && regressionTiltShort > 0 && (regressionTiltLogn > 0 || gmmaWidthLong > 0))
         {
             double roc = indicator.GetROC3(PERIOD_H4, 0, 0);
             double bbSqueezeUp = indicator.GetBbSqueeze(PERIOD_H4, 0, 0);
@@ -123,7 +124,7 @@ class TrendCheckLogic
                 result = LONG_TREND_PLUS;
             }
         }
-        else if(regressionTiltShort < 0 && (regressionTiltLogn < 0 || gmmaWidthLong < 0))
+        else if(dayTrend == DAY_TREND_MINUS && regressionTiltShort < 0 && (regressionTiltLogn < 0 || gmmaWidthLong < 0))
         {
             double roc = indicator.GetROC3(PERIOD_H4, 0, 0);
             double bbSqueezeUp = indicator.GetBbSqueeze(PERIOD_H4, 0, 0);
@@ -150,54 +151,18 @@ class TrendCheckLogic
         double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
         double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_M15, 1, 0);
         // そもその判定の価値なしトレンド
-        if((gmmaWidthUp == 2147483647 && gmmaWidthDown == 2147483647) || (gmmaWidthUp == 0 && gmmaWidthDown == 0))
+        if((gmmaWidthUp == EMPTY_VALUE || gmmaWidthDown == EMPTY_VALUE) || (gmmaWidthUp == 0 && gmmaWidthDown == 0))
         {
             return result;
         }
 
-        // GMMA Index Long
-        double gmmaIndexShort = indicator.GetGmmaIndex(PERIOD_M15, 0, 1);
-        double gmmaIndexLong = indicator.GetGmmaIndex(PERIOD_M15, 1, 1);
+        double rciAve = indicator.GetThreeLineRci(PERIOD_M15, 3, 0);
+        double gmmaWidthLong = indicator.GetGmmaWidth(PERIOD_M15, 3, 0);
 
-        // GMMA Width 傾き
-        double regressionTilt = 0;
-        double gmmaRegressionLine = indicator.GetGmmaRegressionLine(PERIOD_M15, 16 ,regressionTilt);
-
-        // TEMA 傾き
-        double beforeTemaUp = indicator.GetTemaIndex(PERIOD_M15, 0, 1);
-        double beforeTemaDown = indicator.GetTemaIndex(PERIOD_M15, 1, 1);
-
-        // RSI3
-        double rsiShort = indicator.GetThreeLineRci(PERIOD_M15, 0, 1);
-        double rsiMiddle = indicator.GetThreeLineRci(PERIOD_M15, 1, 1);
-        double rsiLong = indicator.GetThreeLineRci(PERIOD_M15, 2, 1);
-
-        bool rsiInterrelationShort = (rsiShort > 80 && rsiMiddle > 70);
-        bool rsiInterrelationLong = (rsiShort > 70 && rsiMiddle > 60);
-
-        if(gmmaIndexLong == 5 && 
-           gmmaIndexShort == 5 && 
-           regressionTilt > 0 && 
-           (rsiInterrelationShort || rsiInterrelationLong) && 
-           beforeTemaUp > 0 && 
-           beforeTemaDown == 0)
+        if(rciAve > 55 && gmmaWidthUp > 0 && gmmaWidthLong > 0)
         {
-            double nowGmmaIndexShort = indicator.GetGmmaIndex(PERIOD_M15, 0, 0);
-            double nowGmmaIndexLong = indicator.GetGmmaIndex(PERIOD_M15, 1, 0);
-            // TEMA 傾き
-            double temaUp = indicator.GetTemaIndex(PERIOD_M15, 0, 0);
-            double temaDown = indicator.GetTemaIndex(PERIOD_M15, 1, 0);
-
-            // トリガー条件
-            if(nowGmmaIndexShort == 5 && 
-               nowGmmaIndexLong == 5 && 
-               temaUp > 0 && 
-               temaDown == 0)
-            {
-                Print ("-------------------GMMA Up Entry On-------------------");
-                result = ENTRY_ON;
-                return result;
-            }
+            Print ("-------------------Up Entry On-------------------");
+            result = ENTRY_ON;
         }
         
         return result;
@@ -215,52 +180,20 @@ class TrendCheckLogic
         double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
         double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_M15, 1, 0);
         // そもその判定の価値なしトレンド
-        if((gmmaWidthUp == 2147483647 && gmmaWidthDown == 2147483647) || (gmmaWidthUp == 0 && gmmaWidthDown == 0))
+        if((gmmaWidthUp == EMPTY_VALUE || gmmaWidthDown == EMPTY_VALUE) || (gmmaWidthUp == 0 && gmmaWidthDown == 0))
         {
             return result;
         }
 
-        // GMMA Index
-        double gmmaIndexLong = indicator.GetGmmaIndex(PERIOD_M15, 1, 1);
-        double gmmaIndexShort = indicator.GetGmmaIndex(PERIOD_M15, 0, 1);
+        double rciAve = indicator.GetThreeLineRci(PERIOD_M15, 3, 0);
+        double gmmaWidthLong = indicator.GetGmmaWidth(PERIOD_M15, 3, 0);
 
-        // GMMA Width 傾き
-        double regressionTilt = 0;
-        double gmmaRegressionLine = indicator.GetGmmaRegressionLine(PERIOD_M15, 16 ,regressionTilt);
-
-        // TEMA 傾き
-        double beforeTemaUp = indicator.GetTemaIndex(PERIOD_M15, 0, 1);
-        double beforeTemaDown = indicator.GetTemaIndex(PERIOD_M15, 1, 1);
-
-        // RSI3
-        double rsiShort = indicator.GetThreeLineRci(PERIOD_M15, 0, 1);
-        double rsiMiddle = indicator.GetThreeLineRci(PERIOD_M15, 1, 1);
-        double rsiLong = indicator.GetThreeLineRci(PERIOD_M15, 2, 1);
-
-        bool rsiInterrelationShort = (rsiShort <-80 && rsiMiddle < -70);
-        bool rsiInterrelationLong = (rsiShort < -70 && rsiMiddle < -60);;
-
-        if(gmmaIndexLong == -5 &&
-           gmmaIndexShort == -5 && 
-           regressionTilt < 0 && 
-           (rsiInterrelationShort || rsiInterrelationLong) && 
-           beforeTemaUp == 0 &&
-           beforeTemaDown < 0)
+        if(rciAve < -55 && gmmaWidthDown < 0 && gmmaWidthLong < 0)
         {
-            double nowGmmaIndex = indicator.GetGmmaIndex(PERIOD_M15, 0, 0);
-            // TEMA 傾き
-            double temaUp = indicator.GetTemaIndex(PERIOD_M15, 0, 0);
-            double temaDown = indicator.GetTemaIndex(PERIOD_M15, 1, 0);
-
-            // トリガー条件
-            if(nowGmmaIndex == -5 && temaUp == 0 && temaDown < 0)
-            {
-                Print ("-------------------GMMA Down Entry On-------------------");
-                result = ENTRY_ON;
-                return result;
-            }
+            Print ("-------------------Down Entry On-------------------");
+            result = ENTRY_ON;
         }
-
+        
         return result;
     }
 
@@ -271,37 +204,24 @@ class TrendCheckLogic
     int TrendCheckLogic::GetUpTrendPositionCut()
     {
         int result = POSITION_CUT_OFF;
-
-        // GMMA Index
-        double agoGmmaIndexShort = indicator.GetGmmaIndex(PERIOD_M15, 0, 1);
-        double gmmaIndexShort = indicator.GetGmmaIndex(PERIOD_M15, 0, 0);
-
-        // GMMA Width 傾き
-        double regressionTilt = 0;
-        double gmmaRegressionLine = indicator.GetGmmaRegressionLine(PERIOD_M15, 16 ,regressionTilt);
-
-        // TEMA 傾き
-        double beforeTemaUp = indicator.GetTemaIndex(PERIOD_M15, 0, 1);;
-        double temaUp = indicator.GetTemaIndex(PERIOD_M15, 0, 0);
-        double temaDown = indicator.GetTemaIndex(PERIOD_M15, 1, 0);
-
-        // RSI3
-        double rsiMiddle = indicator.GetThreeLineRci(PERIOD_M15, 1, 0);
-
-        // 現在値
-        double nowPrice = iClose(_symbol, PERIOD_M5 , 0);
-
-        // iMA（1:string symbol,2:int timeframe,3:int period,4:int ma_shift,5:int ma_methid,6:int applied_price,7:int shift）。
-        double ema4h = iMA(_symbol, PERIOD_H4, 15, 0, MODE_EMA, PRICE_CLOSE, 0);
-
-        if(nowPrice < ema4h)
+        
+        int bodyPriceType = indicator.GetBodyPriceType(PERIOD_M15);
+        if(bodyPriceType == MINUS_STICK)
         {
-            Print ("-------------------EMA Up Position Cut-------------------");
-            result  = POSITION_CUT_ON;
+            double bodyPrice = indicator.GetBodyPrice(PERIOD_M15, 0);
+            double emaWidth = indicator.GetEmaWidth(PERIOD_M15, 0, 30, 60);
+
+            if(bodyPrice > emaWidth)
+            {
+                Print ("-------------------BodyPrice Position Cut-------------------");
+                result  = POSITION_CUT_ON;
+            }
         }
-        else if(beforeTemaUp == 0 && temaUp == 0 && temaDown <= -0.05 && gmmaIndexShort <= 0 && rsiMiddle < 70)
+
+        double rci3Ave = indicator.GetThreeLineRci(PERIOD_M15, 3, 0)
+        if(rci3Ave < 45)
         {
-            Print ("-------------------TEMA GMMA INDEX Up Position Cut-------------------");
+            Print ("-------------------RCI3Ave Position Cut-------------------");
             result  = POSITION_CUT_ON;
         }
 
@@ -316,35 +236,23 @@ class TrendCheckLogic
     {
         int result = POSITION_CUT_OFF;
 
-        // GMMA Index
-        double agoGmmaIndexShort = indicator.GetGmmaIndex(PERIOD_M15, 0, 1);
-        double gmmaIndexShort = indicator.GetGmmaIndex(PERIOD_M15, 0, 0);
-
-        // GMMA Width 傾き
-        double regressionTilt = 0;
-        double gmmaRegressionLine = indicator.GetGmmaRegressionLine(PERIOD_M15, 16 ,regressionTilt);
-
-        // TEMA 傾き
-        double beforeTemaDown = indicator.GetTemaIndex(PERIOD_M15, 1, 1);
-        double temaDown = indicator.GetTemaIndex(PERIOD_M15, 1, 0);
-
-        // RSI3
-        double rsiMiddle = indicator.GetThreeLineRci(PERIOD_M15, 1, 0);
-
-        // 現在値
-        double nowPrice = iClose(_symbol,  PERIOD_M5 , 0);
-
-        // iMA（1:string symbol,2:int timeframe,3:int period,4:int ma_shift,5:int ma_methid,6:int applied_price,7:int shift）。
-        double ema4h = iMA(_symbol, PERIOD_H4, 15, 0, MODE_EMA, PRICE_CLOSE, 0);
-
-        if(nowPrice > ema4h)
+        int bodyPriceType = indicator.GetBodyPriceType(PERIOD_M15);
+        if(bodyPriceType == PLUS_STICK)
         {
-            Print ("-------------------EMA Down Position Cut-------------------");
-            result  = POSITION_CUT_ON;
+            double bodyPrice = indicator.GetBodyPrice(PERIOD_M15, 0);
+            double emaWidth = indicator.GetEmaWidth(PERIOD_M15, 0, 30, 60);
+
+            if(bodyPrice > emaWidth)
+            {
+                Print ("-------------------BodyPrice Position Cut-------------------");
+                result  = POSITION_CUT_ON;
+            }
         }
-        else if(beforeTemaDown == 0 && temaDown == 0 && temaDown >= 0.05 &&  gmmaIndexShort >= 0 && rsiMiddle > -70)
+
+        double rci3Ave = indicator.GetThreeLineRci(PERIOD_M15, 3, 0)
+        if(rci3Ave > -45)
         {
-            Print ("-------------------TEMA GMMA INDEX Up Position Cut-------------------");
+            Print ("-------------------RCI3Ave Position Cut-------------------");
             result  = POSITION_CUT_ON;
         }
 
