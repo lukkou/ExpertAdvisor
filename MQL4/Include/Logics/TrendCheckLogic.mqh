@@ -98,43 +98,41 @@ class TrendCheckLogic
     int TrendCheckLogic::GetLongTrendStatus()
     {
         int result = LONG_TREND_NON;
-
-        // GMMA Width 傾き
-        double regressionTilt = 0;
-        double gmmaRegressionLine = indicator.GetGmmaRegressionLine(PERIOD_H4, 6 ,regressionTilt);
-
         // GMMA Width
-        double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_H4, 0, 0);
-        double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_H4, 1, 0);
-
-        if(regressionTilt > 0)
-
-
+        double gmmaWidthLong = indicator.GetGmmaWidth(PERIOD_H4, 0, 3);
         // エラー数値の場合
-        if (gmmaWidthUp == EMPTY_VALUE || gmmaWidthDown == EMPTY_VALUE)
+        if (gmmaWidthLong == EMPTY_VALUE)
         {
             return result;
         }
 
-        // GMMA Index Long
-        double gmmaIndexLong = indicator.GetGmmaIndex(PERIOD_H4, 1, 0);
+        // GMMA Width 傾き
+        double regressionTiltShort = 0;
+        double gmmaRegressionLineShort = indicator.GetGmmaRegressionLine(PERIOD_H4, 6, 2, regressionTilt);
+        double regressionTiltLogn = 0;
+        double gmmaRegressionLineLogn = indicator.GetGmmaRegressionLine(PERIOD_H4, 6, 3, regressionTilt);
 
-        // GMMA Index Short
-        double gmmaIndexShort = indicator.GetGmmaIndex(PERIOD_H4, 0, 0);
-
-        // TEMA
-        double beforeTmmaUp = indicator.GetGmmaWidth(PERIOD_H4, 0, 1);
-        double beforeTmmaDown = indicator.GetGmmaWidth(PERIOD_H4, 1, 1);
-        double nowTmmaUp = indicator.GetGmmaWidth(PERIOD_H4, 0, 0);
-        double nowTmmaDown = indicator.GetGmmaWidth(PERIOD_H4, 1, 0);
-
-        if (gmmaIndexLong == 5 && gmmaIndexShort == 5 && gmmaWidthUp > 0 && beforeTmmaUp >= 0.1 && nowTmmaUp >= 0.1)
+        if(regressionTiltShort > 0 && (regressionTiltLogn > 0 || gmmaWidthLong > 0))
         {
-            result = LONG_TREND_PLUS;
+            double roc = indicator.GetROC3(PERIOD_H4, 0, 0);
+            double bbSqueezeUp = indicator.GetBbSqueeze(PERIOD_H4, 0, 0);
+            double bbSqueezeTrend = indicator.GetBbSqueeze(PERIOD_H4, 0, 3);
+
+            if(roc > 0.5 && bbSqueezeUp > 0 && bbSqueezeTrend == 0)
+            {
+                result = LONG_TREND_PLUS;
+            }
         }
-        else if(gmmaIndexLong == -5 && gmmaIndexShort == -5 && gmmaWidthDown < 0 && beforeTmmaDown <= -0.1 && nowTmmaDown <= -0.1)
+        else if(regressionTiltShort < 0 && (regressionTiltLogn < 0 || gmmaWidthLong < 0))
         {
-            result = LONG_TREND_MINUS;
+            double roc = indicator.GetROC3(PERIOD_H4, 0, 0);
+            double bbSqueezeUp = indicator.GetBbSqueeze(PERIOD_H4, 0, 0);
+            double bbSqueezeTrend = indicator.GetBbSqueeze(PERIOD_H4, 0, 3);
+
+            if(roc < 0.5 && bbSqueezeDown < 0 && bbSqueezeTrend == 0)
+            {
+                result = LONG_TREND_MINUS;
+            }
         }
 
         return result;
