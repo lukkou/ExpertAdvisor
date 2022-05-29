@@ -23,6 +23,10 @@ class IndicatorLogic{
     // デストラクタ
     ~IndicatorLogic();
 
+    int GetDayBodyPriceType();
+
+    double GetBodyPrice(int timeSpan, int shift);
+
     double GetTema(int timeSpan,int mode,int shift);
 
     double GetTemaIndex(int timeSpan,int mode,int shift);
@@ -53,12 +57,71 @@ class IndicatorLogic{
     {
     }
 
-    double GetPriceMedian(int timeSpan,int shift)
+    /// <summary>
+    /// 現在の日足の陽線陰線を取得
+    /// <summary>
+    /// <returns>現在の日足の陽線陰線タイプ</returns>
+    int IndicatorLogic::GetDayBodyPriceType()
     {
-        double high = iHigh(_symbol, timeSpan, shift)
-        double low = iLow(_symbol, timeSpan, shift)
+        int result = NON_STICK;
 
-        double result = (high + low) /2;
+        double open = iOpen(_symbol, PERIOD_D1, 0);
+        double close = iClose(_symbol, PERIOD_D1, 0);
+
+        if(open > close)
+        {
+            result = MINUS_STICK;
+        }
+        else if(open < close)
+        {
+            result = PLUS_STICK;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 指定時間のローソク足本体の幅を取得
+    /// <summary>
+    /// <param name="timeSpan">取得する時間軸</param>
+    /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
+    /// <returns>ローソク足本体の幅</returns>
+    double IndicatorLogic::GetBodyPrice(int timeSpan, int shift)
+    {
+        double result = 0;
+        double open = iOpen(_symbol, timeSpan, shift);
+        double close = iClose(_symbol, timeSpan, shift);
+
+        if(open > close)
+        {
+            result = open - close;
+        }
+        else if(open < close)
+        {
+            result = close - open;
+        }
+        
+        return result;
+    }
+
+    /// <summary>
+    /// MA値を取得
+    /// <summary>
+    /// <param name="timeSpan">取得する時間軸</param>
+    /// <param name="maSpan">MAの期間</param>
+    /// <param name="mode">使用する移動平均モード
+    /// MODE_SMA MODE_EMA　MODE_SMMA　MODE_LWMA
+    /// https://yukifx.web.fc2.com/sub/reference/02_stdconstans/indicator/indicator_smoothing.html
+    /// </param>
+    ///<param name="mode">使用する価格定数
+    /// PRICE_CLOSE PRICE_OPEN PRICE_HIGH PRICE_LOW PRICE_MEDIAN PRICE_TYPICAL PRICE_WEIGHTED
+    /// https://yukifx.web.fc2.com/sub/reference/02_stdconstans/indicator/indicator_price.html
+    /// </param>
+    /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
+    /// <returns>TEMAのインジケーター値</returns>
+    double IndicatorLogic::GetMa(int timeSpan, int maSpan, int mode, int priceType, int shift)
+    {
+        double result = iMA(_symbol, timeSpan , maSpan, 0, mode, priceType, shift);
         return result;
     }
 
@@ -71,7 +134,7 @@ class IndicatorLogic{
     /// </param>
     /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
     /// <returns>TEMAのインジケーター値</returns>
-    double IndicatorLogic::GetTema(int timeSpan,int mode,int shift)
+    double IndicatorLogic::GetTema(int timeSpan, int mode, int shift)
     {
         double result = iCustom(_symbol,timeSpan,"TEMA",mode,shift);
         return result;
@@ -86,7 +149,7 @@ class IndicatorLogic{
     /// </param>
     /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
     /// <returns>TEMAのインジケーター値</returns>
-    double IndicatorLogic::GetTemaIndex(int timeSpan,int mode,int shift)
+    double IndicatorLogic::GetTemaIndex(int timeSpan, int mode, int shift)
     {
         double result = iCustom(_symbol,timeSpan,"TemaCumulative",mode,shift);
         return result;
@@ -101,7 +164,7 @@ class IndicatorLogic{
     /// </param>
     /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
     /// <returns>TEMAのインジケーター値</returns>
-    double IndicatorLogic::GetGmmaIndex(int timeSpan,int mode,int shift)
+    double IndicatorLogic::GetGmmaIndex(int timeSpan, int mode, int shift)
     {
         double result = iCustom(_symbol,timeSpan,"GMMAIndex",mode,shift);
         return result;
@@ -116,7 +179,7 @@ class IndicatorLogic{
     /// </param>
     /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
     /// <returns>TEMAのインジケーター値</returns>
-    double IndicatorLogic::GetGmmaWidth(int timeSpan,int mode,int shift)
+    double IndicatorLogic::GetGmmaWidth(int timeSpan, int mode, int shift)
     {
         double result = iCustom(_symbol,timeSpan,"GMMAWidth",mode,shift);
         return result;
@@ -131,7 +194,7 @@ class IndicatorLogic{
     /// </param>
     /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
     /// <returns>TEMAのインジケーター値</returns>
-    double IndicatorLogic::GetThreeLineRci(int timeSpan,int mode,int shift)
+    double IndicatorLogic::GetThreeLineRci(int timeSpan, int mode, int shift)
     {
         double result = iCustom(_symbol,timeSpan,"RCI_3Line_v130",mode,shift);
         return result;
@@ -146,7 +209,7 @@ class IndicatorLogic{
     /// </param>
     /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
     /// <returns>TEMAのインジケーター値</returns>
-    double IndicatorLogic::GetROC3(int timeSpan,int mode,int shift)
+    double IndicatorLogic::GetROC3(int timeSpan, int mode, int shift)
     {
         double result = iCustom(_symbol,timeSpan,"keys_ROC3",mode,shift);
         return result;
@@ -162,7 +225,7 @@ class IndicatorLogic{
     /// </param>
     /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
     /// <returns>TEMAのインジケーター値</returns>
-    double IndicatorLogic::GetBbSqueeze(int timeSpan,int mode,int shift)
+    double IndicatorLogic::GetBbSqueeze(int timeSpan, int mode, int shift)
     {
         double result = iCustom(_symbol,timeSpan,"bbsqueeze w Alert nmc",mode,shift);
         return result;
