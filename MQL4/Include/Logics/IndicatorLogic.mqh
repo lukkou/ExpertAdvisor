@@ -25,7 +25,7 @@ class IndicatorLogic{
     // デストラクタ
     ~IndicatorLogic();
 
-    int GetDayBodyPriceType(int timeSpan);
+    int GetBodyPriceType(int timeSpan);
 
     double GetBodyPrice(int timeSpan, int shift);
 
@@ -68,7 +68,7 @@ class IndicatorLogic{
     /// <summary>
     /// <param name="timeSpan">取得する時間軸</param>
     /// <returns>現在の日足の陽線陰線タイプ</returns>
-    int IndicatorLogic::GetDayBodyPriceType(int timeSpan)
+    int IndicatorLogic::GetBodyPriceType(int timeSpan)
     {
         int result = NON_STICK;
 
