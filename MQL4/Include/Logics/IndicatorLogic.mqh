@@ -10,6 +10,8 @@
 #property version   "1.00"
 #property strict
 
+#include <Defines/Defines.mqh>
+
 class IndicatorLogic{
     private:
     string _symbol;
@@ -26,6 +28,8 @@ class IndicatorLogic{
     int GetDayBodyPriceType();
 
     double GetBodyPrice(int timeSpan, int shift);
+
+    double GetMa(int timeSpan, int maSpan, int mode, int priceType, int shift);
 
     double GetTema(int timeSpan,int mode,int shift);
 
