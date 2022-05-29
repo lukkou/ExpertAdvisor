@@ -31,21 +31,21 @@ class IndicatorLogic{
 
     double GetMa(int timeSpan, int maSpan, int mode, int priceType, int shift);
 
-    double GetTema(int timeSpan,int mode,int shift);
+    double GetTema(int timeSpan, int mode, int shift);
 
-    double GetTemaIndex(int timeSpan,int mode,int shift);
+    double GetTemaIndex(int timeSpan, int mode, int shift);
 
-    double GetGmmaIndex(int timeSpan,int mode,int shift);
+    double GetGmmaIndex(int timeSpan, int mode, int shift);
 
-    double GetGmmaWidth(int timeSpan,int mode,int shift);
+    double GetGmmaWidth(int timeSpan, int mode, int shift);
 
-    double GetThreeLineRci(int timeSpan,int mode,int shift);
+    double GetThreeLineRci(int timeSpan, int mode, int shift);
 
-    double GetROC3(int timeSpan,int mode,int shift);
+    double GetROC3(int timeSpan, int mode, int shift);
 
-    double GetBbSqueeze(int timeSpan,int mode,int shift);
+    double GetBbSqueeze(int timeSpan, int mode, int shift);
 
-    double GetGmmaRegressionLine(double timeSpan,double term,double &regressionTilt);
+    double GetGmmaRegressionLine(double timeSpan, double term, double &regressionTilt);
 };
 
     //------------------------------------------------------------------
@@ -242,7 +242,7 @@ class IndicatorLogic{
     /// <param name="term">傾きにを計算する期間(ローソク足の本数)</param>
     /// <param name="regressionTilt">傾きを保持するout変数</param>
     /// <returns>切片</returns>
-    double IndicatorLogic::GetGmmaRegressionLine(double timeSpan,double term,double &regressionTilt)
+    double IndicatorLogic::GetGmmaRegressionLine(double timeSpan, double term, double &regressionTilt)
     {
         double result = 0;
     
