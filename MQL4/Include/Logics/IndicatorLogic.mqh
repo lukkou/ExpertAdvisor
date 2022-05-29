@@ -240,9 +240,10 @@ class IndicatorLogic{
     /// <summary>
     /// <param name="timeSpan">取得する時間軸</param>
     /// <param name="term">傾きにを計算する期間(ローソク足の本数)</param>
+    /// <param name="term">傾きにを計算するGMMA Widthの値(GMMA Widthのパラメーター)</param>
     /// <param name="regressionTilt">傾きを保持するout変数</param>
     /// <returns>切片</returns>
-    double IndicatorLogic::GetGmmaRegressionLine(double timeSpan, double term, double &regressionTilt)
+    double IndicatorLogic::GetGmmaRegressionLine(double timeSpan, double term, int mode, double &regressionTilt)
     {
         double result = 0;
     
@@ -263,7 +264,7 @@ class IndicatorLogic{
         {
             timeList[i - 1] = i;
             //ここでインジケーターの値を取得
-            double indicatorValue = GetGmmaWidth(timeSpan,2,mqlIndex);
+            double indicatorValue = GetGmmaWidth(timeSpan, mode, mqlIndex);
             indicatorValue = indicatorValue * 10;
             valueList[i - 1] = indicatorValue;
     
