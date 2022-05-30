@@ -26,9 +26,9 @@ class TrendCheckLogic
         // デストラクタ
         ~TrendCheckLogic();
 
-        int GetDayTrendStatus()
+        int GetDayTrendStatus();
 
-        int GetLongTrendStatus();
+        int GetLongTrendStatus(int dayTrend);
 
         int GetUpTrendEntryStatus();
 
@@ -65,7 +65,7 @@ class TrendCheckLogic
         // GMMA Index
         double gmmaDayIndexShort = indicator.GetGmmaIndex(PERIOD_D1, 0, 0);
         double gmmaDayIndexLong = indicator.GetGmmaIndex(PERIOD_D1, 1, 0);
-        double ema30 = indicator.GetMa(PERIOD_D1, 30, MODE_EMA, PRICE_CLOSE, 0)
+        double ema30 = indicator.GetMa(PERIOD_D1, 30, MODE_EMA, PRICE_CLOSE, 0);
 
         if(gmmaDayIndexLong == 5 && (gmmaDayIndexShort >= 0 || ema30 < nowPrice))
         {
@@ -127,7 +127,7 @@ class TrendCheckLogic
         else if(dayTrend == DAY_TREND_MINUS && regressionTiltShort < 0 && (regressionTiltLogn < 0 || gmmaWidthLong < 0))
         {
             double roc = indicator.GetROC3(PERIOD_H4, 0, 0);
-            double bbSqueezeUp = indicator.GetBbSqueeze(PERIOD_H4, 0, 0);
+            double bbSqueezeDown = indicator.GetBbSqueeze(PERIOD_H4, 0, 0);
             double bbSqueezeTrend = indicator.GetBbSqueeze(PERIOD_H4, 0, 3);
 
             if(roc < 0.5 && bbSqueezeDown < 0 && bbSqueezeTrend == 0)
@@ -218,7 +218,7 @@ class TrendCheckLogic
             }
         }
 
-        double rci3Ave = indicator.GetThreeLineRci(PERIOD_M15, 3, 0)
+        double rci3Ave = indicator.GetThreeLineRci(PERIOD_M15, 3, 0);
         if(rci3Ave < 45)
         {
             Print ("-------------------RCI3Ave Position Cut-------------------");
@@ -249,7 +249,7 @@ class TrendCheckLogic
             }
         }
 
-        double rci3Ave = indicator.GetThreeLineRci(PERIOD_M15, 3, 0)
+        double rci3Ave = indicator.GetThreeLineRci(PERIOD_M15, 3, 0);
         if(rci3Ave > -45)
         {
             Print ("-------------------RCI3Ave Position Cut-------------------");
