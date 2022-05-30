@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                              TrendCheckLogic.mqh |
-//| IndicatorLogic v1.0.0                     Copyright 2022, Lukkou |
+//| TrendCheckLogic v1.0.0                    Copyright 2022, Lukkou |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2017,  lukkou"
@@ -109,9 +109,9 @@ class TrendCheckLogic
 
         // GMMA Width 傾き
         double regressionTiltShort = 0;
-        double gmmaRegressionLineShort = indicator.GetGmmaRegressionLine(PERIOD_H4, 6, 2, regressionTilt);
+        double gmmaRegressionLineShort = indicator.GetGmmaRegressionLine(PERIOD_H4, 6, 2, regressionTiltShort);
         double regressionTiltLogn = 0;
-        double gmmaRegressionLineLogn = indicator.GetGmmaRegressionLine(PERIOD_H4, 6, 3, regressionTilt);
+        double gmmaRegressionLineLogn = indicator.GetGmmaRegressionLine(PERIOD_H4, 6, 3, regressionTiltLogn);
 
         if(dayTrend == DAY_TREND_PLUS && regressionTiltShort > 0 && (regressionTiltLogn > 0 || gmmaWidthLong > 0))
         {

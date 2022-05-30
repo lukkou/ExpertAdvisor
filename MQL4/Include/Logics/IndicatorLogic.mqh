@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                               IndicatorLogic.mqh |
-//| TradeQuantityHelper v1.0.0                Copyright 2022, Lukkou |
+//| IndicatorLogic v1.0.0                     Copyright 2022, Lukkou |
 //|                              https://twitter.com/lukkou_position |
 //+------------------------------------------------------------------+
 
@@ -19,7 +19,7 @@ class IndicatorLogic{
     public:
     //------------------------------------------------------------------
     // コンストラクタ
-    IndicatorLogic(string symbol);
+    IndicatorLogic();
 
     //------------------------------------------------------------------
     // デストラクタ
@@ -47,14 +47,14 @@ class IndicatorLogic{
 
     double GetBbSqueeze(int timeSpan, int mode, int shift);
 
-    double GetGmmaRegressionLine(double timeSpan, double term, int mode, double &regressionTilt);
+    double GetGmmaRegressionLine(int timeSpan, int term, int mode, double &regressionTilt);
 };
 
     //------------------------------------------------------------------
     // コンストラクタ
-    IndicatorLogic::IndicatorLogic(string symbol)
+    IndicatorLogic::IndicatorLogic()
     {
-        _symbol = symbol;
+        _symbol = Symbol();
     }
 
     //------------------------------------------------------------------
@@ -257,7 +257,7 @@ class IndicatorLogic{
     /// <param name="term">傾きにを計算するGMMA Widthの値(GMMA Widthのパラメーター)</param>
     /// <param name="regressionTilt">傾きを保持するout変数</param>
     /// <returns>切片</returns>
-    double IndicatorLogic::GetGmmaRegressionLine(double timeSpan, double term, int mode, double &regressionTilt)
+    double IndicatorLogic::GetGmmaRegressionLine(int timeSpan, int term, int mode, double &regressionTilt)
     {
         double result = 0;
     
