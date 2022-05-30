@@ -20,12 +20,14 @@ input int MagicNumber = 11180003;
 input double SpreadFilter = 5;    //最大スプレット値(PIPS)
 
 extern int MaxPosition = 1;        //最大ポジション数
-extern int SdSigma = 3;
-extern double RiskPercent = 4.0;
+extern int SdSigma = 1;
+extern double RiskPercent = 0.3;
+
+input double MaxCount = 10;      //許容スリッピング（Pips単位）
 
 input double Slippage = 20;      //許容スリッピング（Pips単位）
-input uint TakeProfit = 100;      //利益確定幅
-input uint LoseProfit = 30;      //ロスカット確定幅
+input uint TakeProfit = 50;      //利益確定幅
+input uint LoseProfit = 10;      //ロスカット確定幅
 
 input string TweetCmdPash = "C:\\PROGRA~2\\dentakurou\\Tweet\\Tweet.exe";       //自動投稿exeパス
 
@@ -58,6 +60,8 @@ TrendCheckLogic TrendCheck();
 /// </summary>
 int OnInit()
 {
+    PrintFormat("Version:" + DoubleToString(0.1));
+
     // EA開始時刻を記録
     startTime = GetTickCount();
     
@@ -199,6 +203,13 @@ void PositionOpen(int orderType)
     double lossRenge = LotHelper.GetSdLossRenge();
     //double lotSize = LotHelper.GetSdLotSize(lossRenge);
     double pLotSize = LotHelper.GetLotSize(lossRenge);
+
+    Print ("pLotSize : " +  DoubleToString(pLotSize));
+    Print ("lossRenge: " +  DoubleToString(lossRenge));
+    if(MaxCount < pLotSize)
+    {
+        pLotSize = MaxCount;
+    }
     if(lossRenge <= LoseProfit)
     {
         lossRenge = LoseProfit;

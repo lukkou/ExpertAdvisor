@@ -44,7 +44,7 @@ class TrendCheckLogic
     TrendCheckLogic::TrendCheckLogic()
     {
         _symbol = Symbol();
-        indicator = IndicatorLogic(_symbol);
+        indicator = IndicatorLogic();
     }
 
     //------------------------------------------------------------------
@@ -67,7 +67,7 @@ class TrendCheckLogic
         double gmmaDayIndexLong = indicator.GetGmmaIndex(PERIOD_D1, 1, 0);
         double ema30 = indicator.GetMa(PERIOD_D1, 30, MODE_EMA, PRICE_CLOSE, 0);
 
-        if(gmmaDayIndexLong == 5 && (gmmaDayIndexShort >= 0 || ema30 < nowPrice))
+        if(gmmaDayIndexLong == 5 && (gmmaDayIndexShort >= 0 || ema30 > nowPrice))
         {
             double tmeaUp = indicator.GetTemaIndex(PERIOD_D1, 0, 0);
             double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_D1, 0, 0);
@@ -77,7 +77,7 @@ class TrendCheckLogic
                 result = DAY_TREND_PLUS;
             }
         }
-        else if(gmmaDayIndexLong == -5 && (gmmaDayIndexShort <= 0 || ema30 > nowPrice))
+        else if(gmmaDayIndexLong == -5 && (gmmaDayIndexShort <= 0 || ema30 < nowPrice))
         {
             double tmeaDown = indicator.GetTemaIndex(PERIOD_D1, 1, 0);
             double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_D1, 1, 0);
@@ -117,10 +117,11 @@ class TrendCheckLogic
         {
             double roc = indicator.GetROC3(PERIOD_H4, 0, 0);
             double bbSqueezeUp = indicator.GetBbSqueeze(PERIOD_H4, 0, 0);
-            double bbSqueezeTrend = indicator.GetBbSqueeze(PERIOD_H4, 0, 3);
+            double bbSqueezeTrend = indicator.GetBbSqueeze(PERIOD_H4, 3, 0);
 
             if(roc > 0.5 && bbSqueezeUp > 0 && bbSqueezeTrend == 0)
             {
+                Print ("-------------------4h Up Trend On-------------------");
                 result = LONG_TREND_PLUS;
             }
         }
@@ -128,10 +129,11 @@ class TrendCheckLogic
         {
             double roc = indicator.GetROC3(PERIOD_H4, 0, 0);
             double bbSqueezeDown = indicator.GetBbSqueeze(PERIOD_H4, 0, 0);
-            double bbSqueezeTrend = indicator.GetBbSqueeze(PERIOD_H4, 0, 3);
+            double bbSqueezeTrend = indicator.GetBbSqueeze(PERIOD_H4, 3, 0);
 
-            if(roc < 0.5 && bbSqueezeDown < 0 && bbSqueezeTrend == 0)
+            if(roc < -0.5 && bbSqueezeDown < 0 && bbSqueezeTrend == 0)
             {
+                Print ("-------------------4h Down Trend On-------------------");
                 result = LONG_TREND_MINUS;
             }
         }
@@ -204,18 +206,13 @@ class TrendCheckLogic
     int TrendCheckLogic::GetUpTrendPositionCut()
     {
         int result = POSITION_CUT_OFF;
-        
-        int bodyPriceType = indicator.GetBodyPriceType(PERIOD_M15);
-        if(bodyPriceType == MINUS_STICK)
+        // GMMA Width
+        double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
+        double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_M15, 1, 0);
+        if(gmmaWidthUp == 0 && gmmaWidthDown == 0)
         {
-            double bodyPrice = indicator.GetBodyPrice(PERIOD_M15, 0);
-            double emaWidth = indicator.GetEmaWidth(PERIOD_M15, 0, 30, 60);
-
-            if(bodyPrice > emaWidth)
-            {
-                Print ("-------------------BodyPrice Position Cut-------------------");
-                result  = POSITION_CUT_ON;
-            }
+            Print ("-------------------GMMA Width Position Cut-------------------");
+            return result;
         }
 
         double rci3Ave = indicator.GetThreeLineRci(PERIOD_M15, 3, 0);
@@ -235,18 +232,13 @@ class TrendCheckLogic
     int TrendCheckLogic::GetDownTrendPositionCut()
     {
         int result = POSITION_CUT_OFF;
-
-        int bodyPriceType = indicator.GetBodyPriceType(PERIOD_M15);
-        if(bodyPriceType == PLUS_STICK)
+        // GMMA Width
+        double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
+        double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_M15, 1, 0);
+        if(gmmaWidthUp == 0 && gmmaWidthDown == 0)
         {
-            double bodyPrice = indicator.GetBodyPrice(PERIOD_M15, 0);
-            double emaWidth = indicator.GetEmaWidth(PERIOD_M15, 0, 30, 60);
-
-            if(bodyPrice > emaWidth)
-            {
-                Print ("-------------------BodyPrice Position Cut-------------------");
-                result  = POSITION_CUT_ON;
-            }
+            Print ("-------------------GMMA Width Position Cut-------------------");
+            return result;
         }
 
         double rci3Ave = indicator.GetThreeLineRci(PERIOD_M15, 3, 0);
