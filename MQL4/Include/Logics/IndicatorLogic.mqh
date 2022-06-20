@@ -118,10 +118,32 @@ class IndicatorLogic{
     /// https://yukifx.web.fc2.com/sub/reference/02_stdconstans/indicator/indicator_price.html
     /// </param>
     /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
-    /// <returns>TEMAのインジケーター値</returns>
+    /// <returns>MA値</returns>
     double IndicatorLogic::GetMa(int timeSpan, int maSpan, int mode, int priceType, int shift)
     {
         double result = iMA(_symbol, timeSpan , maSpan, 0, mode, priceType, shift);
+        return result;
+    }
+
+    /// <summary>
+    /// ボリンジャーバンド値を取得
+    /// <summary>
+    /// <param name="timeSpan">取得する時間軸</param>
+    /// <param name="bandSpan">ボリンジャーバンドの期間</param>
+    /// <param name="deviation">取得するシグマ値</param>
+    /// <param name="mode">使用する価格定数
+    /// PRICE_CLOSE PRICE_OPEN PRICE_HIGH PRICE_LOW PRICE_MEDIAN PRICE_TYPICAL PRICE_WEIGHTED
+    /// https://yukifx.web.fc2.com/sub/reference/02_stdconstans/indicator/indicator_price.html
+    /// </param>
+    /// <param name="lineIndex">取得する
+    /// MODE_MAIN(ベースライン) MODE_UPPER(上のライン) MODE_LOWER(下のライン)
+    /// https://yukifx.web.fc2.com/sub/reference/02_stdconstans/indicator/indicator_indicatorline.html#anchor_band
+    /// </param>
+    /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
+    /// <returns>ボリンジャーバンド値</returns>
+    double IndicatorLogic::GetBands(int timeSpan, int bandSpan, int deviation, int mode, int lineIndex, int shift)
+    {
+        double result = iBands(_symbol, timeSpan , bandSpan, deviation, 0, mode, lineIndex, shift);
         return result;
     }
 
