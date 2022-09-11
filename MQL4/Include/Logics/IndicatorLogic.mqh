@@ -146,6 +146,7 @@ class IndicatorLogic{
         double result = iBands(_symbol, timeSpan , bandSpan, deviation, 0, mode, lineIndex, shift);
         return result;
     }
+    
 
     /// <summary>
     /// EMA値の幅を取得
