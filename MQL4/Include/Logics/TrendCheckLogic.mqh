@@ -67,7 +67,7 @@ class TrendCheckLogic
         double gmmaDayIndexLong = indicator.GetGmmaIndex(PERIOD_D1, 1, 0);
         double ema30 = indicator.GetMa(PERIOD_D1, 30, MODE_EMA, PRICE_CLOSE, 0);
 
-        if(gmmaDayIndexLong == 5 && (gmmaDayIndexShort > 0 || ema30 > nowPrice))
+        if(gmmaDayIndexLong == 5 && (gmmaDayIndexShort > 0 || ema30 < nowPrice))
         {
             double tmeaUp = indicator.GetTemaIndex(PERIOD_D1, 0, 0);
             double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_D1, 0, 0);
@@ -77,7 +77,7 @@ class TrendCheckLogic
                 result = DAY_TREND_PLUS;
             }
         }
-        else if(gmmaDayIndexLong == -5 && (gmmaDayIndexShort < 0 || ema30 < nowPrice))
+        else if(gmmaDayIndexLong == -5 && (gmmaDayIndexShort < 0 || ema30 > nowPrice))
         {
             double tmeaDown = indicator.GetTemaIndex(PERIOD_D1, 1, 0);
             double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_D1, 1, 0);
@@ -163,6 +163,17 @@ class TrendCheckLogic
     /// <returns>エントリ無:0 エントリー有:1</returns>
     int TrendCheckLogic::GetUpTrendEntryStatus()
     {
+        // Now Price
+        double nowPrice = iClose(_symbol, PERIOD_M15, 0);
+
+        // EMA 30
+        double ema30 = indicator.GetMa(PERIOD_M15, 30, MODE_EMA, PRICE_CLOSE, 0);
+
+        if(ema30 > nowPrice)
+        {
+
+        }
+
         // GMMA Width
         double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
         double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
