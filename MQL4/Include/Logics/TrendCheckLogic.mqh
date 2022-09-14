@@ -237,20 +237,20 @@ class TrendCheckLogic
         {
             // GMMA Width Long
             double gmmaWidthLong = indicator.GetGmmaWidth(PERIOD_M15, 3, 0);
-            if(gmmaWidthLong > 0 && gmmaWidthUp > 0)
+            if(gmmaWidthLong < 0 && gmmaWidthUp < 0)
             {
                 // 現在の2σボリンジャーバンド
-                double now2Bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_UPPER, 0);
+                double now2Bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_LOWER, 0);
                 // -1足の2σボリンジャーバンド
-                double onePrevious2Bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_UPPER, 1);
+                double onePrevious2Bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_LOWER, 1);
                 // -2足の2σボリンジャーバンド
-                double towPrevious2Bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_UPPER, 2);
+                double towPrevious2Bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_LOWER, 2);
                 // -1足の中央値(SMAを期間1で取得した場合は実施指定値段)
                 double onePreviousPrice = indicator.GetMa(PERIOD_M15, 1, MODE_SMA, PRICE_MEDIAN, 1);
                 // -2足の中央値(SMAを期間1で取得した場合は実施指定値段)
                 double towPreviousPrice = indicator.GetMa(PERIOD_M15, 1, MODE_SMA, PRICE_MEDIAN, 2);
 
-                if(now2Bands > nowPrice && onePrevious2Bands > onePreviousPrice && towPrevious2Bands > towPreviousPrice)
+                if(now2Bands < nowPrice && onePrevious2Bands < onePreviousPrice && towPrevious2Bands < towPreviousPrice)
                 {
                     Print ("-------------------Down Entry On-------------------");
                     result = ENTRY_ON;
