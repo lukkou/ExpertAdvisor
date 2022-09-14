@@ -165,7 +165,7 @@ class TrendCheckLogic
 
         // GMMA Width
         double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
-        double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
+        double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_M15, 1, 0);
 
         // そもその判定の価値なしトレンド
         if(gmmaWidthUp == EMPTY_VALUE || gmmaWidthDown == EMPTY_VALUE || (gmmaWidthUp == 0 && gmmaWidthDown == 0))
@@ -218,7 +218,7 @@ class TrendCheckLogic
 
         // GMMA Width
         double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
-        double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
+        double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_M15, 1, 0);
 
         // そもその判定の価値なしトレンド
         if(gmmaWidthUp == EMPTY_VALUE || gmmaWidthDown == EMPTY_VALUE || (gmmaWidthUp == 0 && gmmaWidthDown == 0))
