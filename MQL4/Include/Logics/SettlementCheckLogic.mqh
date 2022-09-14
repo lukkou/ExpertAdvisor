@@ -29,3 +29,15 @@ class SettlementCheckLogic{
     SettlementCheckLogic::~SettlementCheckLogic()
     {
     }
+    // 買いの場合の命名規則(ベース：BuySettlement)
+    // BuySettlement
+    // 負け：Defeat
+    // 守り：Protect
+    // 攻守：Offense 
+    // 攻め：Attack
+
+    // 売りの場合の命名規則(ベース：SellSettlement)
+    // 負け：Defeat
+    // 守り：Protect
+    // 攻守：Offense 
+    // 攻め：Attack
