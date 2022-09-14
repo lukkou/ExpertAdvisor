@@ -177,17 +177,18 @@ class TrendCheckLogic
         // Now Price
         double nowPrice = iClose(_symbol, PERIOD_M15, 0);
 
-        // EMA 30
-        double ema30 = indicator.GetMa(PERIOD_M15, 30, MODE_EMA, PRICE_CLOSE, 0);
+        // EMA 20
+        double ema20 = indicator.GetMa(PERIOD_M15, 20, MODE_EMA, PRICE_CLOSE, 0);
 
         // GMMA Index Long
         double gmmaIndexLong = indicator.GetGmmaIndex(PERIOD_M15, 1, 0);
 
-        if(nowPrice > ema30 && gmmaIndexLong == 5)
+        if(nowPrice > ema20 && gmmaIndexLong == 5)
         {
             // GMMA Width Long
             double gmmaWidthLong = indicator.GetGmmaWidth(PERIOD_M15, 3, 0);
-            if(gmmaWidthLong > 0 && gmmaWidthUp > 0)
+
+            if(gmmaWidthLong > 0 && gmmaWidthUp > 0 && nowPrice > nowBaseBands)
             {
                 // 現在の2σボリンジャーバンド
                 double now2Bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_UPPER, 0);
@@ -233,13 +234,13 @@ class TrendCheckLogic
         // Now Price
         double nowPrice = iClose(_symbol, PERIOD_M15, 0);
 
-        // EMA 30
-        double ema30 = indicator.GetMa(PERIOD_M15, 30, MODE_EMA, PRICE_CLOSE, 0);
+        // EMA 20
+        double ema20 = indicator.GetMa(PERIOD_M15, 20, MODE_EMA, PRICE_CLOSE, 0);
 
         // GMMA Index Long
         double gmmaIndexLong = indicator.GetGmmaIndex(PERIOD_M15, 1, 0);
 
-        if(ema30 < nowPrice && gmmaIndexLong == -5)
+        if(nowPrice < ema20 && gmmaIndexLong == -5)
         {
             // GMMA Width Long
             double gmmaWidthLong = indicator.GetGmmaWidth(PERIOD_M15, 3, 0);
