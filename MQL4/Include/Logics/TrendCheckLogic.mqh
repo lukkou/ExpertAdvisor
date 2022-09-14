@@ -180,7 +180,10 @@ class TrendCheckLogic
         // EMA 30
         double ema30 = indicator.GetMa(PERIOD_M15, 30, MODE_EMA, PRICE_CLOSE, 0);
 
-        if(nowPrice > ema30)
+        // GMMA Index Long
+        double gmmaIndexLong = indicator.GetGmmaIndex(PERIOD_M15, 1, 0);
+
+        if(nowPrice > ema30 && gmmaIndexLong == 5)
         {
             // GMMA Width Long
             double gmmaWidthLong = indicator.GetGmmaWidth(PERIOD_M15, 3, 0);
@@ -233,7 +236,10 @@ class TrendCheckLogic
         // EMA 30
         double ema30 = indicator.GetMa(PERIOD_M15, 30, MODE_EMA, PRICE_CLOSE, 0);
 
-        if(ema30 < nowPrice)
+        // GMMA Index Long
+        double gmmaIndexLong = indicator.GetGmmaIndex(PERIOD_M15, 1, 0);
+
+        if(ema30 < nowPrice && gmmaIndexLong == -5)
         {
             // GMMA Width Long
             double gmmaWidthLong = indicator.GetGmmaWidth(PERIOD_M15, 3, 0);
