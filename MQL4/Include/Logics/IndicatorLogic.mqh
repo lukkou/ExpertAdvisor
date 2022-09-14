@@ -113,7 +113,7 @@ class IndicatorLogic{
     /// MODE_SMA MODE_EMA MODE_SMMA MODE_LWMA
     /// https://yukifx.web.fc2.com/sub/reference/02_stdconstans/indicator/indicator_smoothing.html
     /// </param>
-    ///<param name="mode">使用する価格定数
+    ///<param name="priceType">使用する価格定数
     /// PRICE_CLOSE PRICE_OPEN PRICE_HIGH PRICE_LOW PRICE_MEDIAN PRICE_TYPICAL PRICE_WEIGHTED
     /// https://yukifx.web.fc2.com/sub/reference/02_stdconstans/indicator/indicator_price.html
     /// </param>
