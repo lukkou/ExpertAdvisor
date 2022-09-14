@@ -174,7 +174,6 @@ class TrendCheckLogic
             return result;
         }
 
-
         // Now Price
         double nowPrice = iClose(_symbol, PERIOD_M15, 0);
 
@@ -219,7 +218,8 @@ class TrendCheckLogic
 
         // GMMA Width
         double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
-        double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_M15, 1, 0);
+        double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
+
         // そもその判定の価値なしトレンド
         if(gmmaWidthUp == EMPTY_VALUE || gmmaWidthDown == EMPTY_VALUE || (gmmaWidthUp == 0 && gmmaWidthDown == 0))
         {
@@ -227,14 +227,36 @@ class TrendCheckLogic
             return result;
         }
 
-        double rciAve = indicator.GetThreeLineRci(PERIOD_M15, 3, 0);
-        double gmmaWidthLong = indicator.GetGmmaWidth(PERIOD_M15, 3, 0);
+        // Now Price
+        double nowPrice = iClose(_symbol, PERIOD_M15, 0);
 
-        if(rciAve < -55 && gmmaWidthDown < 0 && gmmaWidthLong < 0)
+        // EMA 30
+        double ema30 = indicator.GetMa(PERIOD_M15, 30, MODE_EMA, PRICE_CLOSE, 0);
+
+        if(ema30 < nowPrice)
         {
-            Print ("-------------------Down Entry On-------------------");
-            result = ENTRY_ON;
+            // GMMA Width Long
+            double gmmaWidthLong = indicator.GetGmmaWidth(PERIOD_M15, 3, 0);
+            if(gmmaWidthLong > 0 && gmmaWidthUp > 0)
+            {
+                // 現在の2σボリンジャーバンド
+                double now2Bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_UPPER, 0);
+                // -1足の2σボリンジャーバンド
+                double onePrevious2Bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_UPPER, 1);
+                // -2足の2σボリンジャーバンド
+                double towPrevious2Bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_UPPER, 2);
+                // -1足の中央値(SMAを期間1で取得した場合は実施指定値段)
+                double onePreviousPrice = indicator.GetMa(PERIOD_M15, 1, MODE_SMA, PRICE_MEDIAN, 1);
+                // -2足の中央値(SMAを期間1で取得した場合は実施指定値段)
+                double towPreviousPrice = indicator.GetMa(PERIOD_M15, 1, MODE_SMA, PRICE_MEDIAN, 2);
+
+                if(now2Bands > nowPrice && onePrevious2Bands > onePreviousPrice && towPrevious2Bands > towPreviousPrice)
+                {
+                    Print ("-------------------Down Entry On-------------------");
+                    result = ENTRY_ON;
+                }
+            }
         }
-        
+
         return result;
     }
