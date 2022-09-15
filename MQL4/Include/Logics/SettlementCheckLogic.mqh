@@ -3,6 +3,12 @@
 //| SettlementCheckLogic v1.0.0               Copyright 2022, Lukkou |
 //|                              https://twitter.com/lukkou_position |
 //+------------------------------------------------------------------+
+#property copyright "Copyright 2022,  lukkou"
+#property link      "https://twitter.com/lukkou_position"
+#property version   "1.00"
+#property strict
+
+#include <Defines/Defines.mqh>
 
 class SettlementCheckLogic{
     public:
@@ -30,14 +36,27 @@ class SettlementCheckLogic{
     {
     }
     // 買いの場合の命名規則(ベース：BuySettlement)
-    // BuySettlement
     // 負け：Defeat
+    int BuySettlementDefeat();
+
     // 守り：Protect
-    // 攻守：Offense 
+    int BuySettlementProtect();
+
+    // 攻守：Offense
+    int BuySettlementOffense();
+
     // 攻め：Attack
+    int BuySettlementAttack();
 
     // 売りの場合の命名規則(ベース：SellSettlement)
     // 負け：Defeat
+    int SellSettlementDefeat();
+
     // 守り：Protect
-    // 攻守：Offense 
+    int SellSettlementProtect();
+
+    // 攻守：Offense
+    int SellSettlementOffense();
+
     // 攻め：Attack
+    int SellSettlementAttack();
