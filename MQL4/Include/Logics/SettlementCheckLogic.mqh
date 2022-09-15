@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
 //|                                         SettlementCheckLogic.mqh |
-//| SettlementCheckLogic v1.0.0               Copyright 2022, Lukkou |
+//| SettlementCheckLogic v0.0.1               Copyright 2022, Lukkou |
 //|                              https://twitter.com/lukkou_position |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2022,  lukkou"
 #property link      "https://twitter.com/lukkou_position"
-#property version   "1.00"
+#property version   "0.01"
 #property strict
 
 #include <Defines/Defines.mqh>
@@ -21,20 +21,7 @@ class SettlementCheckLogic{
     //------------------------------------------------------------------
     // デストラクタ
     ~SettlementCheckLogic();
-};
 
-    //------------------------------------------------------------------
-    // コンストラクタ
-    SettlementCheckLogic::SettlementCheckLogic()
-    {
-        _symbol = Symbol();
-    }
-
-    //------------------------------------------------------------------
-    // デストラクタ
-    SettlementCheckLogic::~SettlementCheckLogic()
-    {
-    }
     // 買いの場合の命名規則(ベース：BuySettlement)
     // 負け：Defeat
     int BuySettlementDefeat();
@@ -60,3 +47,17 @@ class SettlementCheckLogic{
 
     // 攻め：Attack
     int SellSettlementAttack();
+};
+
+    //------------------------------------------------------------------
+    // コンストラクタ
+    SettlementCheckLogic::SettlementCheckLogic()
+    {
+        _symbol = Symbol();
+    }
+
+    //------------------------------------------------------------------
+    // デストラクタ
+    SettlementCheckLogic::~SettlementCheckLogic()
+    {
+    }

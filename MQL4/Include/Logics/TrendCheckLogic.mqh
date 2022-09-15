@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
 //|                                              TrendCheckLogic.mqh |
-//| TrendCheckLogic v1.0.0                    Copyright 2022, Lukkou |
+//| TrendCheckLogic v0.0.1                    Copyright 2022, Lukkou |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2017,  lukkou"
 #property link      "https://twitter.com/lukkou_position"
-#property version   "1.00"
+#property version   "0.01"
 #property strict
 
 #include <Logics/IndicatorLogic.mqh>
