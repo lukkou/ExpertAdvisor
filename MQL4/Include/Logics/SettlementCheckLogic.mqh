@@ -61,3 +61,93 @@ class SettlementCheckLogic{
     SettlementCheckLogic::~SettlementCheckLogic()
     {
     }
+
+    /// ▽▽▽▽▽▽ 買い決済の判定 ▽▽▽▽▽▽
+    /// <summary>
+    /// 買いポジションの売買判定(負け)
+    /// <summary>
+    /// <returns>決済しない:0 決済する:1</returns>
+    int BuySettlementDefeat()
+    {
+        int result = POSITION_CUT_OFF;
+
+        return result;
+    }
+
+    /// <summary>
+    /// 買いポジションの売買判定(守り)
+    /// <summary>
+    /// <returns>決済しない:0 決済する:1</returns>
+    int BuySettlementProtect()
+    {
+        int result = POSITION_CUT_OFF;
+
+        return result;
+    }
+
+    /// <summary>
+    /// 買いポジションの売買判定(攻守)
+    /// <summary>
+    /// <returns>決済しない:0 決済する:1</returns>
+    int BuySettlementOffense()
+    {
+        int result = POSITION_CUT_OFF;
+
+        return result;
+    }
+
+    /// <summary>
+    /// 買いポジションの売買判定(攻め)
+    /// <summary>
+    /// <returns>決済しない:0 決済する:1</returns>
+    int BuySettlementAttack()
+    {
+        int result = POSITION_CUT_OFF;
+
+        return result;
+    }
+
+    /// ▽▽▽▽▽▽ 売り決済の判定 ▽▽▽▽▽▽
+    /// <summary>
+    /// 売りポジションの売買判定(負け)
+    /// <summary>
+    /// <returns>決済しない:0 決済する:1</returns>
+    int SellSettlementDefeat()
+    {
+        int result = POSITION_CUT_OFF;
+
+        return result;
+    }
+
+    /// <summary>
+    /// 売りポジションの売買判定(守り)
+    /// <summary>
+    /// <returns>決済しない:0 決済する:1</returns>
+    int SellSettlementProtect()
+    {
+        int result = POSITION_CUT_OFF;
+
+        return result;
+    }
+
+    /// <summary>
+    /// 売りポジションの売買判定(攻守)
+    /// <summary>
+    /// <returns>決済しない:0 決済する:1</returns>
+    int SellSettlementOffense()
+    {
+        int result = POSITION_CUT_OFF;
+
+        return result;
+    }
+
+    /// <summary>
+    /// 売りポジションの売買判定(攻め)
+    /// <summary>
+    /// <returns>決済しない:0 決済する:1</returns>
+    int SellSettlementAttack()
+    {
+        int result = POSITION_CUT_OFF;
+
+        return result;
+    }
