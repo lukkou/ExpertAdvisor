@@ -13,6 +13,7 @@
 class SettlementCheckLogic{
     public:
     string _symbol;
+    double _nowPrice;
 
     //------------------------------------------------------------------
     // コンストラクタ
@@ -54,6 +55,7 @@ class SettlementCheckLogic{
     SettlementCheckLogic::SettlementCheckLogic()
     {
         _symbol = Symbol();
+        _nowPrice = iClose(_symbol, PERIOD_D1, 0);
     }
 
     //------------------------------------------------------------------
@@ -70,6 +72,17 @@ class SettlementCheckLogic{
     int BuySettlementDefeat()
     {
         int result = POSITION_CUT_OFF;
+
+        // EMA 60
+        double ema60 = indicator.GetMa(PERIOD_M15, 60, MODE_EMA, PRICE_CLOSE, 0);
+
+        // GMMA Width
+        double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_M15, 1, 0);
+
+        if(_nowPrice < ema60 && (gmmaWidthDown == EMPTY_VALUE || gmmaWidthDown != 0))
+        {
+            result = POSITION_CUT_ON;
+        }
 
         return result;
     }
