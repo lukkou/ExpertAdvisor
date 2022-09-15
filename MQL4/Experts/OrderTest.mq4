@@ -5,7 +5,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2019, MetaQuotes Software Corp."
 #property link      "https://www.mql5.com"
-#property version   "1.00"
+#property version   "0.00"
 #property strict
 
 #include <Custom/ExpertAdvisorTradeHelper.mqh>
