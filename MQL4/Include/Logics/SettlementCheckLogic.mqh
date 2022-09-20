@@ -95,6 +95,18 @@ class SettlementCheckLogic{
     {
         int result = POSITION_CUT_OFF;
 
+        // -1足の高値
+        double onePreviousHighPrice = indicator.GetMa(PERIOD_M15, 1, MODE_EMA, PRICE_HIGH, 1);
+        // -1足の中間値
+        double onePreviousCenterPrice = indicator.GetMa(PERIOD_M15, 1, MODE_EMA, PRICE_MEDIAN, 1);
+        // -1足のボリンジャーバンド3σの値
+        double onePreviousBandsPrice = indicator.GetBands(PERIOD_M15, 20, 3, PRICE_CLOSE, MODE_UPPER, 1);
+
+        if(onePreviousBandsPrice > onePreviousHighPrice && onePreviousCenterPrice > _nowPrice)
+        {
+            result = POSITION_CUT_ON;
+        }
+
         return result;
     }
 
@@ -105,6 +117,9 @@ class SettlementCheckLogic{
     int BuySettlementOffense()
     {
         int result = POSITION_CUT_OFF;
+
+        // 
+        double a = indicator.GetMa(PERIOD_M15, 1, MODE_EMA, PRICE_HIGH, 1);
 
         return result;
     }
