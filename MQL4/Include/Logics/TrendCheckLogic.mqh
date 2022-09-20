@@ -227,7 +227,7 @@ class TrendCheckLogic
         // そもその判定の価値なしトレンド
         if(gmmaWidthUp == EMPTY_VALUE || gmmaWidthDown == EMPTY_VALUE || (gmmaWidthUp == 0 && gmmaWidthDown == 0))
         {
-             Print ("-------------------Not Down 15m Trend-------------------");
+            Print ("-------------------Not Down 15m Trend-------------------");
             return result;
         }
 
