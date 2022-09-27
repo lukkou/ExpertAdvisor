@@ -79,7 +79,10 @@ class SettlementCheckLogic{
         // GMMA Width
         double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_M15, 1, 0);
 
-        if(_nowPrice < ema60 && (gmmaWidthDown == EMPTY_VALUE || gmmaWidthDown != 0))
+        // ボリンジャーバンドバンド-2σ
+        double bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_LOWER, 0);
+
+        if(_nowPrice < ema60 || _nowPrice < bands || (gmmaWidthDown == EMPTY_VALUE || gmmaWidthDown != 0))
         {
             result = POSITION_CUT_ON;
         }
@@ -97,14 +100,17 @@ class SettlementCheckLogic{
 
         // -1足の高値
         double onePreviousHighPrice = indicator.GetMa(PERIOD_M15, 1, MODE_EMA, PRICE_HIGH, 1);
-        // -1足の中間値
-        double onePreviousCenterPrice = indicator.GetMa(PERIOD_M15, 1, MODE_EMA, PRICE_MEDIAN, 1);
         // -1足のボリンジャーバンド3σの値
         double onePreviousBandsPrice = indicator.GetBands(PERIOD_M15, 20, 3, PRICE_CLOSE, MODE_UPPER, 1);
 
-        if(onePreviousBandsPrice > onePreviousHighPrice && onePreviousCenterPrice > _nowPrice)
+        if(onePreviousBandsPrice > onePreviousHighPrice)
         {
-            result = POSITION_CUT_ON;
+            // -1足の中間値
+            double onePreviousCenterPrice = indicator.GetMa(PERIOD_M15, 1, MODE_EMA, PRICE_MEDIAN, 1);
+            if(onePreviousCenterPrice > _nowPrice)
+            {
+                result = POSITION_CUT_ON;
+            }
         }
 
         return result;
@@ -163,6 +169,20 @@ class SettlementCheckLogic{
     int SellSettlementDefeat()
     {
         int result = POSITION_CUT_OFF;
+
+        // EMA 60
+        double ema60 = indicator.GetMa(PERIOD_M15, 60, MODE_EMA, PRICE_CLOSE, 0);
+
+        // GMMA Width
+        double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
+
+        // ボリンジャーバンドバンド-2σ
+        double bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_UPPER, 0);
+
+        if(_nowPrice > ema60 || _nowPrice > bands || (gmmaWidthDown == EMPTY_VALUE || gmmaWidthUp != 0))
+        {
+            result = POSITION_CUT_ON;
+        }
 
         return result;
     }
