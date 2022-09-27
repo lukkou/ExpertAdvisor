@@ -11,6 +11,9 @@
 #property strict
 
 class CandleStickHelper{
+    private:
+    string _symbol;
+
     public:
     //------------------------------------------------------------------
     // コンストラクタ
@@ -54,12 +57,15 @@ class CandleStickHelper{
 
     //------------------------------------------------------------------
     // コンストラクタ
-    CandleStickHelper::CandleStickHelper(){
+    CandleStickHelper::CandleStickHelper()
+    {
+        _symbol = Symbol();
     }
 
     //------------------------------------------------------------------
     // デストラクタ
-    CandleStickHelper::~CandleStickHelper(){
+    CandleStickHelper::~CandleStickHelper()
+    {
     }
 
 //+------------------------------------------------------------------+
@@ -74,8 +80,8 @@ class CandleStickHelper{
     int CandleStickHelper::CandleBodyStyle(int time,int shift){
         int result = 0;
 
-        double open = iOpen(NULL,time,shift);
-        double close = iClose(NULL,time,shift);
+        double open = iOpen(_symbol, time, shift);
+        double close = iClose(_symbol, time, shift);
 
         if(open < close)
         {
@@ -98,10 +104,10 @@ class CandleStickHelper{
     {
         bool result = false;
 
-        double open = iOpen(NULL,time,shift);
-        double high = iHigh(NULL,time,shift);
-        double low = iLow(NULL,time,shift);
-        double close = iClose(NULL,time,shift);
+        double open = iOpen(_symbol, time, shift);
+        double high = iHigh(_symbol, time, shift);
+        double low = iLow(_symbol, time, shift);
+        double close = iClose(_symbol, time, shift);
 
         if(open < close)
         {
@@ -215,5 +221,45 @@ class CandleStickHelper{
         double close = iClose(NULL,time,shift);
 
         double result = (open + close) / 2;
+        return result;
+    }
+
+    //------------------------------------------------------------------
+    // -3 -2 -1足の高値が切り上げているか
+    ///param name="time":取得時間
+    /// Return 結果
+    bool CandleStickHelper::IsHighRoundingUp()
+    {
+        bool result = false;
+
+        double oneHigh = iHigh(_symbol, PERIOD_M15, 1);
+        double towHigh = iHigh(_symbol, PERIOD_M15, 2);
+        double threeHigh = iHigh(_symbol, PERIOD_M15, 3);
+
+        if(threeHigh < towHigh && towHigh < oneHigh)
+        {
+            result = true;
+        }
+
+        return result;
+    }
+
+    //------------------------------------------------------------------
+    // -3 -2 -1足の安値が切り下げているか
+    ///param name="time":取得時間
+    /// Return 結果
+    bool CandleStickHelper::IsLowRoundingUp()
+    {
+        bool result = false;
+
+        double oneLow = iLow(_symbol, PERIOD_M15, 1);
+        double towLow = iLow(_symbol, PERIOD_M15, 2);
+        double threeLow = iLow(_symbol, PERIOD_M15, 3);
+
+        if(threeLow > towLow && towLow > oneLow)
+        {
+            result = true;
+        }
+
         return result;
     }
