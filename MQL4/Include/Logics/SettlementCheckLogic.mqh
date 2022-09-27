@@ -234,5 +234,26 @@ class SettlementCheckLogic{
     {
         int result = POSITION_CUT_OFF;
 
+        // -2足の判断
+        double towPreviousLow = iLow(_symbol, PERIOD_M15, 2);
+        double towPreviousBands = indicator.GetBands(PERIOD_M15, 20, 3, PRICE_CLOSE, MODE_LOWER, 2);
+
+        if(towPreviousLow < towPreviousBands)
+        {
+            // -1足の判断
+            double onePreviousLow = iLow(_symbol, PERIOD_M15, 1);
+            double towPreviousBands = indicator.GetBands(PERIOD_M15, 20, 3, PRICE_CLOSE, MODE_LOWER, 1);
+        
+            if(onePreviousLow < towPreviousBands)
+            {
+                // 今足の判断
+                double nowBands = indicator.GetBands(PERIOD_M15, 20, 3, PRICE_CLOSE, MODE_LOWER, 0);
+                if(_nowPrice < nowBands)
+                {
+                    result = POSITION_CUT_ON;
+                }
+            }
+        }
+        
         return result;
     }
