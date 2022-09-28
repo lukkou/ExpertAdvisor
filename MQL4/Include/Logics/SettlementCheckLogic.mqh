@@ -30,9 +30,6 @@ class SettlementCheckLogic{
     // 守り：Protect
     int BuySettlementProtect();
 
-    // 攻守：Offense
-    int BuySettlementOffense();
-
     // 攻め：Attack
     int BuySettlementAttack();
 
@@ -42,9 +39,6 @@ class SettlementCheckLogic{
 
     // 守り：Protect
     int SellSettlementProtect();
-
-    // 攻守：Offense
-    int SellSettlementOffense();
 
     // 攻め：Attack
     int SellSettlementAttack();
@@ -91,7 +85,7 @@ class SettlementCheckLogic{
     }
 
     /// <summary>
-    /// 買いポジションの売買判定(守り)
+    /// 買いポジションの売買判定(守り 攻守)
     /// <summary>
     /// <returns>決済しない:0 決済する:1</returns>
     int BuySettlementProtect()
@@ -112,19 +106,6 @@ class SettlementCheckLogic{
                 result = POSITION_CUT_ON;
             }
         }
-
-        return result;
-    }
-
-    /// <summary>
-    /// 買いポジションの売買判定(攻守)
-    /// <summary>
-    /// <returns>決済しない:0 決済する:1</returns>
-    int BuySettlementOffense()
-    {
-        int result = POSITION_CUT_OFF;
-
-        //条件修正のため実装を後回しにする(9/27)
 
         return result;
     }
@@ -209,19 +190,6 @@ class SettlementCheckLogic{
                 result = POSITION_CUT_ON;
             }
         }
-
-        return result;
-    }
-
-    /// <summary>
-    /// 売りポジションの売買判定(攻守)
-    /// <summary>
-    /// <returns>決済しない:0 決済する:1</returns>
-    int SellSettlementOffense()
-    {
-        int result = POSITION_CUT_OFF;
-
-        //条件修正のため実装を後回しにする(9/27)
 
         return result;
     }
