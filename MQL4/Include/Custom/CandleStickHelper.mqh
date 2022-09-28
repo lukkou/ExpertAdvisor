@@ -47,11 +47,11 @@ class CandleStickHelper{
     // ローソク足の中間値を取得
     double GetBodyMiddlePrice(int time,int shift);
 
-    // 指定の時間足の自身の前足が上三兵かを取得
-    double IsUpThreeSoldiers(int time);
+    // 今足から見て -3 -2 -1足の高値が切り上げているかの判定
+    bool IsHighRoundingUp();
 
-    // 指定の時間足の自身の前足が下三兵かを取得
-    double IsDownThreeSoldiers(int time);
+    // 今足から見て -3 -2 -1足の安値が切り下げているかの判定
+    bool IsLowRoundingUp();
 };
 
 
@@ -236,6 +236,8 @@ class CandleStickHelper{
         double towHigh = iHigh(_symbol, PERIOD_M15, 2);
         double threeHigh = iHigh(_symbol, PERIOD_M15, 3);
 
+        // TODO TAMURA:陽線陰線判定をつけるかは用判断(9/28)
+
         if(threeHigh < towHigh && towHigh < oneHigh)
         {
             result = true;
@@ -255,6 +257,8 @@ class CandleStickHelper{
         double oneLow = iLow(_symbol, PERIOD_M15, 1);
         double towLow = iLow(_symbol, PERIOD_M15, 2);
         double threeLow = iLow(_symbol, PERIOD_M15, 3);
+
+        // TODO TAMURA:陽線陰線判定をつけるかは用判断(9/28)
 
         if(threeLow > towLow && towLow > oneLow)
         {
