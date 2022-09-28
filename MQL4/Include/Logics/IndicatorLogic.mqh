@@ -283,20 +283,20 @@ class IndicatorLogic{
     double IndicatorLogic::GetGmmaRegressionLine(int timeSpan, int term, int mode, double &regressionTilt)
     {
         double result = 0;
-    
+
         int timeList[]; 
         ArrayResize(timeList, term);
         double valueList[];
         ArrayResize(valueList, term);
-    
+
         int timeTotal = 0;
         double valueTotal = 0;
-    
+
         double timeAverage = 0;
         double valueAverage = 0;
     
         int mqlIndex = term;
-    
+
         for(int i = 1; i <= term; i++)
         {
             timeList[i - 1] = i;
@@ -313,34 +313,34 @@ class IndicatorLogic{
         //平均を計算
         timeAverage = timeTotal / term;
         valueAverage = valueTotal / term;
-    
+
         double alphaOne = 0;
         double alphaTwo = 0;
-    
+
         //最小二乗法でロスを計算
         for(int i = 1; i <= term; i++)
         {
             //timeDiff = (Xn - Xave)
             double timeDiff = timeAverage - timeList[i - 1];
-    
+
             //valueDiff = (Yn - Yave)
             double valueDiff = valueAverage - valueList[i - 1];
     
             //Σ(Xn - Xave)(Yn - Yave)
             alphaOne = alphaOne + (timeDiff * valueDiff);
-    
+
             //Σ(Xn - Xave)(Xn - Xave)
             alphaTwo = alphaTwo + (timeDiff * timeDiff);
         }
-    
+
         //傾き計算
         double alpha = alphaOne / alphaTwo;
         regressionTilt = alpha;
-    
+
         //切片計算
         double regressionSection = valueAverage - alpha * timeAverage;
         result = regressionSection;
-    
+
         return result;
     }
 

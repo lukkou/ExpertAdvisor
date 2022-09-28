@@ -9,6 +9,7 @@
 #property strict
 
 #include <Defines/Defines.mqh>
+#include <Custom/CandleStickHelper.mqh>
 
 class SettlementCheckLogic{
     public:
@@ -127,7 +128,7 @@ class SettlementCheckLogic{
             // -1足の判断
             double onePreviousHigh = iHigh(_symbol, PERIOD_M15, 1);
             double towPreviousBands = indicator.GetBands(PERIOD_M15, 20, 3, PRICE_CLOSE, MODE_UPPER, 1);
-        
+
             if(onePreviousHigh > towPreviousBands)
             {
                 // 今足の判断
@@ -138,7 +139,7 @@ class SettlementCheckLogic{
                 }
             }
         }
-        
+
         return result;
     }
 
@@ -169,7 +170,7 @@ class SettlementCheckLogic{
     }
 
     /// <summary>
-    /// 売りポジションの売買判定(守り)
+    /// 売りポジションの売買判定(守り 攻守)
     /// <summary>
     /// <returns>決済しない:0 決済する:1</returns>
     int SellSettlementProtect()
@@ -222,6 +223,6 @@ class SettlementCheckLogic{
                 }
             }
         }
-        
+
         return result;
     }

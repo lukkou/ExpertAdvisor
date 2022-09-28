@@ -109,7 +109,7 @@ class TrendCheckLogic
              Print ("-------------------Not 4h Trend-------------------");
             return result;
         }
-        
+
         // エラー数値の場合
         if (gmmaWidthLong == EMPTY_VALUE)
         {
