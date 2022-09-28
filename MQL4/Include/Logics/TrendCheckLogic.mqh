@@ -116,39 +116,46 @@ class TrendCheckLogic
             return result;
         }
 
-        // GMMA Width 傾き
-        double regressionTiltLogn = 0;
-        double gmmaRegressionLineLogn = indicator.GetGmmaRegressionLine(PERIOD_H4, 6, 3, regressionTiltLogn);
         // Print("GMMA UP  ：" + DoubleToString(gmmaWidthUp));
         // Print("GMMA LONG：" + DoubleToString(gmmaWidthLong));
-        // Print("傾き     ：" + DoubleToString(regressionTiltLogn));
-        // Print("切片     ：" + DoubleToString(gmmaRegressionLineLogn));
-        
-        if(dayTrend == DAY_TREND_PLUS && gmmaWidthUp > 0 && (regressionTiltLogn > 0 || gmmaWidthLong > 0))
+
+        // BB Squeezeのトレンド判定(BB Squeezeのトレンドがある場合にのみ上下判定を実施)
+        double bbSqueezeTrend = indicator.GetBbSqueeze(PERIOD_H4, 3, 0);
+        double onePreviousBbSqueezeTrend = indicator.GetBbSqueeze(PERIOD_H4, 3, 1);
+        if(bbSqueezeTrend == 0 && onePreviousBbSqueezeTrend == 0)
         {
-            double roc = indicator.GetROC3(PERIOD_H4, 0, 0);
-            double bbSqueezeUp = indicator.GetBbSqueeze(PERIOD_H4, 0, 0);
-            double bbSqueezeTrend = indicator.GetBbSqueeze(PERIOD_H4, 3, 0);
+            // GMMA Width 傾き
+            double regressionTiltLogn = 0;
+            double gmmaRegressionLineLogn = indicator.GetGmmaRegressionLine(PERIOD_H4, 6, 3, regressionTiltLogn);
+            // Print("傾き     ：" + DoubleToString(regressionTiltLogn));
+            // Print("切片     ：" + DoubleToString(gmmaRegressionLineLogn));
 
-            // Print("ROC     ：" + DoubleToString(roc));
-            // Print("BBS     ：" + DoubleToString(bbSqueezeUp));
-            // Print("BBS Line：" + DoubleToString(bbSqueezeTrend));
-
-            if(roc > 0.5 && bbSqueezeUp > 0 && bbSqueezeTrend == 0)
+            if(dayTrend == DAY_TREND_PLUS && gmmaWidthUp > 0 && (regressionTiltLogn > 0 || gmmaWidthLong > 0))
             {
-                Print ("-------------------4h Up Trend On-------------------");
-                result = LONG_TREND_PLUS;
+                double roc = indicator.GetROC3(PERIOD_H4, 0, 0);
+                double rocSignal = indicator.GetROC3(PERIOD_H4, 1, 0);
+                double bbSqueezeUp = indicator.GetBbSqueeze(PERIOD_H4, 0, 0);
+                // Print("ROC     ：" + DoubleToString(roc));
+                // Print("BBS     ：" + DoubleToString(bbSqueezeUp));
+                // Print("BBS Line：" + DoubleToString(bbSqueezeTrend));
+
+                if(roc > 0.5 && roc > rocSignal && bbSqueezeUp > 0)
+                {
+                    Print ("-------------------4h Up Trend On-------------------");
+                    result = LONG_TREND_PLUS;
+                }
             }
-        }
-        else if(dayTrend == DAY_TREND_MINUS && gmmaWidthDown < 0 && (regressionTiltLogn < 0 || gmmaWidthLong < 0))
-        {
-            double roc = indicator.GetROC3(PERIOD_H4, 0, 0);
-            double bbSqueezeDown = indicator.GetBbSqueeze(PERIOD_H4, 1, 0);
-            double bbSqueezeTrend = indicator.GetBbSqueeze(PERIOD_H4, 3, 0);
-            if(roc < -0.5 && bbSqueezeDown < 0 && bbSqueezeTrend == 0)
+            else if(dayTrend == DAY_TREND_MINUS && gmmaWidthDown < 0 && (regressionTiltLogn < 0 || gmmaWidthLong < 0))
             {
-                Print ("-------------------4h Down Trend On-------------------");
-                result = LONG_TREND_MINUS;
+                double roc = indicator.GetROC3(PERIOD_H4, 0, 0);
+                double rocSignal = indicator.GetROC3(PERIOD_H4, 1, 0);
+                double bbSqueezeDown = indicator.GetBbSqueeze(PERIOD_H4, 1, 0);
+
+                if(roc < -0.5 && roc < rocSignal && bbSqueezeDown < 0)
+                {
+                    Print ("-------------------4h Down Trend On-------------------");
+                    result = LONG_TREND_MINUS;
+                }
             }
         }
 
