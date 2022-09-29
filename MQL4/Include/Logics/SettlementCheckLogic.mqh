@@ -243,7 +243,7 @@ class SettlementCheckLogic
         double ema60 = indicator.GetMa(PERIOD_M15, 60, MODE_EMA, PRICE_CLOSE, 0);
 
         // GMMA Width
-        double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
+        double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
 
         // ボリンジャーバンドバンド-2σ
         double bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_UPPER, 0);
