@@ -9,12 +9,14 @@
 #property strict
 
 #include <Logics/IndicatorLogic.mqh>
+#include <Custom/CandleStickHelper.mqh>
 #include <Defines/Defines.mqh>
 
 class TrendCheckLogic
 {
     private:
     IndicatorLogic indicator;
+    CandleStickHelper candleStick;
     string _symbol;
 
     public:
@@ -45,6 +47,7 @@ class TrendCheckLogic
     {
         _symbol = Symbol();
         indicator = IndicatorLogic();
+        candleStick = CandleStickHelper();
     }
 
     //------------------------------------------------------------------
@@ -181,6 +184,13 @@ class TrendCheckLogic
             return result;
         }
 
+        // 高値切り下げならエントリ無し
+        bool lowRoundingDown = candleStick.IsLowRoundingDown();
+        if(lowRoundingDown)
+        {
+            return result;
+        }
+
         // Now Price
         double nowPrice = iClose(_symbol, PERIOD_M15, 0);
 
@@ -235,6 +245,13 @@ class TrendCheckLogic
         if(gmmaWidthUp == EMPTY_VALUE || gmmaWidthDown == EMPTY_VALUE || (gmmaWidthUp == 0 && gmmaWidthDown == 0))
         {
             Print ("-------------------Not Down 15m Trend-------------------");
+            return result;
+        }
+
+        // 安値切り上げならエントリ無し
+        bool highRoundingUp = candleStick.IsHighRoundingUp();
+        if(highRoundingUp)
+        {
             return result;
         }
 
