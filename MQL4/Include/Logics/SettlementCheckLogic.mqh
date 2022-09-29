@@ -243,12 +243,12 @@ class SettlementCheckLogic
         double ema60 = indicator.GetMa(PERIOD_M15, 60, MODE_EMA, PRICE_CLOSE, 0);
 
         // GMMA Width
-        double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
+        double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
 
         // ボリンジャーバンドバンド-2σ
         double bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_UPPER, 0);
 
-        if(_nowPrice > ema60 || _nowPrice > bands || (gmmaWidthDown == EMPTY_VALUE || gmmaWidthUp != 0))
+        if(_nowPrice > ema60 || _nowPrice > bands || (gmmaWidthUp == EMPTY_VALUE || gmmaWidthUp != 0))
         {
             result = POSITION_CUT_ON;
         }
