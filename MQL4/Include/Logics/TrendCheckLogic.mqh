@@ -195,7 +195,7 @@ class TrendCheckLogic
             // GMMA Width Long
             double gmmaWidthLong = indicator.GetGmmaWidth(PERIOD_M15, 3, 0);
 
-            if(gmmaWidthLong > 0 && gmmaWidthUp > 0 && nowPrice > nowBaseBands)
+            if(gmmaWidthLong > 0 && gmmaWidthUp > 0 && nowPrice > ema20)
             {
                 // 現在の2σボリンジャーバンド
                 double now2Bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_UPPER, 0);
@@ -251,7 +251,7 @@ class TrendCheckLogic
         {
             // GMMA Width Long
             double gmmaWidthLong = indicator.GetGmmaWidth(PERIOD_M15, 3, 0);
-            if(gmmaWidthLong < 0 && gmmaWidthUp < 0)
+            if(gmmaWidthLong < 0 && gmmaWidthUp < 0 && nowPrice < ema20)
             {
                 // 現在の2σボリンジャーバンド
                 double now2Bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_LOWER, 0);
