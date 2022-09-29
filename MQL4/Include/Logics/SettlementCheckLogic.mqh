@@ -18,7 +18,7 @@ class SettlementCheckLogic
     IndicatorLogic indicator;
     CandleStickHelper candleStick;
     string _symbol;
-    double _nowPrice;
+    double nowPrice;
 
     // 買いの場合の命名規則(ベース：BuySettlement)
     // 負け：Defeat
@@ -61,7 +61,6 @@ class SettlementCheckLogic
     SettlementCheckLogic::SettlementCheckLogic()
     {
         _symbol = Symbol();
-        _nowPrice = iClose(_symbol, PERIOD_D1, 0);
         indicator = IndicatorLogic();
         candleStick = CandleStickHelper();
     }
@@ -141,17 +140,21 @@ class SettlementCheckLogic
     {
         int result = POSITION_CUT_OFF;
 
+        // 今値段
+        nowPrice = iClose(_symbol, PERIOD_M15, 0);
+
         // EMA 60
         double ema60 = indicator.GetMa(PERIOD_M15, 60, MODE_EMA, PRICE_CLOSE, 0);
 
         // GMMA Width
         double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_M15, 1, 0);
 
-        // ボリンジャーバンドバンド-2σ
+        // ボリンジャーバンド-2σ
         double bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_LOWER, 0);
 
-        if(_nowPrice < ema60 || _nowPrice < bands || (gmmaWidthDown == EMPTY_VALUE || gmmaWidthDown != 0))
+        if(nowPrice < ema60 || nowPrice < bands || gmmaWidthDown == EMPTY_VALUE || gmmaWidthDown != 0)
         {
+            Print ("-------------------買いポジションの売買判定(負け)-------------------");
             result = POSITION_CUT_ON;
         }
 
@@ -166,33 +169,40 @@ class SettlementCheckLogic
     {
         int result = POSITION_CUT_OFF;
 
+        // 今値段
+        nowPrice = iClose(_symbol, PERIOD_M15, 0);
+
         // -1足の高値
         double onePreviousHighPrice = iHigh(_symbol, PERIOD_M15, 1);
         // -1足のボリンジャーバンド3σの値
         double onePreviousBandsPrice = indicator.GetBands(PERIOD_M15, 20, 3, PRICE_CLOSE, MODE_UPPER, 1);
 
-        if(onePreviousBandsPrice > onePreviousHighPrice)
+        if(onePreviousHighPrice > onePreviousBandsPrice)
         {
             // -1足の中間値
             double onePreviousCenterPrice = indicator.GetMa(PERIOD_M15, 1, MODE_EMA, PRICE_MEDIAN, 1);
-            if(onePreviousCenterPrice > _nowPrice)
+            if(onePreviousCenterPrice > nowPrice)
             {
+                Print ("-------------------買いポジションの売買判定(守り)-------------------");
                 result = POSITION_CUT_ON;
+                return result;
             }
         }
         // ここまで守りの判断
 
         
         // -2足の高値
-        double twoPreviousHighPrice = iHigh(_symbol, PERIOD_M15, 2);
+        //double twoPreviousHighPrice = iHigh(_symbol, PERIOD_M15, 2);
         // -2足のボリンジャーバンド3σの値
-        double twoPreviousBandsPrice = indicator.GetBands(PERIOD_M15, 20, 3, PRICE_CLOSE, MODE_UPPER, 2);
+        //double twoPreviousBandsPrice = indicator.GetBands(PERIOD_M15, 20, 3, PRICE_CLOSE, MODE_UPPER, 2);
 
-        bool lowRoundingDown = candleStick.IsLowRoundingDown();
-        if(lowRoundingDown)
-        {
-            result = POSITION_CUT_ON;
-        }
+        //bool lowRoundingDown = candleStick.IsLowRoundingDown();
+        //if(lowRoundingDown)
+        //{
+        //    Print ("-------------------買いポジションの売買判定(攻守)-------------------");
+        //    result = POSITION_CUT_ON;
+        //    return result;
+        //}
         // ここまで攻守の判断
 
         return result;
@@ -205,6 +215,9 @@ class SettlementCheckLogic
     int SettlementCheckLogic::BuySettlementAttack()
     {
         int result = POSITION_CUT_OFF;
+
+        // 今値段
+        nowPrice = iClose(_symbol, PERIOD_M15, 0);
 
         // -2足の判断
         double towPreviousHigh = iHigh(_symbol, PERIOD_M15, 2);
@@ -220,8 +233,9 @@ class SettlementCheckLogic
             {
                 // 今足の判断
                 double nowBands = indicator.GetBands(PERIOD_M15, 20, 3, PRICE_CLOSE, MODE_UPPER, 0);
-                if(_nowPrice > nowBands)
+                if(nowPrice > nowBands)
                 {
+                    Print ("-------------------買いポジションの売買判定(攻め)-------------------");
                     result = POSITION_CUT_ON;
                 }
             }
@@ -239,6 +253,9 @@ class SettlementCheckLogic
     {
         int result = POSITION_CUT_OFF;
 
+        // 今値段
+        nowPrice = iClose(_symbol, PERIOD_M15, 0);
+
         // EMA 60
         double ema60 = indicator.GetMa(PERIOD_M15, 60, MODE_EMA, PRICE_CLOSE, 0);
 
@@ -248,8 +265,9 @@ class SettlementCheckLogic
         // ボリンジャーバンドバンド-2σ
         double bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_UPPER, 0);
 
-        if(_nowPrice > ema60 || _nowPrice > bands || (gmmaWidthUp == EMPTY_VALUE || gmmaWidthUp != 0))
+        if(nowPrice > ema60 || nowPrice > bands || (gmmaWidthUp == EMPTY_VALUE || gmmaWidthUp != 0))
         {
+            Print ("-------------------売りポジションの売買判定(負け)-------------------");
             result = POSITION_CUT_ON;
         }
 
@@ -264,33 +282,27 @@ class SettlementCheckLogic
     {
         int result = POSITION_CUT_OFF;
 
+        // 今値段
+        nowPrice = iClose(_symbol, PERIOD_M15, 0);
+
         // -1足の安値
         double onePreviousHighPrice = iLow(_symbol, PERIOD_M15, 1);
         // -1足のボリンジャーバンド3σの値
         double onePreviousBandsPrice = indicator.GetBands(PERIOD_M15, 20, 3, PRICE_CLOSE, MODE_LOWER, 1);
 
-        if(onePreviousBandsPrice < onePreviousHighPrice)
+        if(onePreviousHighPrice < onePreviousBandsPrice)
         {
             // -1足の中間値
             double onePreviousCenterPrice = indicator.GetMa(PERIOD_M15, 1, MODE_EMA, PRICE_MEDIAN, 1);
-            if(onePreviousCenterPrice < _nowPrice)
+            if(onePreviousCenterPrice < nowPrice)
             {
+                Print ("-------------------売りポジションの売買判定(守り)-------------------");
                 result = POSITION_CUT_ON;
+                return result;
             }
         }
         // ここまで守りの判断
 
-        
-        // -2足の高値
-        double twoPreviousHighPrice = iHigh(_symbol, PERIOD_M15, 2);
-        // -2足のボリンジャーバンド3σの値
-        double twoPreviousBandsPrice = indicator.GetBands(PERIOD_M15, 20, 3, PRICE_CLOSE, MODE_LOWER, 2);
-
-        bool highRoundingUp = candleStick.IsHighRoundingUp();
-        if(highRoundingUp)
-        {
-            result = POSITION_CUT_ON;
-        }
         // ここまで攻守の判断
 
         return result;
@@ -303,6 +315,9 @@ class SettlementCheckLogic
     int SettlementCheckLogic::SellSettlementAttack()
     {
         int result = POSITION_CUT_OFF;
+
+        // 今値段
+        nowPrice = iClose(_symbol, PERIOD_M15, 0);
 
         // -2足の判断
         double towPreviousLow = iLow(_symbol, PERIOD_M15, 2);
@@ -318,8 +333,9 @@ class SettlementCheckLogic
             {
                 // 今足の判断
                 double nowBands = indicator.GetBands(PERIOD_M15, 20, 3, PRICE_CLOSE, MODE_LOWER, 0);
-                if(_nowPrice < nowBands)
+                if(nowPrice < nowBands)
                 {
+                    Print ("-------------------売りポジションの売買判定(攻め)-------------------");
                     result = POSITION_CUT_ON;
                 }
             }
