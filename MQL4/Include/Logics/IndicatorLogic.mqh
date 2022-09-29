@@ -31,6 +31,8 @@ class IndicatorLogic{
 
     double GetMa(int timeSpan, int maSpan, int mode, int priceType, int shift);
 
+    double GetBands(int timeSpan, int bandSpan, int deviation, int mode, int lineIndex, int shift);
+
     double GetEmaWidth(int timeSpan, int shift, int emaUnder, int emaUpper);
 
     double GetTema(int timeSpan, int mode, int shift);
