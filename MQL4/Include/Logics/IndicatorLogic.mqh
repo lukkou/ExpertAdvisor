@@ -15,7 +15,7 @@
 class IndicatorLogic{
     private:
     string _symbol;
-
+struct or class type expected
     public:
     //------------------------------------------------------------------
     // コンストラクタ
@@ -24,10 +24,6 @@ class IndicatorLogic{
     //------------------------------------------------------------------
     // デストラクタ
     ~IndicatorLogic();
-
-    int GetBodyPriceType(int timeSpan);
-
-    double GetBodyPrice(int timeSpan, int shift);
 
     double GetMa(int timeSpan, int maSpan, int mode, int priceType, int shift);
 
@@ -63,47 +59,6 @@ class IndicatorLogic{
     // デストラクタ
     IndicatorLogic::~IndicatorLogic()
     {
-    }
-
-    /// <summary>
-    /// 現在の足の陽線陰線を取得
-    /// <summary>
-    /// <param name="timeSpan">取得する時間軸</param>
-    /// <returns>現在の日足の陽線陰線タイプ</returns>
-    int IndicatorLogic::GetBodyPriceType(int timeSpan)
-    {
-        int result = NON_STICK;
-
-        double open = iOpen(_symbol, timeSpan, 0);
-        double close = iClose(_symbol, timeSpan, 0);
-
-        if(open > close)
-        {
-            result = MINUS_STICK;
-        }
-        else if(open < close)
-        {
-            result = PLUS_STICK;
-        }
-
-        return result;
-    }
-
-    /// <summary>
-    /// 指定時間のローソク足本体の幅を取得
-    /// <summary>
-    /// <param name="timeSpan">取得する時間軸</param>
-    /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
-    /// <returns>ローソク足本体の幅</returns>
-    double IndicatorLogic::GetBodyPrice(int timeSpan, int shift)
-    {
-        double result = 0;
-
-        double open = iOpen(_symbol, timeSpan, shift);
-        double close = iClose(_symbol, timeSpan, shift);
-
-        result = MathAbs(open - close);
-        return result;
     }
 
     /// <summary>
