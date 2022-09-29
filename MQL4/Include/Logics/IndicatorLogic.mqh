@@ -15,7 +15,7 @@
 class IndicatorLogic{
     private:
     string _symbol;
-struct or class type expected
+
     public:
     //------------------------------------------------------------------
     // コンストラクタ
