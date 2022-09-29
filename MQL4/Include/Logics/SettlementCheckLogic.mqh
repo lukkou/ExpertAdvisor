@@ -8,11 +8,13 @@
 #property version   "0.01"
 #property strict
 
+#include <Logics/IndicatorLogic.mqh>
 #include <Defines/Defines.mqh>
 #include <Custom/CandleStickHelper.mqh>
 
 class SettlementCheckLogic{
     private:
+    IndicatorLogic indicator;
     string _symbol;
     double _nowPrice;
 
@@ -58,6 +60,7 @@ class SettlementCheckLogic{
     {
         _symbol = Symbol();
         _nowPrice = iClose(_symbol, PERIOD_D1, 0);
+        indicator = IndicatorLogic();
     }
 
     //------------------------------------------------------------------
@@ -122,7 +125,7 @@ class SettlementCheckLogic{
         {
             return result;
         }
-        
+
         return result;
     }
 
