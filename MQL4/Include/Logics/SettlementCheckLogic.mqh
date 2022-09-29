@@ -107,6 +107,20 @@ class SettlementCheckLogic{
                 result = POSITION_CUT_ON;
             }
         }
+        // ここまで守りの判断
+
+        
+        // -2足の高値
+        double twoPreviousHighPrice = iHigh(_symbol, PERIOD_M15, 2);
+        // -2足のボリンジャーバンド3σの値
+        double twoPreviousBandsPrice = indicator.GetBands(PERIOD_M15, 20, 3, PRICE_CLOSE, MODE_UPPER, 2);
+
+        bool lowRoundingDown = IsLowRoundingDown();
+        if(lowRoundingDown)
+        {
+            result = POSITION_CUT_ON;
+        }
+        // ここまで攻守の判断
 
         return result;
     }
