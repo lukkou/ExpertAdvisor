@@ -46,10 +46,6 @@ class CandleStickHelper{
     double GetDownBeardPrice(int time,int shift);
 
     //------------------------------------------------------------------
-    // ローソク足の本体の長さを取得
-    double GetBodyPrice(int time,int shift);
-
-    //------------------------------------------------------------------
     // ローソク足の中間値を取得
     double GetBodyMiddlePrice(int time,int shift);
 
@@ -83,7 +79,7 @@ class CandleStickHelper{
     /// <summary>
     /// <param name="timeSpan">取得する時間軸</param>
     /// <returns>現在の日足の陽線陰線タイプ</returns>
-    int IndicatorLogic::GetBodyPriceType(int timeSpan)
+    int CandleStickHelper::GetBodyPriceType(int timeSpan)
     {
         int result = NON_STICK;
 
@@ -108,7 +104,7 @@ class CandleStickHelper{
     /// <param name="timeSpan">取得する時間軸</param>
     /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
     /// <returns>ローソク足本体の幅</returns>
-    double IndicatorLogic::GetBodyPrice(int timeSpan, int shift)
+    double CandleStickHelper::GetBodyPrice(int timeSpan, int shift)
     {
         double result = 0;
 
@@ -193,20 +189,6 @@ class CandleStickHelper{
         }
 
         result = downPrice - low;
-        return result;
-    }
-
-    //------------------------------------------------------------------
-    // ローソク足の本体の長さを取得
-    ///param name="time":取得時間
-    ///param name="shift":取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)
-    /// Return   結果
-    double CandleStickHelper::GetBodyPrice(int time,int shift)
-    {
-        double open = iOpen(NULL,time,shift);
-        double close = iClose(NULL,time,shift);
-
-        double result = MathAbs(open - close);
         return result;
     }
 
