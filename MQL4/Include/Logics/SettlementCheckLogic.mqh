@@ -12,23 +12,15 @@
 #include <Custom/CandleStickHelper.mqh>
 
 class SettlementCheckLogic{
-    public:
+    private:
     string _symbol;
     double _nowPrice;
-
-    //------------------------------------------------------------------
-    // コンストラクタ
-    SettlementCheckLogic();
-
-    //------------------------------------------------------------------
-    // デストラクタ
-    ~SettlementCheckLogic();
 
     // 買いの場合の命名規則(ベース：BuySettlement)
     // 負け：Defeat
     int BuySettlementDefeat();
 
-    // 守り：Protect
+    // 守り・攻守：Protect
     int BuySettlementProtect();
 
     // 攻め：Attack
@@ -38,11 +30,26 @@ class SettlementCheckLogic{
     // 負け：Defeat
     int SellSettlementDefeat();
 
-    // 守り：Protect
+    // 守り・攻守：Protect
     int SellSettlementProtect();
 
     // 攻め：Attack
     int SellSettlementAttack();
+
+    public:
+    //------------------------------------------------------------------
+    // コンストラクタ
+    SettlementCheckLogic();
+
+    //------------------------------------------------------------------
+    // デストラクタ
+    ~SettlementCheckLogic();
+
+    // 買いの場合の決済判断実施
+    int IsBuySettlement();
+
+    // 売りの場合の決済判断実施
+    int IsSellSettlement();
 };
 
     //------------------------------------------------------------------
@@ -57,6 +64,66 @@ class SettlementCheckLogic{
     // デストラクタ
     SettlementCheckLogic::~SettlementCheckLogic()
     {
+    }
+
+    /// <summary>
+    /// 買いポジションの決済判定
+    /// <summary>
+    /// <returns>決済しない:false 決済する:true</returns>
+    int IsBuySettlement()
+    {
+        int result = POSITION_CUT_OFF;
+
+        // 負け → 攻め → 守り・攻守の順で判定
+        result = BuySettlementDefeat();
+        if(result == POSITION_CUT_ON)
+        {
+            return result;
+        }
+
+        result = BuySettlementAttack();
+        if(result == POSITION_CUT_ON)
+        {
+            return result;
+        }
+
+        return = BuySettlementProtect();
+        if(result == POSITION_CUT_ON)
+        {
+            return result;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 売りポジションの決済判定
+    /// <summary>
+    /// <returns>決済しない:false 決済する:true</returns>
+    int IsSellSettlement()
+    {
+        int result = POSITION_CUT_OFF;
+
+        // 負け → 攻め → 守り・攻守の順で判定
+        result = SellSettlementDefeat();
+        if(result == POSITION_CUT_ON)
+        {
+            return result;
+        }
+
+        result = SellSettlementAttack();
+        if(result == POSITION_CUT_ON)
+        {
+            return result;
+        }
+
+        result = SellSettlementProtect();
+        if(result == POSITION_CUT_ON)
+        {
+            return result;
+        }
+        
+        return result;
     }
 
     /// ▽▽▽▽▽▽ 買い決済の判定 ▽▽▽▽▽▽
@@ -86,7 +153,7 @@ class SettlementCheckLogic{
     }
 
     /// <summary>
-    /// 買いポジションの売買判定(守り 攻守)
+    /// 買いポジションの売買判定(守り・攻守)
     /// <summary>
     /// <returns>決済しない:0 決済する:1</returns>
     int BuySettlementProtect()

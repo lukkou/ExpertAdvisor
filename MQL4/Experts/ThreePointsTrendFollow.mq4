@@ -13,6 +13,7 @@
 #include <Custom/CandleStickHelper.mqh>
 #include <Custom/TwitterHelper.mqh>
 #include <Logics/TrendCheckLogic.mqh>
+#include <Logics/SettlementCheckLogic.mqh>
 #include <Mysql/MQLMySQL.mqh>
 
 //マジックナンバー 他のEAと当らない値を使用する。
@@ -54,6 +55,9 @@ TwitterHelper TweetHelper(TweetCmdPash);
 
 // 売買判定クラス
 TrendCheckLogic TrendCheck();
+
+// 決済判定クラス
+SettlementCheckLogic SettlementCheck();
 
 /// <summary>
 /// Expert initialization function(ロード時)
@@ -111,7 +115,7 @@ void OnTick()
     bool hasPosition = (OrderHelper.GetPositionCount() > 0);
     if(hasPosition)
     {
-        //通貨ペアの現在時刻より60分後 又は30分前に重要指標の発表があるか？
+        //通貨ペアの現在時刻より前後1時間以内に重要指標の発表があるか？
         bool importantExist = IsImportantReleaseExist(db);
         if(importantExist == true)
         {
@@ -139,7 +143,7 @@ void OnTick()
         int orderType = OrderHelper.GetOrderType(0);
         if(orderType == OP_BUY)
         {
-            int status = TrendCheck.GetUpTrendPositionCut();
+            int status = SettlementCheck.IsBuySettlement();
             if(status == POSITION_CUT_ON)
             {
                 PositionClose();
@@ -149,7 +153,7 @@ void OnTick()
             }
         }else
         {
-            int status = TrendCheck.GetDownTrendPositionCut();
+            int status = SettlementCheck.IsSellSettlement();
             if(status == POSITION_CUT_ON)
             {
                 PositionClose();
@@ -183,6 +187,7 @@ void OnTick()
         }
         else
         {
+            // 1D 4hのトレンド無し
         }
     }
 
