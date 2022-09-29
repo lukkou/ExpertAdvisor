@@ -402,7 +402,6 @@ bool IsUpThreeSoldiers(int time)
     //最後が上ひげでなければOKにする
     double brow = CandleHelper.GetUpBeardPrice(time, 1);
     double body = CandleHelper.GetBodyPrice(time,1);
-    bool star =  CandleHelper.IsCandleStickStar(time,1);
 
     PrintFormat("ローソク足本体：" + DoubleToStr(body));
     PrintFormat("ローソク足上髭：" + DoubleToStr(brow * 1.5));
@@ -464,7 +463,6 @@ bool IsDownThreeSoldiers(int time)
     //最後が上ひげでなければOKにする
     double brow = CandleHelper.GetDownBeardPrice(time, 1);
     double body = CandleHelper.GetBodyPrice(time,1);
-    bool star =  CandleHelper.IsCandleStickStar(time,1);
 
     if (body > brow * 1.5 && star == false)
     {

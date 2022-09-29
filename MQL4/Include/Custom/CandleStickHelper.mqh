@@ -10,6 +10,8 @@
 #property version   "1.00"
 #property strict
 
+#include <Defines/Defines.mqh>
+
 class CandleStickHelper{
     private:
     string _symbol;
@@ -24,12 +26,16 @@ class CandleStickHelper{
     ~CandleStickHelper();
 
     //------------------------------------------------------------------
-    // ローソク足が陽線か陰線かチェックする
-    int CandleBodyStyle(int time,int shift);
+    // 現在の足の陽線陰線を取得
+    int GetBodyPriceType(int timeSpan);
 
     //------------------------------------------------------------------
-    // ローソク足が星かチェックする
-    bool IsCandleStickStar(int time,int shift);
+    // 指定時間のローソク足本体の幅を取得
+    double GetBodyPrice(int timeSpan, int shift);
+
+    //------------------------------------------------------------------
+    // ローソク足が陽線か陰線かチェックする
+    int CandleBodyStyle(int time,int shift);
 
     //------------------------------------------------------------------
     // ローソク足の上ひげの長さを取得
@@ -72,6 +78,47 @@ class CandleStickHelper{
 //| Public function　area                                            |
 //+------------------------------------------------------------------+
 
+    /// <summary>
+    /// 現在の足の陽線陰線を取得
+    /// <summary>
+    /// <param name="timeSpan">取得する時間軸</param>
+    /// <returns>現在の日足の陽線陰線タイプ</returns>
+    int IndicatorLogic::GetBodyPriceType(int timeSpan)
+    {
+        int result = NON_STICK;
+
+        double open = iOpen(_symbol, timeSpan, 0);
+        double close = iClose(_symbol, timeSpan, 0);
+
+        if(open > close)
+        {
+            result = MINUS_STICK;
+        }
+        else if(open < close)
+        {
+            result = PLUS_STICK;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 指定時間のローソク足本体の幅を取得
+    /// <summary>
+    /// <param name="timeSpan">取得する時間軸</param>
+    /// <param name="shift">取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)</param>
+    /// <returns>ローソク足本体の幅</returns>
+    double IndicatorLogic::GetBodyPrice(int timeSpan, int shift)
+    {
+        double result = 0;
+
+        double open = iOpen(_symbol, timeSpan, shift);
+        double close = iClose(_symbol, timeSpan, shift);
+
+        result = MathAbs(open - close);
+        return result;
+    }
+
     //------------------------------------------------------------------
     // ローソク足が陽線か陰線かチェックする
     ///param name="time":取得時間
@@ -90,53 +137,6 @@ class CandleStickHelper{
         else if(open > close)
         {
             result = -1;
-        }
-
-        return result;
-    }
-
-    //------------------------------------------------------------------
-    // ローソク足が星かチェックする
-    ///param name="time":取得時間
-    ///param name="shift":取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)
-    /// Return   結果
-    bool CandleStickHelper::IsCandleStickStar(int time,int shift)
-    {
-        bool result = false;
-
-        double open = iOpen(_symbol, time, shift);
-        double high = iHigh(_symbol, time, shift);
-        double low = iLow(_symbol, time, shift);
-        double close = iClose(_symbol, time, shift);
-
-        if(open < close)
-        {
-            //陽線の場合
-            double body = close - open;
-            double upBeard = high - close;
-            double downBeard = open - low;
-
-            if(body <= upBeard && body <= downBeard)
-            {
-                result = true;
-            }
-
-        }
-        else if(open > close)
-        {
-            //陰線の場合
-            double body = open - close;
-            double upBeard = high - open;
-            double downBeard = close - low;
-
-            if(body <= upBeard && body <= downBeard)
-            {
-                result = true;
-            }
-        }
-        else
-        {
-            result = true;
         }
 
         return result;
