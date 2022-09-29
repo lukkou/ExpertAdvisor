@@ -51,7 +51,7 @@ class CandleStickHelper{
     bool IsHighRoundingUp();
 
     // 今足から見て -3 -2 -1足の安値が切り下げているかの判定
-    bool IsLowRoundingUp();
+    bool IsLowRoundingDown();
 };
 
 
@@ -250,7 +250,7 @@ class CandleStickHelper{
     // -3 -2 -1足の安値が切り下げているか
     ///param name="time":取得時間
     /// Return 結果
-    bool CandleStickHelper::IsLowRoundingUp()
+    bool CandleStickHelper::IsLowRoundingDown()
     {
         bool result = false;
 
