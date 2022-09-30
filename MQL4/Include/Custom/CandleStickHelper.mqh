@@ -50,10 +50,10 @@ class CandleStickHelper{
     double GetBodyMiddlePrice(int time,int shift);
 
     // 今足から見て -3 -2 -1足の高値が切り上げているかの判定
-    bool IsHighRoundingUp();
+    bool IsHighRoundingUp(int time);
 
     // 今足から見て -3 -2 -1足の安値が切り下げているかの判定
-    bool IsLowRoundingDown();
+    bool IsLowRoundingDown(int time);
 };
 
 
@@ -210,13 +210,13 @@ class CandleStickHelper{
     // -3 -2 -1足の高値が切り上げているか
     ///param name="time":取得時間
     /// Return 結果
-    bool CandleStickHelper::IsHighRoundingUp()
+    bool CandleStickHelper::IsHighRoundingUp(int time)
     {
         bool result = false;
 
-        double oneHigh = iHigh(_symbol, PERIOD_M15, 1);
-        double towHigh = iHigh(_symbol, PERIOD_M15, 2);
-        double threeHigh = iHigh(_symbol, PERIOD_M15, 3);
+        double oneHigh = iHigh(_symbol, time, 1);
+        double towHigh = iHigh(_symbol, time, 2);
+        double threeHigh = iHigh(_symbol, time, 3);
 
         // TODO TAMURA:陽線陰線判定をつけるかは用判断(9/28)
 
@@ -232,13 +232,13 @@ class CandleStickHelper{
     // -3 -2 -1足の安値が切り下げているか
     ///param name="time":取得時間
     /// Return 結果
-    bool CandleStickHelper::IsLowRoundingDown()
+    bool CandleStickHelper::IsLowRoundingDown(int time)
     {
         bool result = false;
 
-        double oneLow = iLow(_symbol, PERIOD_M15, 1);
-        double towLow = iLow(_symbol, PERIOD_M15, 2);
-        double threeLow = iLow(_symbol, PERIOD_M15, 3);
+        double oneLow = iLow(_symbol, time, 1);
+        double towLow = iLow(_symbol, time, 2);
+        double threeLow = iLow(_symbol, time, 3);
 
         // TODO TAMURA:陽線陰線判定をつけるかは用判断(9/28)
 
