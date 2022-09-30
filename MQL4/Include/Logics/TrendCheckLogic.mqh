@@ -185,7 +185,7 @@ class TrendCheckLogic
         }
 
         // 高値切り下げならエントリ無し
-        bool lowRoundingDown = candleStick.IsLowRoundingDown();
+        bool lowRoundingDown = candleStick.IsLowRoundingDown(PERIOD_M15);
         if(lowRoundingDown)
         {
             return result;
@@ -249,7 +249,7 @@ class TrendCheckLogic
         }
 
         // 安値切り上げならエントリ無し
-        bool highRoundingUp = candleStick.IsHighRoundingUp();
+        bool highRoundingUp = candleStick.IsHighRoundingUp(PERIOD_M15);
         if(highRoundingUp)
         {
             return result;

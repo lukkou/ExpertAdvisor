@@ -162,7 +162,7 @@ class SettlementCheckLogic
     }
 
     /// <summary>
-    /// 買いポジションの売買判定(守り・攻守)
+    /// 買いポジションの売買判定(守り)
     /// <summary>
     /// <returns>決済しない:0 決済する:1</returns>
     int SettlementCheckLogic::BuySettlementProtect()
@@ -190,19 +190,6 @@ class SettlementCheckLogic
         }
         // ここまで守りの判断
 
-        
-        // -2足の高値
-        //double twoPreviousHighPrice = iHigh(_symbol, PERIOD_M15, 2);
-        // -2足のボリンジャーバンド3σの値
-        //double twoPreviousBandsPrice = indicator.GetBands(PERIOD_M15, 20, 3, PRICE_CLOSE, MODE_UPPER, 2);
-
-        //bool lowRoundingDown = candleStick.IsLowRoundingDown();
-        //if(lowRoundingDown)
-        //{
-        //    Print ("-------------------買いポジションの売買判定(攻守)-------------------");
-        //    result = POSITION_CUT_ON;
-        //    return result;
-        //}
         // ここまで攻守の判断
 
         return result;
@@ -275,7 +262,7 @@ class SettlementCheckLogic
     }
 
     /// <summary>
-    /// 売りポジションの売買判定(守り 攻守)
+    /// 売りポジションの売買判定(守り)
     /// <summary>
     /// <returns>決済しない:0 決済する:1</returns>
     int SettlementCheckLogic::SellSettlementProtect()
