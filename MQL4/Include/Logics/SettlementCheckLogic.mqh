@@ -190,6 +190,14 @@ class SettlementCheckLogic
         }
         // ここまで守りの判断
 
+        double nowSqueezeTrend = indicator.GetBbSqueeze(PERIOD_M15, 2, 0);
+        double onePreviousSqueezeTrend = indicator.GetBbSqueeze(PERIOD_M15, 2, 1);
+        if(nowSqueezeTrend == 0 && onePreviousSqueezeTrend == 0)
+        {
+                Print ("-------------------買いポジションの売買判定(攻守なし)-------------------");
+                result = POSITION_CUT_ON;
+                return result;
+        }
         // ここまで攻守の判断
 
         return result;
@@ -290,6 +298,14 @@ class SettlementCheckLogic
         }
         // ここまで守りの判断
 
+        double nowSqueezeTrend = indicator.GetBbSqueeze(PERIOD_M15, 2, 0);
+        double onePreviousSqueezeTrend = indicator.GetBbSqueeze(PERIOD_M15, 2, 1);
+        if(nowSqueezeTrend == 0 && onePreviousSqueezeTrend == 0)
+        {
+                Print ("-------------------売りポジションの売買判定(攻守なし)-------------------");
+                result = POSITION_CUT_ON;
+                return result;
+        }
         // ここまで攻守の判断
 
         return result;
