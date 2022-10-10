@@ -175,10 +175,9 @@ class TrendCheckLogic
 
         // GMMA Width
         double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
-        double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_M15, 1, 0);
 
         // そもその判定の価値なしトレンド
-        if(gmmaWidthUp == EMPTY_VALUE || gmmaWidthDown == EMPTY_VALUE || (gmmaWidthUp == 0 && gmmaWidthDown == 0))
+        if(gmmaWidthUp == EMPTY_VALUE || gmmaWidthUp == 0)
         {
              Print ("-------------------Not UP 15m Trend-------------------");
             return result;
@@ -205,23 +204,33 @@ class TrendCheckLogic
             // GMMA Width Long
             double gmmaWidthLong = indicator.GetGmmaWidth(PERIOD_M15, 3, 0);
 
-            if(gmmaWidthLong > 0 && gmmaWidthUp > 0 && nowPrice > ema20)
+            if(gmmaWidthLong > 0 && gmmaWidthUp > 0)
             {
+                Print ("-------------------Bands Check-------------------");
                 // 現在の2σボリンジャーバンド
                 double now2Bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_UPPER, 0);
                 // -1足の2σボリンジャーバンド
                 double onePrevious2Bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_UPPER, 1);
                 // -2足の2σボリンジャーバンド
                 double towPrevious2Bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_UPPER, 2);
-                // -1足の中央値(SMAを期間1で取得した場合は実施指定値段)
-                double onePreviousPrice = indicator.GetMa(PERIOD_M15, 1, MODE_SMA, PRICE_MEDIAN, 1);
-                // -2足の中央値(SMAを期間1で取得した場合は実施指定値段)
-                double towPreviousPrice = indicator.GetMa(PERIOD_M15, 1, MODE_SMA, PRICE_MEDIAN, 2);
+                // -1足の高値
+                double onePreviousHighPrice = iHigh(_symbol, PERIOD_M15, 1);
+                // -2足の高値
+                double towPreviousHighPrice = iHigh(_symbol, PERIOD_M15, 2);
 
-                if(now2Bands > nowPrice && onePrevious2Bands > onePreviousPrice && towPrevious2Bands > towPreviousPrice)
+                if(now2Bands > nowPrice && onePrevious2Bands > onePreviousHighPrice && towPrevious2Bands > towPreviousHighPrice)
                 {
-                    Print ("-------------------Up Entry On-------------------");
-                    result = ENTRY_ON;
+                    Print ("-------------------BB Squeeze Check-------------------");
+                    // BBスクイーズのUP・トレンド
+                    double nowSqueezeUp = indicator.GetBbSqueeze(PERIOD_M15, 0, 0);
+                    double nowPreviousSqueezeTrend = indicator.GetBbSqueeze(PERIOD_M15, 3, 0);
+                    double onePreviousSqueezeTrend = indicator.GetBbSqueeze(PERIOD_M15, 3, 1);
+
+                    if(nowSqueezeUp > 0 && nowPreviousSqueezeTrend == 0 && onePreviousSqueezeTrend == 0)
+                    {
+                        Print ("-------------------Up Entry On-------------------");
+                        result = ENTRY_ON;
+                    }
                 }
             }
         }
@@ -238,11 +247,10 @@ class TrendCheckLogic
         int result = ENTRY_OFF;
 
         // GMMA Width
-        double gmmaWidthUp = indicator.GetGmmaWidth(PERIOD_M15, 0, 0);
         double gmmaWidthDown = indicator.GetGmmaWidth(PERIOD_M15, 1, 0);
 
         // そもその判定の価値なしトレンド
-        if(gmmaWidthUp == EMPTY_VALUE || gmmaWidthDown == EMPTY_VALUE || (gmmaWidthUp == 0 && gmmaWidthDown == 0))
+        if(gmmaWidthDown == EMPTY_VALUE || gmmaWidthDown == 0)
         {
             Print ("-------------------Not Down 15m Trend-------------------");
             return result;
@@ -268,23 +276,33 @@ class TrendCheckLogic
         {
             // GMMA Width Long
             double gmmaWidthLong = indicator.GetGmmaWidth(PERIOD_M15, 3, 0);
-            if(gmmaWidthLong < 0 && gmmaWidthUp < 0 && nowPrice < ema20)
+            if(gmmaWidthLong < 0 && gmmaWidthDown < 0)
             {
+                Print ("-------------------Bands Check-------------------");
                 // 現在の2σボリンジャーバンド
                 double now2Bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_LOWER, 0);
                 // -1足の2σボリンジャーバンド
                 double onePrevious2Bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_LOWER, 1);
                 // -2足の2σボリンジャーバンド
                 double towPrevious2Bands = indicator.GetBands(PERIOD_M15, 20, 2, PRICE_CLOSE, MODE_LOWER, 2);
-                // -1足の中央値(SMAを期間1で取得した場合は実施指定値段)
-                double onePreviousPrice = indicator.GetMa(PERIOD_M15, 1, MODE_SMA, PRICE_MEDIAN, 1);
-                // -2足の中央値(SMAを期間1で取得した場合は実施指定値段)
-                double towPreviousPrice = indicator.GetMa(PERIOD_M15, 1, MODE_SMA, PRICE_MEDIAN, 2);
+                // -1足の安値
+                double onePreviousLowPrice = iLow(_symbol, PERIOD_M15, 1);
+                // -2足の安値
+                double towPreviousLowPrice = iLow(_symbol, PERIOD_M15, 2);
 
-                if(now2Bands < nowPrice && onePrevious2Bands < onePreviousPrice && towPrevious2Bands < towPreviousPrice)
+                if(now2Bands < nowPrice && onePrevious2Bands < onePreviousLowPrice && towPrevious2Bands < towPreviousLowPrice)
                 {
-                    Print ("-------------------Down Entry On-------------------");
-                    result = ENTRY_ON;
+                    Print ("-------------------BB Squeeze Check-------------------");
+                    // BBスクイーズのUP・トレンド
+                    double nowSqueezeDown = indicator.GetBbSqueeze(PERIOD_M15, 1, 0);
+                    double nowPreviousSqueezeTrend = indicator.GetBbSqueeze(PERIOD_M15, 3, 0);
+                    double onePreviousSqueezeTrend = indicator.GetBbSqueeze(PERIOD_M15, 3, 1);
+
+                    if(nowSqueezeDown < 0 && nowPreviousSqueezeTrend == 0 && onePreviousSqueezeTrend == 0)
+                    {
+                        Print ("-------------------Down Entry On-------------------");
+                        result = ENTRY_ON;
+                    }
                 }
             }
         }
