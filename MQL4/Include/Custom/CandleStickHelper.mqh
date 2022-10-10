@@ -121,18 +121,18 @@ class CandleStickHelper{
     ///param name="shift":取得するTick(0 = NowTick, 1 = -1Tick, 2 = -2Tick, ...)
     /// Return   0 = 星 1 = 陽線 -1 = 陰線
     int CandleStickHelper::CandleBodyStyle(int time,int shift){
-        int result = 0;
+        int result = STAR_CANDLE_STICK;
 
         double open = iOpen(_symbol, time, shift);
         double close = iClose(_symbol, time, shift);
 
         if(open < close)
         {
-            result = 1;
+            result = WHITE_CANDLE_STICK;
         }
         else if(open > close)
         {
-            result = -1;
+            result = BLACK_CANDLE_STICK;
         }
 
         return result;
@@ -218,11 +218,25 @@ class CandleStickHelper{
         double towHigh = iHigh(_symbol, time, 2);
         double threeHigh = iHigh(_symbol, time, 3);
 
-        // TODO TAMURA:陽線陰線判定をつけるかは用判断(9/28)
-
         if(threeHigh < towHigh && towHigh < oneHigh)
         {
             result = true;
+        }
+
+        // 終値切り上げかつ各足の陽線(-3・-2・-1足陰線かつ-3 End > -2 End >-1 End)
+        double oneClose = iClose(_symbol, time, 1);
+        double towClose = iClose(_symbol, time, 2);
+        double threeClose = iClose(_symbol, time, 3);
+
+        int oneCandleStick = CandleBodyStyle(time, 1);
+        int twoCandleStick = CandleBodyStyle(time, 2);
+        int threeCandleStick = CandleBodyStyle(time, 3);
+
+        if(threeClose < towClose && towClose < oneClose && threeCandleStick == WHITE_CANDLE_STICK && twoCandleStick == WHITE_CANDLE_STICK && oneCandleStick == WHITE_CANDLE_STICK)
+        {
+            // このreturnが糞かどうかを問うななの・。・
+            result = true;
+            return result;
         }
 
         return result;
@@ -236,15 +250,32 @@ class CandleStickHelper{
     {
         bool result = false;
 
+        // 安値の取得(-3 High > -2 High > -1 High)
         double oneLow = iLow(_symbol, time, 1);
         double towLow = iLow(_symbol, time, 2);
         double threeLow = iLow(_symbol, time, 3);
 
-        // TODO TAMURA:陽線陰線判定をつけるかは用判断(9/28)
-
-        if(threeLow > towLow && towLow > oneLow)
+        if((threeLow > towLow && towLow > oneLow) || )
         {
+            // このreturnが糞かどうかを問うななの・。・
             result = true;
+            return result;
+        }
+
+        // 終値切り下げかつ各足の陰線(-3・-2・-1足陰線かつ-3 End > -2 End >-1 End)
+        double oneClose = iClose(_symbol, time, 1);
+        double towClose = iClose(_symbol, time, 2);
+        double threeClose = iClose(_symbol, time, 3);
+
+        int oneCandleStick = CandleBodyStyle(time, 1);
+        int twoCandleStick = CandleBodyStyle(time, 2);
+        int threeCandleStick = CandleBodyStyle(time, 3);
+
+        if(threeClose > towClose && towClose > oneClose && threeCandleStick == BLACK_CANDLE_STICK && twoCandleStick == BLACK_CANDLE_STICK && oneCandleStick == BLACK_CANDLE_STICK)
+        {
+            // このreturnが糞かどうかを問うななの・。・
+            result = true;
+            return result;
         }
 
         return result;
