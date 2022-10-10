@@ -223,10 +223,10 @@ class TrendCheckLogic
                     Print ("-------------------BB Squeeze Check-------------------");
                     // BBスクイーズのUP・トレンド
                     double nowSqueezeUp = indicator.GetBbSqueeze(PERIOD_M15, 0, 0);
-                    double nowPreviousSqueezeTrend = indicator.GetBbSqueeze(PERIOD_M15, 3, 0);
+                    double nowSqueezeTrend = indicator.GetBbSqueeze(PERIOD_M15, 3, 0);
                     double onePreviousSqueezeTrend = indicator.GetBbSqueeze(PERIOD_M15, 3, 1);
 
-                    if(nowSqueezeUp > 0 && nowPreviousSqueezeTrend == 0 && onePreviousSqueezeTrend == 0)
+                    if(nowSqueezeUp > 0 && nowSqueezeTrend == 0 && onePreviousSqueezeTrend == 0)
                     {
                         Print ("-------------------Up Entry On-------------------");
                         result = ENTRY_ON;
@@ -295,10 +295,10 @@ class TrendCheckLogic
                     Print ("-------------------BB Squeeze Check-------------------");
                     // BBスクイーズのUP・トレンド
                     double nowSqueezeDown = indicator.GetBbSqueeze(PERIOD_M15, 1, 0);
-                    double nowPreviousSqueezeTrend = indicator.GetBbSqueeze(PERIOD_M15, 3, 0);
+                    double nowSqueezeTrend = indicator.GetBbSqueeze(PERIOD_M15, 3, 0);
                     double onePreviousSqueezeTrend = indicator.GetBbSqueeze(PERIOD_M15, 3, 1);
 
-                    if(nowSqueezeDown < 0 && nowPreviousSqueezeTrend == 0 && onePreviousSqueezeTrend == 0)
+                    if(nowSqueezeDown < 0 && nowSqueezeTrend == 0 && onePreviousSqueezeTrend == 0)
                     {
                         Print ("-------------------Down Entry On-------------------");
                         result = ENTRY_ON;
