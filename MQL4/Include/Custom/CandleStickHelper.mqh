@@ -255,7 +255,7 @@ class CandleStickHelper{
         double towLow = iLow(_symbol, time, 2);
         double threeLow = iLow(_symbol, time, 3);
 
-        if((threeLow > towLow && towLow > oneLow) || )
+        if(threeLow > towLow && towLow > oneLow)
         {
             // このreturnが糞かどうかを問うななの・。・
             result = true;
