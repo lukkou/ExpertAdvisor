@@ -52,8 +52,8 @@
 #define POSITION_CUT_ON (1)
 
 // 星線
-#define STAR_CANDLE_STICK(0)
+#define STAR_CANDLE_STICK (0)
 // 陽線
-#define WHITE_CANDLE_STICK(1)
+#define WHITE_CANDLE_STICK (1)
 // 陰線
-#define BLACK_CANDLE_STICK(-1)
+#define BLACK_CANDLE_STICK (-1)
